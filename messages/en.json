@@ -1,0 +1,391 @@
+{
+  "Day": "Day",
+  "You": "You",
+  "add_user": {
+    "not_found": "There is no registered user with that name",
+    "title": "Add user to room"
+  },
+  "button": {
+    "accept": "Accept",
+    "add": "Add",
+    "add_room": "Add private room",
+    "add_user": "Add user to room",
+    "back": "Back",
+    "cancel": "Cancel",
+    "change": "Change",
+    "change-pass": "Change Password",
+    "continue": "Continue",
+    "copy_to_clipboard": "copy url to clipboard",
+    "create": "Create",
+    "delete": "Delete",
+    "delete_room": "Delete room",
+    "delete_user": "Remove user from room",
+    "edit": "Edit",
+    "edit_room": "Edit room",
+    "exit": "Exit",
+    "finish": "Finalize",
+    "home": "Home",
+    "join": "Join",
+    "login": "Login",
+    "more": "See more info",
+    "new_private": "Create private room",
+    "new_public": "Create public room",
+    "new_room": "New Room",
+    "new_round": "New game",
+    "origins": "origins",
+    "play": "Play",
+    "profile": "Profile",
+    "register": "Register",
+    "rules": "rules",
+    "save": "Save",
+    "see_rooms": "See Rooms",
+    "select": "Select",
+    "send": "Send",
+    "send_verify": "Email sent",
+    "show": "Show",
+    "show_coins": "Show",
+    "test": "Test",
+    "verify_email": "Verify email"
+  },
+  "create_room": {
+    "password": "Password",
+    "playername": "Player name",
+    "roomname": "Room name",
+    "title": "Create private room"
+  },
+  "delete_room": {
+    "confirm": "Confirm room to delete",
+    "confirm-text": "To confirm the deletion of the room, type: ",
+    "confirm_placeholder": "Room name",
+    "name": "name"
+  },
+  "delete_user": {
+    "confirm": "Confirm user to delete",
+    "confirm_placeholder": "User name",
+    "confirm_text": "Type {user} to confirm the deletion"
+  },
+  "edit_room": {
+    "change_password": "Change password",
+    "title": "Edit room"
+  },
+  "editing_room": {},
+  "error": {
+    "auth_fail": "Wrong username or password.",
+    "dynamic": "The following error occurred at {operation} - {errormsg}. Please try again.",
+    "existent_user_not_logged": "Username reserved by registered user. Choose another",
+    "forbidden": "Not enough access rights.",
+    "invalid_chars": "Invalid characters. Only {valid_chars}",
+    "invalid_email": "Invalid email",
+    "max_chars": "Maximum {max} characters",
+    "min_chars": "Must be at least {min} characters",
+    "name_already_exists": "That name is already in use. Choose another",
+    "name_exists": "The name is already registered",
+    "no_email": "Email not defined.",
+    "no_joined_room": "You have been disconnected from room {roomName}",
+    "no_joined_room_exp": "Probable cause is timeout expiration",
+    "no_reftk": "User session expired",
+    "no_user": "User not found.",
+    "non_existing_room": "Room {roomName} does not exist",
+    "non_existing_room_exp": "The room you are trying to access does not exist. It may have been closed or you may have mistyped the url if you entered it manually.",
+    "not_found": "Page not found",
+    "not_public_room": "The room you are trying to access is not public",
+    "not_valid": "Invalid request.",
+    "password_mismatch": "Passwords do not match",
+    "player_name_in_use": "There is already a player with that name. Choose another",
+    "required": "{field} is required",
+    "server_misconfig": "Server configuration error (JWT_WS_SECRET missing). Contact the administrator",
+    "unautorized": "Unauthorized request",
+    "unique_email": "The email already exists. Provide another",
+    "unique_roomname": "There is already a room with that name. Choose another",
+    "unique_username": "Username already exist. Choose another",
+    "user_blocked": "User has been blocked, try later.",
+    "user_not_found": "The name does not correspond to any registered user",
+    "ws_connection_error": "Could not connect to the real-time game",
+    "ws_sync_timeout": "No response from the server when joining the room"
+  },
+  "errors": {
+    "invalid_email": "invalid email"
+  },
+  "form": {
+    "field": {
+      "email": "Email",
+      "password": "Password",
+      "player_name": "Player name",
+      "room_name": "Room name",
+      "user_name": "User name"
+    },
+    "placeholder": {
+      "email": "enter your email"
+    }
+  },
+  "game": {
+    "betting": "Time to place the bets.\nStart {name}",
+    "betting_error": "You must indicate a figure between {coins} and {max}",
+    "betting_repeated": "That bet has already been made.\nChoose another",
+    "finishHand": "There are in total {coins} coins.\nWin {name}",
+    "finishHand_nw": "There are a total of {coins} coins.\nThere is no winner of this hand",
+    "finishRound": "The game is over.\nLose {name}",
+    "nextPlayer_error": "You must select a player",
+    "selectingNext": "Waiting for {name} to select who starts",
+    "showing": "We show the coins.\nFirst {name}",
+    "takingCoins": "Exits {name}.\nTime to get coins",
+    "takingCoins_error": "You must enter a figure between 0 and 3",
+    "waitingNewRound": "Continue with a new game?",
+    "waitingStart": "Waiting for start of game"
+  },
+  "goto": "Go to",
+  "home": {
+    "desc": "You can play as a non-registered user or you can register completely free and take advantage of being a registered user.",
+    "play": "You can join a game in an existing room or create yourself a new room and invite your friends.",
+    "play_anonymous": "As Anonymous User",
+    "play_now": "Enter a room",
+    "play_registered": "As Registered User",
+    "registered": "If you are already a registered user log in. Otherwise you must first register.",
+    "rules": "Each player has 3 objects, usually coins, of which, each round, he takes between 0 and 3 of them in his closed hand.",
+    "subtitle": "Welcome to the Classical",
+    "target": "The game consists of trying to guess the total number of objects that the players (minimum two) keep in their closed hand.",
+    "title": "Los Chinos Game"
+  },
+  "label": {},
+  "list": {
+    "my_rooms": "Rooms that I own",
+    "others_rooms": "Rooms of which I am a user",
+    "private_rooms": "List of private rooms",
+    "public_rooms": "List of public rooms"
+  },
+  "login": {
+    "email": "Email",
+    "forgotpass": "Forgot Password?",
+    "mailinfo1": "Email is optional, but if you don't provide it, you won't be able to change your password or reset it, in case you forget it. You will also not be able to receive information about possible incidents in your account or on the server.",
+    "mailinfo2": "We will use email exclusively with the indicated functionality and never to send you advertising or other commercial information.",
+    "notregistered": "Not registered yet?",
+    "optional": "Optional",
+    "password": "Password",
+    "register": "Register",
+    "registered": "Already registered?",
+    "username": "Username"
+  },
+  "menu": {
+    "cookies": "Cookies",
+    "history": "Origins",
+    "home": "Home",
+    "legal": "Legal notice",
+    "login": "Login",
+    "logout": "Logout",
+    "mobile_open": "Open main menu",
+    "privacy": "Privacy",
+    "profile": "Profile",
+    "ranking": "Ranking",
+    "register": "Register",
+    "rooms": "Rooms",
+    "rules": "Rules"
+  },
+  "message": {
+    "created_room": "Room {roomName} created"
+  },
+  "misc": {
+    "alt_logo": "Los Chinos Game",
+    "play": "Play",
+    "press_back_again_to_exit": "Press back again to exit",
+    "processing": "Processing ...",
+    "valid_user_name": "letters, numbers and _"
+  },
+  "no_viable_bet": "It's already said",
+  "page": {},
+  "pages": {
+    "cookies": {
+      "list_advertising_header": "Advertising cookies",
+      "list_advertising_text": "collect information about users' preferences and choices in order to display personalised advertising.",
+      "list_analytics_header": "Analytics or statistical cookies",
+      "list_analytics_text": "collect information about the use that users make of the website for statistical purposes.",
+      "list_personalization_header": "Personalization cookies",
+      "list_personalization_text": "allow access to the web with predefined features, such as the language or browser type.",
+      "list_technical_header": "Technical or necessary cookies",
+      "list_technical_text": "allow navigation through the web and the use of the different options or services that exist in it. They are essential for the correct functioning of the page.",
+      "list_use_1": "Ensure the correct loading and display of contents.",
+      "list_use_2": "Allow fluid navigation between sections.",
+      "list_use_3": "Maintain the user's session security.",
+      "management_header": "Management and deletion of cookies",
+      "management_text": "Since we only use technical cookies, it is not necessary for you to give your explicit consent to install them. However, you can configure your browser at any time to block or delete these cookies, taking into account that doing so could affect the correct functioning of some functions of the page.",
+      "no_other_text": "In no case are analysis, advertising or tracking cookies used.",
+      "title": "Cookies Policy",
+      "types_header": "Types of cookies",
+      "types_text": "Depending on who manages them and their purpose, there are different types of cookies. These include, among others, the following:",
+      "updates_header": "Updates to the cookies policy",
+      "updates_text": "The present cookies policy may be modified when changes occur in the applicable legislation or in the configuration of the website. We recommend reviewing it periodically.",
+      "use_header": "Use of cookies on this website",
+      "use_text": "This website uses only technical cookies. These cookies are necessary for:",
+      "what_are_header": "What are cookies?",
+      "what_are_text": "Cookies are small data files that are downloaded on the user's device (computer, smartphone, tablet, etc.) when browsing a web page. They serve to allow a site to, among other things, remember information about navigation or ensure that certain basic functions are executed correctly."
+    },
+    "forgot_pass": {
+      "instructions": "Please enter your email address to receive a password reset link.",
+      "title": "Forgot Password"
+    },
+    "guest_join": {
+      "msg": "You are not registered in this room. Password is required"
+    },
+    "history": {
+      "paragraph1": "It is believed that the game called \"Los Chinos\" was invented in the 18th century by Castilian transhumant shepherds to entertain themselves while watching the sheep.",
+      "paragraph2": "The name probably comes from the ‘chinas’ or ‘chinos’, the name given to the small stones, which were originally used for playing.",
+      "title": "Origins of the Game"
+    },
+    "home": {
+      "desc": "You can play as an unregistered user or you can register for free and take advantage of the advantages for registered users.",
+      "play": "You can join a game in an existing room or create your own new room and invite your friends.",
+      "play_anonymous": "As Anonymous User",
+      "play_now": "Enter a room",
+      "play_registered": "As Registered User",
+      "registered": "If you are already registered, log in. If not, you should register first.",
+      "subtitle": "Welcome to the Classical",
+      "title": "Los Chinos Game"
+    },
+    "join_private": "Join private room {roomName}",
+    "join_public": "Join public room {roomName}",
+    "join_room": "Join room {roomName}",
+    "legal": {
+      "title": "Legal notice"
+    },
+    "login": {
+      "forgotpass": "forgot password?",
+      "notregistered": "Not registered yet?",
+      "register": "Register",
+      "title": "Login"
+    },
+    "logout": {
+      "title": "Logout"
+    },
+    "new_private": "Create New Private Room",
+    "new_public": "Create New Public Room",
+    "privacy": {
+      "title": "Privacy Policy"
+    },
+    "profile": {
+      "title": "Profile"
+    },
+    "ranking": {
+      "title": "Ranking of players"
+    },
+    "register": {
+      "title": "Register"
+    },
+    "register_success": "User successfully registered",
+    "reset_password": "Enter new password",
+    "room": "Room",
+    "rooms": {
+      "available": "Available rooms",
+      "no_privates": "You are not registered in any private room",
+      "no_publics": "There is no public room that admits new players. You can create one",
+      "privates_list": "Private rooms list",
+      "publics_list": "Public rooms list",
+      "title": "List of rooms"
+    },
+    "rooms_avalaible": "Available rooms",
+    "rules": {
+      "paragraph1": "Each player has 3 objects, usually coins, of which, each round, he/she takes between 0 and 3 of them in his/her closed hand.",
+      "paragraph2": "The game consists of trying to guess the total sum of objects that the players (minimum two) keep in their closed hand.",
+      "title": "Game Rules"
+    },
+    "test": "Test page",
+    "verify_email": "Email verification"
+  },
+  "private": "private",
+  "private_rooms": "Private rooms",
+  "processing": "Processing ...",
+  "profile": {
+    "changepass": "Change Password",
+    "email_not_verified": "Email not verified",
+    "email_verified": "Verified email",
+    "newpassword": "New Password",
+    "oldpassword": "Current password",
+    "update": "Modify data"
+  },
+  "public": "public",
+  "ranking": {
+    "day": "Of today",
+    "games_lost": "By ratio of games lost",
+    "games_lost_short": "Lost ratio",
+    "games_won": "By win ratio (first out)",
+    "games_won_short": "Win Ratio (first out)",
+    "global": "Global",
+    "item": "Datum",
+    "month": "Of the month",
+    "no_data": "There is no data",
+    "of": "of",
+    "points": "By points",
+    "points_ratio": "By point ratio",
+    "points_ratio_short": "Points ratio",
+    "points_short": "Points",
+    "position": "Position",
+    "ratio": "Ratio (%)",
+    "rounds": "Rounds",
+    "t_points": "Points",
+    "user": "User Ranking",
+    "user_name": "User",
+    "value": "Value",
+    "week": "Of the week"
+  },
+  "register": {
+    "confirm": "Confirm password",
+    "success": "User {username} was successfully registered.\n\nIf you provided an email address, you will receive an email with a link to validate it.\nIt is important that you do so in order to be able to modify the password or reset it in case of forgetting."
+  },
+  "room": {
+    "actions": "Actions",
+    "create_data": "Data of the room to create",
+    "full": "full",
+    "join": "Join",
+    "maxp_text": "The room has reached the maximum capacity (5 players). No more are allowed. You can start the game",
+    "maxp_title": "Full capacity of the room",
+    "name": "Room name",
+    "no_players": "There are no players in the room",
+    "no_privates": "You are not yet registered in any private room",
+    "no_publics": "There is no public room that admits new players. You can create one",
+    "no_room-owner": "You do not own any private room",
+    "no_room-user": "You are not a user of any private room",
+    "num_players": "Players",
+    "owner": "owner",
+    "playing": "playing",
+    "private": "Private room",
+    "public": "Public Room",
+    "start_text": "There are already enough players in the room. You can start the game or wait for more players to join (maximum 5)",
+    "start_title": "You can start now",
+    "status": "Status",
+    "type": "Room type",
+    "type_select": "Select the type of room to create",
+    "updated": "Updated room",
+    "wait_text": "There are not enough players in the room yet to start the game. (minimum 2, maximum 5)",
+    "wait_title": "Waiting for more players",
+    "waiting": "waiting"
+  },
+  "rooms": "Rooms",
+  "text": {
+    "Copied": "Copied URL to clipboard",
+    "created_l_f": "created",
+    "forgot_pass_instructions": "Enter the email associated with the account to proceed to reset the password.\nIf you did not provide an email or it has not been validated, you will not be able to reset the password.",
+    "history": "It is believed that the game called \"Los Chinos\" was invented in the 18th century by the Castilian transhumant shepherds to entertain themselves while they watched over the sheep.",
+    "max_bet": "Maximum bet {maxBet}",
+    "name": "The name probably comes from \"chinas\" or \"chinos\" a name given to small stones that was what originally was used to play.",
+    "removed_l_f": "removed",
+    "removed_l_m": "removed",
+    "room": "Room",
+    "select_next": "Who starts?",
+    "set_bet": "Bet",
+    "share_url": "Use the button below to copy the url of the room and invite other players to join it",
+    "show_coins": "Show coins",
+    "take_coins": "Take coins",
+    "updated": "updated",
+    "user": "User",
+    "user_name": "Username"
+  },
+  "title_lost": "Lost",
+  "user": {
+    "removed": "User Deleted"
+  },
+  "users": "Users",
+  "verify_email": {
+    "check": "From your user profile you can check if the email is verified or, if it is not, request a new verification email.",
+    "error": "Email verification failed. This could be because the verification link has expired or the email has been previously verified and validated.",
+    "success": "You have successfully verified your email. From now on you can use it to, among other things, modify the password or reset it if you forget it."
+  },
+  "write_msg": "Write your message"
+}

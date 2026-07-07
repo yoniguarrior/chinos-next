@@ -7,9 +7,13 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-sans: var(--font-open-sans), "Open Sans", sans-serif;
+  --font-mono: "DM Mono", monospace;
+  --font-heading: var(--font-raleway), Raleway, sans-serif;
+  --color-chmain: #b91c1c;
+  --color-chalt: #d7413e;
+  --color-chlight: #fff5ef;
+  --color-chdark: #833f3c;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -55,7 +59,8 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
+  /* Brand red (#b91c1c) as shadcn primary */
+  --primary: oklch(0.505 0.194 27.5);
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
@@ -127,4 +132,586 @@
   html {
     @apply font-sans;
   }
+}
+
+/* ------------------------------------------------------------------ *
+ * Ported styles from the original app (main.css)
+ * ------------------------------------------------------------------ */
+
+:root {
+  --ui-primary: #b91c1c;
+  --ui-secondary: #666666;
+}
+
+:root.room {
+  --header-height: 6.5vh;
+  --p-info-height: 5.2vh;
+  --p-info-line-height: 2.36vh;
+  --label-font-size: 1.61vh;
+  --play-padding: 2vh;
+  --play-height: 83.5vh;
+  --action-body-padding: 0.5vh;
+  --action-body-margin: 0.35vh;
+  --action-btn-dim: 3.15vh;
+  --action-input-dim: 4vh;
+  --box-padding: 0.8vh;
+  --chat-in-height: 4.15vh;
+  --footer-height: 4.3vh;
+  --color-hand: #e6ad7f;
+  --gb-dim: 96vw;
+  --hand-size: 9vh;
+  --circle-radius: 32vw;
+  --p-item-padding: 0.25vh;
+}
+
+@layer components {
+  .btn {
+    margin: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.25rem;
+    display: inline-block;
+    background-color: var(--ui-primary);
+    color: white;
+    cursor: pointer;
+    font-weight: 400;
+    font-style: normal;
+    border: 0.1875rem solid var(--ui-primary);
+    min-width: 6.5rem;
+    text-align: center;
+
+    @variant hover {
+      background-color: white;
+      border-color: var(--ui-primary);
+      color: var(--ui-primary);
+    }
+
+    @variant disabled {
+      background-color: rgba(74 85 101 0.5);
+      cursor: default;
+    }
+  }
+  .icon-btn {
+    display: inline-block;
+    color: rgb(153 161 175);
+    cursor: pointer;
+    font-weight: 400;
+    opacity: 75%;
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 200ms;
+    user-select: none;
+    @variant hover {
+      color: var(--ui-primary);
+      opacity: 100%;
+    }
+  }
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  @apply mt-5 font-heading font-[400];
+}
+
+h1 {
+  @apply mb-5 text-5xl;
+}
+
+h2 {
+  @apply mb-4 text-4xl;
+}
+
+h3 {
+  @apply mb-3 text-3xl;
+}
+
+h4 {
+  @apply mb-2 text-2xl;
+}
+
+h5 {
+  @apply mb-1 text-xl;
+}
+
+h6 {
+  @apply text-lg;
+}
+
+p {
+  @apply my-3 text-neutral-700;
+}
+
+a {
+  @apply font-[500] text-red-700 italic opacity-75 hover:underline hover:opacity-100;
+}
+
+main {
+  @apply flex min-h-screen flex-col justify-between;
+}
+
+.header-content {
+  height: calc(var(--header-height) * 0.8);
+}
+
+.pl-info {
+  height: calc(var(--p-info-height) * 0.9);
+  line-height: calc(var(--p-info-height) * 0.9);
+}
+
+.main-content {
+  @apply mx-auto w-95/100 max-w-screen-md flex-1 py-6 md:w-85/100;
+}
+
+.room-content {
+  @apply flex flex-col py-0;
+}
+
+.btn {
+  @apply transition duration-200 ease-in-out focus:ring focus:ring-red-200 focus:outline-none;
+}
+
+.card {
+  @apply my-10 rounded-lg border border-neutral-300 shadow-md;
+}
+
+.card-header {
+  @apply -m-[1px] rounded-t-lg bg-red-700 py-2 text-center text-white;
+}
+
+.card-header h5 {
+  @apply my-0;
+}
+
+.card-title {
+  @apply w-full py-2 text-center;
+}
+
+.card-body {
+  @apply px-4 pt-6 pb-4;
+}
+
+.card-btn {
+  @apply ml-4 inline-block min-w-26 cursor-pointer rounded-md border-3 border-red-700 bg-white px-2 py-2 text-center font-[400] text-red-700 not-italic transition duration-200 ease-in-out first:ml-0 hover:bg-red-700! hover:text-white focus:ring focus:ring-red-200 focus:outline-none sm:ml-8;
+  text-decoration: none !important;
+}
+
+.header-btn {
+  @apply min-w-16 p-0! hover:border-white;
+  height: calc(var(--header-height) * 0.75);
+}
+
+.card-btn:disabled {
+  @apply cursor-default border-neutral-400 text-neutral-400 hover:bg-white! hover:text-neutral-400! focus:outline-none;
+}
+
+.close-cross-btn {
+  @apply relative -top-3 -right-3 float-right;
+}
+
+.btn-group {
+  @apply mt-8 flex justify-center;
+}
+
+.btn-actions-group {
+  @apply flex flex-none flex-wrap justify-center px-2;
+  max-width: 75vw;
+}
+
+.btn-square {
+  @apply min-w-0! p-1! text-xl;
+}
+
+.btn-square-sm {
+  @apply m-0 min-w-0! p-0! text-base;
+}
+
+.btn-wide {
+  @apply rounded border-1 border-neutral-400 bg-neutral-200 px-2;
+  margin: var(--action-body-margin) 0.25rem;
+  height: var(--action-btn-dim);
+  font-size: var(--label-font-size);
+  width: 11ch;
+}
+
+.btn-wide:disabled {
+  --tw-text-opacity: 1 !important;
+  font-weight: bold;
+  --tw-border-opacity: 1 !important;
+  border: 2px solid black !important;
+}
+
+.btn-backspace svg {
+  margin: 0 auto;
+  font-size: 1.3rem;
+  color: #666;
+}
+
+.action-body .input-coins {
+  @apply h-[var(--action-input-dim)] w-[var(--action-input-dim)] rounded-full border-3 border-[#b8860b]/100! bg-[#ffd700]/100! text-center font-medium! text-black/100!;
+  font-size: calc(var(--label-font-size) * 1.5);
+}
+
+.i-rounded {
+  @apply mb-1 h-12 w-12 rounded rounded-full border-3 border-neutral-500 text-center;
+}
+
+.i-wide {
+  @apply mb-1 h-12 w-full max-w-full rounded border-3 border-neutral-500 text-center;
+}
+
+.menu-item {
+  @apply border-b-[3px] border-transparent bg-transparent p-2 text-base font-[400] text-white not-italic no-underline! opacity-100 transition duration-200 ease-in-out hover:bg-white hover:text-red-700;
+}
+
+.menu-item-active {
+  @apply border-white transition duration-200 ease-in-out;
+}
+
+.submenu-item {
+  @apply my-1 block px-3 py-2 text-base font-[400] text-neutral-600 not-italic opacity-100 transition duration-200 ease-in-out hover:bg-red-800 hover:text-white;
+}
+
+.footer-menu-item {
+  @apply cursor-pointer px-2 text-sm font-[400] text-white/75 not-italic transition duration-200 ease-in-out hover:text-white;
+}
+
+.btn-mob-menu {
+  @apply inline-flex items-center justify-center rounded-md bg-transparent p-2 text-white hover:bg-white hover:text-red-700 focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-red-700 focus:outline-none;
+}
+
+.form-field {
+  @apply mt-2 mb-6;
+}
+
+.form-input {
+  @apply w-full appearance-none rounded px-3 py-2.5 text-base leading-tight text-neutral-700;
+  &:focus-visible {
+    @apply ring inset-ring ring-neutral-100 outline-0;
+  }
+}
+
+.form-select {
+  @apply w-full rounded border border-neutral-300 px-3 py-2 leading-tight text-neutral-700 focus:shadow-md focus:outline-none;
+}
+
+.form-btns {
+  @apply flex items-baseline justify-center pt-6 pb-2;
+}
+
+.has-error .form-input {
+  @apply border-red-500;
+}
+
+.success .form-input {
+  @apply border-green-500;
+}
+
+.form-label {
+  @apply relative top-4 mx-2 inline-block bg-transparent p-1 text-sm leading-5 font-normal text-transparent transition duration-200 ease-in-out;
+  label {
+    @apply bg-inherit! text-inherit!;
+  }
+}
+
+.show-label {
+  @apply z-100 bg-white text-neutral-900;
+}
+
+.error-message {
+  @apply absolute h-4 text-sm text-red-500;
+  top: 78%;
+}
+
+.toggle-tab {
+  @apply grid grid-cols-[auto_40px] rounded border border-neutral-300 p-2;
+}
+
+.login-link {
+  @apply ml-2 inline-block align-baseline text-sm font-semibold text-neutral-600 hover:text-red-700;
+}
+
+.loading-wrapper {
+  @apply z-9999 -m-2 flex items-center justify-between rounded-lg bg-red-50;
+}
+
+.loading-item {
+  @apply p-2;
+}
+
+.form-error {
+  @apply mt-2 rounded-lg bg-red-100 py-2 text-center font-[500] text-red-500;
+}
+
+.user-data-row {
+  @apply relative mb-4 items-center md:flex;
+}
+
+.user-data-label {
+  @apply min-w-38 pr-3 font-semibold text-neutral-700;
+}
+
+.user-data-field {
+  @apply min-h-8 w-full flex-grow-1 appearance-none rounded border border-neutral-300 px-3 py-2 leading-tight text-neutral-700;
+}
+
+.btn.actions {
+  @apply m-0 mr-3 min-w-0 border-none bg-transparent text-xl leading-none text-red-700 last:mr-0 hover:bg-red-700 hover:text-white;
+  padding: 0.125rem;
+}
+
+.list {
+  @apply mt-2 mb-6 shadow-md;
+}
+
+.list-row {
+  @apply grid border border-t-0 border-neutral-400 bg-neutral-100 p-0;
+}
+
+.list-body .list-row {
+  @apply last:rounded-b-md;
+}
+
+.cols-3 {
+  @apply grid-cols-3;
+}
+
+.cols-4 {
+  @apply grid-cols-4;
+}
+
+.cols-1-2 {
+  grid-template-columns: minmax(0, 1fr) 90px 90px;
+}
+
+.cols-1-3 {
+  grid-template-columns: minmax(0, 1fr) 90px 100px 100px;
+}
+
+.list-cell {
+  @apply border-l border-neutral-400 p-1 text-center;
+}
+
+.list-header {
+  @apply p-0 font-semibold text-neutral-600;
+}
+
+.list-header .list-row {
+  @apply rounded-t-md border-t-1 bg-neutral-300;
+}
+
+.list-header .list-cell {
+  @apply border-0;
+}
+
+.list-body {
+  @apply p-0 text-neutral-500;
+}
+
+.list-body .list-cell.actions {
+  @apply p-[0.125rem] pb-0;
+}
+
+.list-cell.first {
+  @apply border-l-0;
+}
+
+.btn-create {
+  @apply m-0 mb-8 text-right;
+}
+
+.btn-create .btn {
+  @apply m-0 bg-transparent! text-red-700! hover:bg-red-700! hover:text-white!;
+}
+
+.room-title {
+  font-size: calc(var(--header-height) * 0.5);
+  line-height: calc(var(--header-height) * 0.8);
+}
+
+.no-rooms {
+  @apply mb-8;
+}
+
+main.room-main {
+  @apply grid h-screen grid-rows-[var(--header-height)_var(--p-info-height)_1fr_40px];
+}
+
+.room .header {
+  @apply w-screen bg-red-700;
+}
+
+.game-info {
+  @apply bg-neutral-200;
+  font-size: var(--label-font-size);
+}
+
+.room .players-row,
+.room .result-row {
+  @apply h-[calc(var(--p-info-height)/2)] w-screen bg-neutral-200;
+}
+
+.players-list {
+  @apply flex w-full justify-start;
+}
+
+.p-info-icon {
+  height: calc(var(--p-info-height) * 0.95 / 2);
+}
+
+.pl-connex,
+.lost-item {
+  @apply w-2/10 flex-none p-[var(--p-item-padding)];
+}
+
+.pl-name {
+  @apply bg-neutral-600 text-center text-white;
+}
+
+.pl-name.online {
+  @apply bg-green-500;
+}
+
+.lost-list {
+  @apply flex w-full;
+}
+
+.lost-rounds {
+  @apply bg-white text-center text-neutral-600;
+}
+
+.modal-overlay {
+  @apply pointer-events-auto fixed inset-0 z-999 bg-black/15 transition duration-200;
+}
+
+.modal-window {
+  @apply absolute top-1/2 left-1/2 mb-2 max-w-100 -translate-x-1/2 -translate-y-1/2 transform rounded-lg border border-neutral-300 bg-white p-2 opacity-100 shadow-md last:mb-0;
+}
+
+.modal-close {
+  @apply absolute top-0 right-0 w-16 text-center text-sm leading-10 text-neutral-500 hover:text-black;
+}
+
+.play-container {
+  @apply mx-auto grid h-[var(--play-height)] grid-rows-[var(--gb-dim)_minmax(100px,_auto)_minmax(0,_1fr)] overflow-hidden;
+}
+
+#actions .btn-check {
+  @apply m-0 min-w-0 p-0 text-2xl;
+}
+
+#game-msg {
+  @apply z-1000 my-0;
+}
+
+#game-msg .btns-group {
+  @apply mt-[10px];
+}
+
+#game-msg .btn-answer {
+  @apply my-0 w-[100px]! min-w-0! p-1 text-sm;
+  padding: calc(var(--label-font-size) / 2.5);
+}
+
+.text-others-msg {
+  @apply text-chdark;
+}
+
+.text-my-msg {
+  @apply text-chalt!;
+}
+
+.user-ix-box {
+  @apply mx-auto;
+}
+
+.game-input-data {
+  @apply my-0!;
+}
+
+.chat-box {
+  @apply mx-auto mt-auto mb-0 grid h-full max-h-[220px] w-full max-w-[95vw] grid-rows-[auto_minmax(0,_1fr)_40px] p-0;
+}
+
+#chatboxscroll {
+  @apply overflow-auto border-b-1 border-neutral-300;
+}
+
+#chatbox .msg-box {
+  @apply my-0 grid grid-rows-[20px_minmax(0,_1fr)_40px];
+}
+
+#chatbox .msg-box-header,
+#actions .action-header {
+  @apply rounded-t-lg border-0 bg-neutral-500 px-[10px] text-white;
+}
+
+#actions .action-body {
+  @apply flex items-center justify-between px-2 py-[var(--action-body-padding)];
+}
+
+#actions,
+#game-msg {
+  @apply mt-4 mb-2 w-auto;
+}
+
+.msg-text {
+  font-size: calc(var(--label-font-size) * 1.2);
+}
+
+#game-msg {
+  @apply p-[var(--box-padding)];
+}
+
+#chatbox .msg-box-footer {
+  @apply py-1;
+}
+
+#chatbox h5,
+#actions h5 {
+  @apply m-0 text-[1rem] leading-[1.5rem];
+}
+
+#chatbox .chat-msg {
+  @apply flex justify-start;
+}
+
+#chatbox .message-text {
+  @apply mx-1 my-0 p-0;
+}
+
+#chatbox .message-from {
+  @apply ml-1 font-bold;
+}
+
+#chatbox .message-from.own {
+  @apply text-red-500;
+}
+
+#chatbox .message-from.other {
+  @apply text-green-500;
+}
+
+#chatbox .input-group {
+  @apply m-[4px] flex;
+}
+
+#message-input {
+  @apply flex-1 rounded focus-visible:outline-none;
+  padding: calc(var(--p-item-padding) * 3);
+}
+
+#send-button {
+  @apply -m-[1px] min-w-0 rounded-none rounded-r-[4px] p-0 text-xl;
+}
+
+#send-button > div,
+#send-button svg {
+  @apply h-[27px] w-[27px];
+}
+
+.room-footer {
+  @apply relative w-full bg-neutral-700;
 }

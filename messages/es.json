@@ -1,0 +1,390 @@
+{
+  "Day": "Día",
+  "You": "Tu",
+  "add_user": {
+    "not_found": "No hay registrado un usuario con ese nombre",
+    "title": "Añadir usuario a sala"
+  },
+  "button": {
+    "accept": "Aceptar",
+    "add": "Añadir",
+    "add_room": "Añadir sala privada",
+    "add_user": "Añadir usuario a la sala",
+    "back": "Volver",
+    "cancel": "Cancelar",
+    "change": "Cambiar",
+    "change-pass": "Cambiar contraseña",
+    "continue": "Continuar",
+    "copy_to_clipboard": "copiar URL al portapapeles",
+    "create": "Crear",
+    "delete": "Borrar",
+    "delete_room": "Eliminar sala",
+    "delete_user": "Eliminar usuario de la sala",
+    "edit": "Editar",
+    "edit_room": "Editar sala",
+    "exit": "Salir",
+    "finish": "Finalizar",
+    "home": "Inicio",
+    "join": "Unirse",
+    "login": "Acceder",
+    "more": "Ver más información",
+    "new_private": "Crear sala privada",
+    "new_public": "Crear sala pública",
+    "new_room": "Nueva Sala",
+    "new_round": "Nueva partida",
+    "origins": "origen",
+    "play": "Jugar",
+    "profile": "Perfil",
+    "register": "Registrarse",
+    "rules": "reglas",
+    "save": "Guardar",
+    "see_rooms": "Ver Salas",
+    "select": "Seleccionar",
+    "send": "Enviar",
+    "send_verify": "Enviado email",
+    "show": "Mostrar",
+    "show_coins": "Mostrar",
+    "test": "Probar",
+    "verify_email": "Verificar email"
+  },
+  "create_room": {
+    "password": "Contraseña",
+    "playername": "Nombre jugador",
+    "roomname": "Nombre de la sala",
+    "title": "Crear sala privada"
+  },
+  "delete_room": {
+    "confirm": "Confirmar sala a borrar\n",
+    "confirm-text": "Para confirmar el borrado de la sala, escriba: ",
+    "confirm_placeholder": "Nombre de la sala",
+    "name": "nombre"
+  },
+  "delete_user": {
+    "confirm": "Confirmar usuario a eliminar",
+    "confirm_placeholder": "nombre del usuario",
+    "confirm_text": "Escriba {user} para confirmar la eliminación"
+  },
+  "edit_room": {
+    "change_password": "Cambiar password",
+    "title": "Editando sala {roomName}"
+  },
+  "error": {
+    "auth_fail": "Usuario o clave incorrectos",
+    "dynamic": "Se ha producido el siguiente error al {operation} - {errormsg}. Inténtalo de nuevo, por favor.",
+    "existent_user_not_logged": "Nombre de usuario reservado por usuario registrado. Elija otro",
+    "forbidden": "Derechos de acceso insuficientes",
+    "invalid_chars": "Caracteres inválidos. Solo {valid_chars}",
+    "invalid_email": "email no válido",
+    "max_chars": "Máximo {max} caracteres",
+    "min_chars": "Debe tener al menos {min} caracteres",
+    "name_already_exists": "Ese nombre ya está en uso. Elija otro",
+    "name_exists": "El nombre ya está dado de alta",
+    "no_email": "Email no registrado",
+    "no_joined_room": "Ha sido desconectado de la sala {roomName}",
+    "no_joined_room_exp": "La causa probable es el vencimiento del tiempo de espera",
+    "no_reftk": "Sesion de usuario caducada",
+    "no_user": "Usuario no encontrado",
+    "non_existing_room": "La sala {roomName} no existe",
+    "non_existing_room_exp": "La sala que intenta acceder no existe. Puede que haya sido cerrada o que haya tecleado mal la url si la introdujo a mano.",
+    "not_found": "Página no encontrada",
+    "not_public_room": "La sala a la que intenta acceder no es pública",
+    "not_valid": "Operación inválida",
+    "password_mismatch": "Las contraseñas no coinciden",
+    "player_name_in_use": "Ya existe un jugador con ese nombre. Elija otro",
+    "required": "{field} es requerido",
+    "server_misconfig": "Error de configuración del servidor (falta JWT_WS_SECRET). Contacte al administrador",
+    "unautorized": "Operación no autorizada",
+    "unique_email": "El correo electrónico ya existe. Proporcionar otro",
+    "unique_roomname": "Ya existe una sala con ese nombre. Elija otro",
+    "unique_username": "El nombre de usuario ya existe. Elija otro",
+    "user_blocked": "El usuario ha sido bloqueado. Inténtelo más tarde",
+    "user_not_found": "El nombre no corresponde a ningún usuario registrado",
+    "ws_connection_error": "No se pudo conectar al juego en tiempo real",
+    "ws_sync_timeout": "No se recibió respuesta del servidor al entrar en la sala"
+  },
+  "errors": {
+    "invalid_email": "email no válido"
+  },
+  "form": {
+    "field": {
+      "email": "Email",
+      "password": "Contraseña",
+      "player_name": "Nombre del jugador",
+      "room_name": "Nombre de sala",
+      "user_name": "Nombre de usuario"
+    },
+    "placeholder": {
+      "email": "introduzca su email"
+    }
+  },
+  "game": {
+    "betting": "Hora de hacer las apuestas. Comienza {name}",
+    "betting_error": "Debe indicar una cifra entre {coins} y {max}",
+    "betting_repeated": "Esa apuesta ya se ha hecho. Elija otra",
+    "finishHand": "Hay en total {coins} monedas. Gana {name}",
+    "finishHand_nw": "Hay un total de {coins} monedas. No hay ganador de esta mano",
+    "finishRound": "Ha finalizado la partida. Pierde {name}",
+    "nextPlayer_error": "Debe seleccionar un jugador",
+    "selectingNext": "Esperando que {name} seleccione quien empieza",
+    "showing": "Mostramos las monedas. En primer lugar {name}",
+    "takingCoins": "Sale {name}. Hora de coger monedas",
+    "takingCoins_error": "Debe indicar una cifra entre 0 y 3",
+    "waitingNewRound": "¿Continuar con una nueva partida?",
+    "waitingStart": "Esperando Inicio de partida"
+  },
+  "goto": "Ir a",
+  "home": {
+    "desc": "Puedes jugar como usuario no registrado o puedes registrarte de forma totalmente gratuita y aprovechar las ventajas para usuarios registrados.",
+    "play": "Puedes unirte a una partida en una sala ya existente o crear tu mismo una nueva sala e invitar a tus amigos.",
+    "play_anonymous": "Como Usuario Anónimo",
+    "play_now": "Entrar en una sala",
+    "play_registered": "Como Usuario Registrado",
+    "registered": "Si ya eres usuario registrado inicia sesión. Si no es así deberás antes registrarte.",
+    "rules": "Cada jugador dispone de 3 objetos, habitualmente monedas, de los cuales, cada ronda, toma en su mano cerrada entre 0 y 3 de ellos.",
+    "subtitle": "Bienvenido al Clásico",
+    "target": "El juego consiste en intentar adivinar la suma total de objetos que los jugadores (mínimo dos) guardan en su mano cerrada.",
+    "title": "Juego de Los Chinos"
+  },
+  "label": {},
+  "list": {
+    "my_rooms": "Salas de las que soy propietario",
+    "others_rooms": "Salas de las que soy usuario",
+    "private_rooms": "Lista de salas privadas",
+    "public_rooms": "Lista de salas públicas"
+  },
+  "login": {
+    "email": "Correo electrónico",
+    "forgotpass": "¿Olvidaste la Contraseña?",
+    "mailinfo1": "El correo es opcional, pero, si no lo proporcionas, no podrás modificar la contraseña ni restablecerla, en caso de que la olvides. Tampoco podrás recibir información sobre posibles incidencias en tu cuenta o en el servidor.",
+    "mailinfo2": "Usaremos el correo electrónico exclusivamente con la funcionalidad indicada y nunca para enviarte publicidad u otra información comercial.",
+    "notregistered": "¿Aún no registrado?",
+    "optional": "Opcional",
+    "password": "Contraseña",
+    "register": "Registrarse",
+    "registered": "¿Ya registrado?",
+    "username": "Usuario"
+  },
+  "menu": {
+    "cookies": "Cookies",
+    "history": "Orígenes",
+    "home": "Inicio",
+    "legal": "Aviso legal",
+    "login": "Acceder",
+    "logout": "Salir",
+    "mobile_open": "Abrir menu principal",
+    "privacy": "Privacidad",
+    "profile": "Perfil",
+    "ranking": "Ranking",
+    "register": "Registrarse",
+    "rooms": "Salas",
+    "rules": "Reglas"
+  },
+  "message": {
+    "created_room": "Sala {roomName} creada"
+  },
+  "misc": {
+    "alt_logo": "Juego de Los Chinos",
+    "play": "Jugar",
+    "press_back_again_to_exit": "Pulse atrás de nuevo para salir",
+    "processing": "Procesando ...",
+    "valid_user_name": "letras, números y _"
+  },
+  "no_viable_bet": "Ya está dicho",
+  "page": {},
+  "pages": {
+    "cookies": {
+      "list_advertising_header": "Cookies publicitarias",
+      "list_advertising_text": "recogen información sobre las preferencias y elecciones de los usuarios para mostrar publicidad personalizada.",
+      "list_analytics_header": "Cookies de análisis o estadísticas",
+      "list_analytics_text": "recogen información sobre el uso que hacen los usuarios del sitio web con fines estadísticos.",
+      "list_personalization_header": "Cookies de personalización",
+      "list_personalization_text": "permiten acceder a la web con características predefinidas, como el idioma o el tipo de navegador.",
+      "list_technical_header": "Cookies técnicas o necesarias",
+      "list_technical_text": "permiten la navegación por la web y el uso de las distintas opciones o servicios que en ella existen. Son imprescindibles para el correcto funcionamiento de la página.",
+      "list_use_1": "Garantizar la correcta carga y visualización de los contenidos.",
+      "list_use_2": "Permitir la navegación fluida entre secciones.",
+      "list_use_3": "Mantener la seguridad de la sesión del usuario.",
+      "management_header": "Gestión y eliminación de cookies",
+      "management_text": "Dado que únicamente utilizamos cookies técnicas, no es necesario su consentimiento expreso para instalarlas. Aun así, usted puede configurar su navegador en cualquier momento para bloquear o eliminar estas cookies, teniendo en cuenta que hacerlo podría afectar al correcto funcionamiento de algunas funciones de la página.",
+      "no_other_text": "En ningún caso se emplean cookies de análisis, publicitarias o de seguimiento de hábitos de navegación.",
+      "title": "Política de Cookies",
+      "types_header": "Tipos de cookies",
+      "types_text": "En función de quién las gestione y de su finalidad, existen diferentes tipos de cookies. Entre otras, se distinguen:",
+      "updates_header": "Actualizaciones de la política de cookies",
+      "updates_text": "La presente política de cookies podrá modificarse cuando se produzcan cambios en la normativa vigente o en la configuración de la web. Recomendamos revisarla de forma periódica.",
+      "use_header": "Uso de cookies en este sitio web",
+      "use_text": "Este sitio web utiliza únicamente cookies técnicas. Estas cookies son necesarias para:",
+      "what_are_header": "¿Qué son las cookies?",
+      "what_are_text": "Las cookies son pequeños archivos de datos que se descargan en el dispositivo del usuario (ordenador, smartphone, tablet, etc.) cuando navega por una página web. Sirven para que un sitio pueda, entre otras cosas, recordar información sobre la navegación o garantizar que determinadas funcionalidades básicas se ejecuten correctamente."
+    },
+    "forgot_pass": {
+      "instructions": "Por favor, introduce tu dirección de correo electrónico para recibir un enlace de restablecimiento de contraseña.",
+      "title": "Olvidé la contraseña"
+    },
+    "guest_join": {
+      "msg": "No estás registrado en esta sala. Se requiere contraseña"
+    },
+    "history": {
+      "paragraph1": "Se cree que el juego denominado \"Los Chinos\" fué inventado en el siglo XVIII por los pastores transhumantes castellanos para entretenerse mientras vigilaban las ovejas.",
+      "paragraph2": "El nombre proviene, probablemente, de las \"chinas\" o \"chinos\", denominación que se da a las piedras pequeñas, que era lo que originalmente se usaba para jugar.",
+      "title": "Origenes del Juego"
+    },
+    "home": {
+      "desc": "Puedes jugar como usuario no registrado o puedes registrarte de forma totalmente gratuita y aprovechar las ventajas para usuarios registrados.",
+      "play": "Puedes unirte a una partida en una sala ya existente o crear tu mismo una nueva sala e invitar a tus amigos.",
+      "play_anonymous": "Como Usuario Anónimo",
+      "play_now": "Entrar en una sala",
+      "play_registered": "Como Usuario Registrado",
+      "registered": "Si ya eres usuario registrado inicia sesión. Si no es así deberás antes registrarte.",
+      "subtitle": "Bienvenido al Clásico",
+      "title": "Juego de Los Chinos"
+    },
+    "join_private": "Unirse a la sala privada {roomName}",
+    "join_public": "Unirse a sala pública {roomName}",
+    "join_room": "Unirse a la sala {roomName}",
+    "legal": {
+      "title": "Aviso legal"
+    },
+    "login": {
+      "forgotpass": "¿Olvidaste la Contraseña?",
+      "notregistered": "¿Aún no registrado?",
+      "register": "Registrarse",
+      "title": "Iniciar Sesión"
+    },
+    "logout": {
+      "title": "Salir"
+    },
+    "new_private": "Crear Nueva Sala privada",
+    "new_public": "Crear Nueva Sala pública",
+    "privacy": {
+      "title": "Política de privacidad"
+    },
+    "profile": {
+      "title": "Perfil"
+    },
+    "ranking": {
+      "title": "Ranking de jugadores"
+    },
+    "register": {
+      "title": "Registrarse"
+    },
+    "register_success": "Usuario registrado correctamente",
+    "reset_password": "Introducir nueva contraseña",
+    "room": "Sala",
+    "rooms": {
+      "available": "Salas disponibles",
+      "no_privates": "Aún no está registrado en ninguna sala privada",
+      "no_publics": "No hay ninguna sala pública que admita nuevos jugadores. Puede crear una",
+      "privates_list": "Lista de salas privadas",
+      "publics_list": "Lista de salas públicas",
+      "title": "Lista de salas"
+    },
+    "rooms_avalaible": "Salas disponibles",
+    "rules": {
+      "paragraph1": "Cada jugador dispone de 3 objetos, habitualmente monedas, de los cuales, cada ronda, toma en su mano cerrada entre 0 y 3 de ellos.",
+      "paragraph2": "El juego consiste en intentar adivinar la suma total de objetos que los jugadores (mínimo dos) guardan en su mano cerrada.",
+      "title": "Reglas del juego"
+    },
+    "test": "Página de pruebas",
+    "verify_email": "Verificación de Email"
+  },
+  "private": "privada",
+  "private_rooms": "Salas privadas",
+  "processing": "Procesando ...",
+  "profile": {
+    "changepass": "Cambiar contraseña",
+    "email_not_verified": "Email no verificado",
+    "email_verified": "Email verificado",
+    "newpassword": "Nueva contraseña",
+    "oldpassword": "Contraseña actual",
+    "update": "Modificar datos"
+  },
+  "public": "publica",
+  "ranking": {
+    "day": "De hoy",
+    "games_lost": "Por ratio de partidas perdidas",
+    "games_lost_short": "Ratio perdidas",
+    "games_won": "Por ratio partidas ganadas (primero en salir)",
+    "games_won_short": "Ratio Ganadas (primero en salir)",
+    "global": "Global",
+    "item": "Dato",
+    "month": "Del mes",
+    "no_data": "No hay datos",
+    "of": "de",
+    "points": "Por puntos",
+    "points_ratio": "Por ratio de puntos",
+    "points_ratio_short": "Ratio puntos",
+    "points_short": "Puntos",
+    "position": "Posición",
+    "ratio": "Ratio (%)",
+    "rounds": "Partidas",
+    "t_points": "Puntos",
+    "user": "Ranking del usuario",
+    "user_name": "Usuario",
+    "value": "Valor",
+    "week": "De la semana"
+  },
+  "register": {
+    "confirm": "Repetir contraseña",
+    "success": "El usuario {username} se registró correctamente.\nSi proporcionaste una dirección de correo electrónico, recibirás un correo con un enlace para validarlo. Es importante que lo hagas puesto que, de no hacerlo, no podrás modificar la contraseña ni resetearla en caso de olvido."
+  },
+  "room": {
+    "actions": "Acciones",
+    "create_data": "Datos de la sala a crear",
+    "full": "completa",
+    "join": "Unirse",
+    "maxp_text": "La sala ha alcanzado el aforo máximo (5 jugadores). No se admiten más. Puedes iniciar la partida",
+    "maxp_title": "Aforo completo de la sala",
+    "name": "Nombre de la sala",
+    "no_players": "No hay jugadores en la sala",
+    "no_privates": "Aún no está registrado en ninguna sala privada",
+    "no_publics": "No hay ninguna sala pública que admita nuevos jugadores. Puede crear una",
+    "no_room-owner": "No eres propietario de ninguna sala privada",
+    "no_room-user": "No eres usuario de ninguna sala privada",
+    "num_players": "Jugadores",
+    "owner": "propietario",
+    "playing": "en juego",
+    "private": "Sala Privada",
+    "public": "Sala Pública",
+    "start_text": "Ya hay suficientes jugadores en la sala. Puedes iniciar la partida o esperar a que se unan más jugadores (máximo 5)",
+    "start_title": "Ya puedes empezar",
+    "status": "Estado",
+    "type": "Tipo de sala",
+    "type_select": "Seleccione el tipo de sala a crear",
+    "updated": "Sala actualizada",
+    "wait_text": "Aún no hay en la sala suficientes jugadores para iniciar la partida. (mínimo 2, máximo 5)",
+    "wait_title": "Esperando más jugadores",
+    "waiting": "en espera"
+  },
+  "rooms": "Salas",
+  "text": {
+    "Copied": "Copiada URL al portapapeles",
+    "created_l_f": "creada",
+    "forgot_pass_instructions": "Introduzca el email asociado a la cuenta para proceder a resetear la contraseña. Si no proporcionó un email o este no ha sido validado, no podrá resetar la contraseña.",
+    "history": "Se cree que el juego denominado \"Los Chinos\" fué inventado en el siglo XVIII por los pastores transhumantes castellanos para entretenerse mientras vigilaban las ovejas.",
+    "max_bet": "Apuesta máxima {maxBet}",
+    "name": "El nombre proviene, probablemente, de las \"chinas\" o \"chinos\", denominación que se da a las piedras pequeñas, que era lo que originalmente se usaba para jugar.",
+    "removed_l_f": "eliminada",
+    "removed_l_m": "eliminado",
+    "room": "Sala",
+    "select_next": "¿Quien sale?",
+    "set_bet": "Apostar",
+    "share_url": "Usa el botón siguiente para copiar la url de la sala e invitar a otros jugadores a unirse a ella",
+    "show_coins": "Mostrar monedas",
+    "take_coins": "Coger monedas",
+    "updated": "actualizado",
+    "user": "Usuario",
+    "user_name": "Nombre de usuario"
+  },
+  "title_lost": "Perd.",
+  "user": {
+    "removed": "Usuario eliminado"
+  },
+  "users": "Usuarios",
+  "verify_email": {
+    "check": "Desde tu perfil de usuario puedes comprobar si el email está verificado o, si no lo está, solicitar nuevo email de verificación.",
+    "error": "Falló la verificación del correo electrónico. Esto podría deberse a que el enlace de verificación ha caducado o a que el correo electrónico ha sido anteriorente verificado y validado.",
+    "success": "Has verificado correctamente tu email. A partir de ahora podras utilizarlo para, entre otras cosas, modificar la contraseña o resetearla si la olvidas."
+  },
+  "write_msg": "Escribe tu mensaje"
+}
