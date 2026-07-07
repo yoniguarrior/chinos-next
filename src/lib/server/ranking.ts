@@ -1,4 +1,4 @@
-import { RankingModel } from "@/models/ranking";
+import { RankingModel } from "../../models/ranking";
 
 export const RANKING_PERIODS = ["global", "month", "week", "day"] as const;
 export type RankingPeriod = (typeof RANKING_PERIODS)[number];

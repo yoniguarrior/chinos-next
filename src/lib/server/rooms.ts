@@ -1,6 +1,6 @@
 import type { HydratedDocument } from "mongoose";
-import { RoomModel, type Game, type Player, type Room } from "@/models/room";
-import { UserModel } from "@/models/user";
+import { RoomModel, type Game, type Player, type Room } from "../../models/room";
+import { UserModel } from "../../models/user";
 import { apiError } from "./errors";
 import { comparePassword } from "./crypto";
 import { getRefreshCookie, getWsCookie } from "./cookies";

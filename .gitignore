@@ -17,6 +17,9 @@
 /.next/
 /out/
 
+# compiled websocket server bundle
+/dist-server/
+
 # production
 /build
 

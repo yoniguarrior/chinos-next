@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type { HydratedDocument } from "mongoose";
-import { UserModel, type User, type Role } from "@/models/user";
+import { UserModel, type User, type Role } from "../../models/user";
 import { serverConfig } from "./config";
 import { apiError } from "./errors";
 import { sendEmailVerify } from "./mailer";

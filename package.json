@@ -3,9 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "build:ws": "tsc -p tsconfig.server.json",
+    "dev": "npm run build:ws && node server.js",
+    "build": "next build && npm run build:ws",
+    "start": "node server.js",
     "lint": "eslint"
   },
   "dependencies": {

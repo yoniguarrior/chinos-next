@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
-import { RefreshTokenModel } from "@/models/refresh-token";
-import { ForgotPasswordModel } from "@/models/forgot-password";
+import { RefreshTokenModel } from "../../models/refresh-token";
+import { ForgotPasswordModel } from "../../models/forgot-password";
 import { serverConfig } from "./config";
 import { apiError } from "./errors";
 import { comparePassword } from "./crypto";

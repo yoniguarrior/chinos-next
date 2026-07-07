@@ -1,8 +1,8 @@
 import jwt from "jsonwebtoken";
 import type { HydratedDocument } from "mongoose";
-import { RoomModel, type Player, type Room } from "@/models/room";
-import { UserModel } from "@/models/user";
-import { RankingModel } from "@/models/ranking";
+import { RoomModel, type Player, type Room } from "../../models/room";
+import { UserModel } from "../../models/user";
+import { RankingModel } from "../../models/ranking";
 import { serverConfig } from "./config";
 import { ensureRoomGame } from "./rooms";
 
@@ -48,8 +48,14 @@ export class WsError extends Error {
  * Per-room lock. Serializes the critical sections that read-modify-write a
  * room document (sync/disconnect). Works within a single Node instance (same
  * guarantee the original NestJS/Nuxt versions had).
+ *
+ * Lives on globalThis so the Next.js Route Handlers bundle and the WebSocket
+ * server bundle (server.js) share the same lock.
  */
-const roomLocked: string[] = [];
+const globalWithLocks = globalThis as typeof globalThis & {
+  __roomLocked?: string[];
+};
+const roomLocked: string[] = (globalWithLocks.__roomLocked ??= []);
 
 function lockRoom(roomName: string): void {
   roomLocked.push(roomName);
