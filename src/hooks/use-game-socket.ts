@@ -86,8 +86,17 @@ export function useGameSocket(): GameSocket {
         applyRoomState(res.data);
         stopSyncRetries();
       }
-    } catch {
-      // WS may still deliver syncRes
+    } catch (err: unknown) {
+      // Surface an error only when neither the WS nor the HTTP fallback could
+      // bring the room up (e.g. invalid ws cookie). If the WS later delivers
+      // syncRes, applyRoomState() clears the error.
+      if (!roomIsReady() && !wsSyncedRef.current) {
+        const code =
+          err instanceof Error && err.message
+            ? err.message
+            : "ws_connection_error";
+        useErrorStore.getState().setWsError(code);
+      }
     }
   }, [applyRoomState, stopSyncRetries]);
 
@@ -191,6 +200,11 @@ export function useGameSocket(): GameSocket {
     const ws = new WebSocket(buildUrl());
     wsRef.current = ws;
 
+    // Bootstrap the room over HTTP right away so the player goes online and
+    // the game loads even when a reverse proxy blocks the WebSocket upgrade
+    // (the upgrade failure never triggers `onopen`).
+    if (!roomIsReady()) void syncViaHttp();
+
     ws.onopen = () => {
       reconnectAttemptsRef.current = 0;
       if (roomIsReady()) return;
@@ -204,8 +218,11 @@ export function useGameSocket(): GameSocket {
     };
 
     ws.onerror = () => {
+      // Don't surface a blocking error here: the WebSocket upgrade may be
+      // blocked by a reverse proxy while the HTTP fallback still works. The
+      // HTTP sync (kicked off on connect) governs the error state, and the
+      // game keeps running over the /rooms/action fallback.
       stopSyncRetries();
-      useErrorStore.getState().setWsError("ws_connection_error");
     };
 
     ws.onclose = () => {

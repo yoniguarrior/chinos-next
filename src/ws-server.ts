@@ -48,6 +48,12 @@ function send(socket: WebSocket, event: string, data: unknown): void {
   }
 }
 
+// Enable with WS_DEBUG=1 to log every HTTP upgrade attempt that reaches Node.
+// If a browser tries to connect and nothing is logged here, the upgrade is
+// being blocked/stripped before Node (Apache proxy mode, or a proxy_pass to a
+// port the Passenger-managed app is not actually listening on).
+const WS_DEBUG = process.env.WS_DEBUG === "1";
+
 export function attachGameWebSocketServer(server: HttpServer): void {
   const wss = new WebSocketServer({ noServer: true });
 
@@ -55,6 +61,17 @@ export function attachGameWebSocketServer(server: HttpServer): void {
     "upgrade",
     (req: IncomingMessage, socket: Duplex, head: Buffer) => {
       const url = new URL(req.url ?? "/", "http://localhost");
+
+      if (WS_DEBUG) {
+        console.log(
+          `[ws:upgrade] ${req.method} ${url.pathname}` +
+            ` upgrade=${req.headers.upgrade ?? "-"}` +
+            ` connection=${req.headers.connection ?? "-"}` +
+            ` cookie=${req.headers.cookie ? "yes" : "no"}` +
+            ` xff=${req.headers["x-forwarded-for"] ?? "-"}`,
+        );
+      }
+
       if (url.pathname !== WS_PATH) {
         // Not ours: let other upgrade listeners (e.g. Next HMR in dev) handle it.
         return;
