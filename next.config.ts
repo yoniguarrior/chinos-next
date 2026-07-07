@@ -20,6 +20,16 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      {
+        // Always re-fetch the legacy /sw.js kill-switch so old Nuxt PWA
+        // workers get unregistered promptly.
+        source: "/sw.js",
+        headers: [
+          { key: "Content-Type", value: "application/javascript; charset=utf-8" },
+          { key: "Cache-Control", value: "no-store, must-revalidate" },
+          { key: "Service-Worker-Allowed", value: "/" },
+        ],
+      },
     ];
   },
 };
