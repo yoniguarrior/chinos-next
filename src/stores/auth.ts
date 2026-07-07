@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import type { User } from "@/types/auth";
 import type { LoginPayload } from "@/types/auth";
-import { useApi } from "@/lib/api";
+import { createApi } from "@/lib/api";
 import { getLocalState, setLocalState } from "@/lib/local-state";
 import { useErrorStore } from "./error";
 
@@ -55,7 +55,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   login: async (payload) => {
     const error = useErrorStore.getState();
-    const { post } = useApi("/users/login");
+    const { post } = createApi("/users/login");
 
     try {
       const loggedUser = await post<{ data: User }>(payload);
@@ -73,7 +73,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   refreshToken: async () => {
     const error = useErrorStore.getState();
-    const { get: apiGet } = useApi("/users/refacctk");
+    const { get: apiGet } = createApi("/users/refacctk");
 
     try {
       const loggedUser = await apiGet<{ data: User }>();
@@ -90,7 +90,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const { user } = get();
 
     if (user.accessToken !== "") {
-      const { post } = useApi("/users/logout", user.accessToken);
+      const { post } = createApi("/users/logout", user.accessToken);
       try {
         await post();
         error.reset();
@@ -100,7 +100,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         if (err.statusCode === 401) {
           try {
             await get().refreshToken();
-            const retry = useApi("/users/logout", get().user.accessToken);
+            const retry = createApi("/users/logout", get().user.accessToken);
             await retry.post();
             error.reset();
           } catch (e2) {

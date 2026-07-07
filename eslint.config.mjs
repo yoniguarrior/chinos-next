@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Compiled WebSocket server bundle and CommonJS entry point:
+    "dist-server/**",
+    "server.js",
   ]),
 ]);
 

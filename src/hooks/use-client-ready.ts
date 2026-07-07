@@ -1,17 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
+
+const emptySubscribe = () => () => {};
 
 /**
- * False during SSR and the hydration pass; true after mount.
- * Use to gate client-only UI (auth state, etc.) and avoid hydration mismatches.
+ * Returns false during SSR/hydration and true after the component is
+ * mounted on the client (hydration-safe, no extra render cascade).
  */
 export function useClientReady(): boolean {
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    setReady(true);
-  }, []);
-
-  return ready;
+  return useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  );
 }

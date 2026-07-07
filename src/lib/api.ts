@@ -1,7 +1,8 @@
 /**
- * API client (equivalent to the Nuxt `useApi` composable): same-origin
- * fetch with credentials, optional Bearer header and NestJS-style error
- * normalization (the server returns `{ statusCode, error, ... }` on failure).
+ * API client (equivalent to the Nuxt `useApi` composable, renamed because
+ * it is a plain factory, not a React hook): same-origin fetch with
+ * credentials, optional Bearer header and NestJS-style error normalization
+ * (the server returns `{ statusCode, error, ... }` on failure).
  */
 
 export interface ApiError extends Error {
@@ -44,7 +45,7 @@ async function request<T>(url: string, options: RequestInit): Promise<T> {
   return body as T;
 }
 
-export function useApi(endpoint: string, accessToken?: string) {
+export function createApi(endpoint: string, accessToken?: string) {
   const url = `${API_BASE}${endpoint}`;
 
   const headers: Record<string, string> = {

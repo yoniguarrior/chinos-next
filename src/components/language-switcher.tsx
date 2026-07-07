@@ -9,12 +9,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  LOCALES,
-  LOCALE_COOKIE,
-  LOCALE_LABELS,
-  type Locale,
-} from "@/i18n/config";
+import { LOCALES, LOCALE_LABELS, type Locale } from "@/i18n/config";
+import { setLocaleCookie } from "@/lib/locale-cookie";
 import { cn } from "@/lib/utils";
 
 export function LanguageSwitcher() {
@@ -22,7 +18,7 @@ export function LanguageSwitcher() {
   const router = useRouter();
 
   const changeLocale = (next: Locale) => {
-    document.cookie = `${LOCALE_COOKIE}=${next};path=/;max-age=31536000;samesite=lax`;
+    setLocaleCookie(next);
     router.refresh();
   };
 
