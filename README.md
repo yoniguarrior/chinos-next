@@ -1,36 +1,99 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Juego de Los Chinos (chinos-next)
 
-## Getting Started
+Clásico juego de Los Chinos para jugar online en tiempo real. Migración a
+**Next.js 16** (App Router) de la versión anterior en Nuxt 4
+([chinos-nuxt](https://github.com/yoniguarrior/chinosgame)).
 
-First, run the development server:
+## Stack
+
+- **Next.js 16** (App Router, Turbopack) + React 19 + TypeScript estricto
+- **Tailwind CSS 4** + shadcn/ui (tema con primario rojo `#b91c1c`)
+- **MongoDB** con Mongoose (conexión cacheada)
+- **WebSocket nativo** (`ws`) para el juego en tiempo real, servido por un
+  servidor Node personalizado (`server.js`) en `/api/ws/game`
+- **Zustand** (estado), **react-hook-form + zod** (formularios),
+  **next-intl** (es/en/fr/it por cookie, sin prefijo de URL)
+- **PWA** con Serwist (`@serwist/turbopack`), service worker en `/serwist/sw.js`
+- **Nodemailer + Handlebars** para emails de verificación y recuperación
+
+## Desarrollo
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env   # completar valores (MongoDB, JWT, SMTP...)
+npm run dev            # compila el bundle WS y arranca server.js (puerto 5000)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Scripts:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Script | Descripción |
+| --- | --- |
+| `npm run dev` | Compila `dist-server/` y arranca `server.js` en modo dev |
+| `npm run build` | `next build` + compilación del servidor WebSocket |
+| `npm start` | Arranca `server.js` (requiere build previo y `NODE_ENV=production`) |
+| `npm run lint` | ESLint |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Arquitectura
 
-## Learn More
+- `src/app/api/**` — Route Handlers (misma API y cookies `ksa_lch`/`ws_chgame`
+  que la versión Nuxt).
+- `src/ws-server.ts` — servidor WebSocket del juego; se compila a
+  `dist-server/` con `tsconfig.server.json` y se adjunta en `server.js` al
+  mismo puerto HTTP.
+- `server.js` — punto de entrada único: handler de Next + upgrade de WebSocket.
+- Fallbacks HTTP (`/api/rooms/sync`, `/api/rooms/action`) para proxys que no
+  reenvían el upgrade de WebSocket.
+- Auth con 3 JWT: access (memoria) + refresh y WS (cookies HttpOnly).
 
-To learn more about Next.js, take a look at the following resources:
+## Despliegue en Plesk (Ubuntu 24 + Node.js 24)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. **Subir el código** (git pull o Plesk Git) al directorio de la app.
+2. En **Websites & Domains → Node.js**:
+   - *Node.js Version*: 24.x
+   - *Document Root*: `/<app>/public`
+   - *Application Root*: `/<app>`
+   - *Application Startup File*: `server.js`
+3. **Variables de entorno** (botón *Environment Variables* o fichero `.env` en
+   la raíz): las de `.env.example` con valores reales. Importante:
+   - `NODE_ENV=production`
+   - `PORT` (Plesk lo suele inyectar; el server usa 5000 por defecto)
+   - `MONGODB_URI`, secretos JWT, `COOKIE_DOMAIN_PROD`, SMTP…
+   - `NEXT_PUBLIC_APP_HOST=https://<dominio>` (se inyecta en build)
+4. **Instalar dependencias y compilar** (botón *NPM install* + *Run script* →
+   `build`, o por SSH):
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+   ```bash
+   npm ci
+   npm run build
+   ```
 
-## Deploy on Vercel
+5. **Reiniciar la aplicación** desde el panel.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### WebSocket a través del proxy de Plesk
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Plesk sirve la app Node detrás de nginx/Apache. Para que el WebSocket
+funcione, en **Apache & nginx Settings → Additional nginx directives**:
+
+```nginx
+location /api/ws/game {
+    proxy_pass http://127.0.0.1:5000;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $host;
+    proxy_read_timeout 300s;
+}
+```
+
+Si el proxy no reenvía el upgrade, la aplicación sigue funcionando con los
+fallbacks HTTP (`/api/rooms/sync` y `/api/rooms/action`), aunque las
+actualizaciones en tiempo real degradan a peticiones bajo demanda.
+
+### Notas
+
+- El registro de peers WebSocket y el lock por sala son **en memoria**: la app
+  debe ejecutarse como **una sola instancia** Node (configuración por defecto
+  en Plesk). Varias partidas simultáneas funcionan sin problema; lo que no
+  soporta es clustering/varias réplicas.
+- El service worker se sirve en `/serwist/sw.js` (generado en build); el
+  manifest en `/manifest.webmanifest`.
