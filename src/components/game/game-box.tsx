@@ -2,12 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { ChevronRight, Grab, Hand, Loader2 } from "lucide-react";
+import { Loader2, Play } from "lucide-react";
 import { useRoomStore } from "@/stores/room";
 import { GameStatus, MessageType } from "@/types/enums";
 import type { IGameMsg, IBtnMsg, IUserAction, IUserInput } from "@/types/game";
 import { GameUserInput } from "./game-user-input";
 import { GameUserMsg } from "./game-user-msg";
+import { FistIcon, OpenHandIcon } from "./hand-icons";
 
 const MSG_TIMEOUT = 2000;
 
@@ -238,17 +239,13 @@ export function GameBox({
                       <div className="player-view" style={playerViewStyle(h)}>
                         <div className="player-in-turn">
                           {h === turnIndex && (
-                            <ChevronRight className="in-turn-flag" />
+                            <Play className="in-turn-flag" />
                           )}
                         </div>
                         {player.lifted ? (
-                          <Hand
-                            className={`hand-icon open ${h === turnIndex ? "txt-custom" : ""}`}
-                          />
+                          <OpenHandIcon className="hand-icon open" />
                         ) : (
-                          <Grab
-                            className={`hand-icon closed ${h === turnIndex ? "txt-custom" : ""}`}
-                          />
+                          <FistIcon className="hand-icon closed" />
                         )}
                         <h3
                           className={`player-name ${

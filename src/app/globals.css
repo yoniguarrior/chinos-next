@@ -159,7 +159,7 @@
   --footer-height: 4.3vh;
   --color-hand: #e6ad7f;
   --gb-dim: 96vw;
-  --hand-size: 9vh;
+  --hand-size: 11vh;
   --circle-radius: 32vw;
   --p-item-padding: 0.25vh;
 }
@@ -321,7 +321,9 @@ main {
 }
 
 .btn-square {
-  @apply min-w-0! p-1! text-xl;
+  @apply inline-flex min-w-0! items-center justify-center p-1! text-lg;
+  height: var(--action-btn-dim, 2.25rem);
+  aspect-ratio: 1 / 1;
 }
 
 .btn-square-sm {
@@ -535,17 +537,64 @@ main {
   @apply mb-8;
 }
 
-main.room-main {
-  @apply grid h-screen grid-rows-[var(--header-height)_var(--p-info-height)_1fr_40px];
+/* ------------------------------------------------------------------ *
+ * Room full-height layout: the whole screen (room header, score,
+ * game, chat and footer) fits in exactly 100vh via a flex chain.
+ * ------------------------------------------------------------------ */
+
+:root.room,
+:root.room body {
+  height: 100dvh;
+  overflow: hidden;
+}
+
+:root.room main {
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+}
+
+:root.room main > .container-auto {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+}
+
+.room-page {
+  display: flex;
+  min-height: 0;
+  height: 100%;
+  flex-direction: column;
 }
 
 .room .header {
   @apply w-screen bg-red-700;
+  height: var(--header-height);
+  flex: none;
+}
+
+/* Hide the main site header once a game is in play. */
+:root.game-playing .main-header {
+  display: none;
 }
 
 .game-info {
   @apply bg-neutral-200;
   font-size: var(--label-font-size);
+  flex: none;
+}
+
+.room .main-content.room-content {
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+  padding: 0;
+}
+
+/* Footer keeps its natural height; the middle area absorbs the rest. */
+:root.room main > .flex-none {
+  flex: none;
 }
 
 .room .players-row,
@@ -595,11 +644,13 @@ main.room-main {
 }
 
 .play-container {
-  @apply mx-auto grid h-[var(--play-height)] grid-rows-[var(--gb-dim)_minmax(100px,_auto)_minmax(0,_1fr)] overflow-hidden;
+  @apply mx-auto grid h-full min-h-0 w-full flex-1 grid-rows-[var(--gb-dim)_minmax(0,_auto)_minmax(0,_1fr)] overflow-hidden;
 }
 
 #actions .btn-check {
-  @apply m-0 min-w-0 p-0 text-2xl;
+  @apply m-0 inline-flex min-w-0 items-center justify-center p-0 text-xl;
+  height: var(--action-btn-dim);
+  aspect-ratio: 1 / 1;
 }
 
 #game-msg {
@@ -704,12 +755,13 @@ main.room-main {
 }
 
 #send-button {
-  @apply -m-[1px] min-w-0 rounded-none rounded-r-[4px] p-0 text-xl;
+  @apply -m-[1px] inline-flex min-w-0 items-center justify-center rounded-none rounded-r-[4px] p-0 text-xl;
+  aspect-ratio: 1 / 1;
 }
 
 #send-button > div,
 #send-button svg {
-  @apply h-[27px] w-[27px];
+  @apply h-[24px] w-[24px];
 }
 
 .room-footer {
@@ -760,7 +812,9 @@ main.room-main {
 
 .player-view .hand-icon {
   color: var(--color-hand);
-  width: var(--hand-size);
+  fill: currentColor;
+  stroke: none;
+  width: auto;
   height: var(--hand-size);
   margin: 0 auto;
   transform: rotateY(180deg) translate(-0.6vh);
@@ -818,6 +872,8 @@ main.room-main {
 .in-turn-flag {
   width: 3vh;
   height: 3vh;
+  fill: currentColor;
+  stroke: currentColor;
 }
 
 .player-name {

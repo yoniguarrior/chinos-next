@@ -25,7 +25,7 @@ export function RoomHeader({ onExitRoom, onPlayGame }: RoomHeaderProps) {
           <span className="sr-only">Chinos Game</span>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            className="header-content w-auto"
+            className="header-content my-[0.3em] w-auto"
             src="/logo2.svg"
             alt="Juego de Los Chinos"
           />

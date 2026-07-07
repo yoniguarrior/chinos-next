@@ -58,19 +58,27 @@ export function RoomContent({ roomName }: { roomName: string }) {
     if (connectedRef.current) return;
     connectedRef.current = true;
 
-    document.documentElement.className = "room";
+    // Add (not replace) the class so the font CSS variables set on <html>
+    // by the root layout are preserved.
+    document.documentElement.classList.add("room");
     window.addEventListener("resize", resizeGb);
     resizeGb();
     connect();
 
     return () => {
-      document.documentElement.className = "";
+      document.documentElement.classList.remove("room");
       window.removeEventListener("resize", resizeGb);
       close();
       connectedRef.current = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Hide the main site header while a game is in play.
+  useEffect(() => {
+    document.documentElement.classList.toggle("game-playing", gameInPlay);
+    return () => document.documentElement.classList.remove("game-playing");
+  }, [gameInPlay]);
 
   const roomSlug = storeRoomName || roomName;
 
@@ -149,7 +157,7 @@ export function RoomContent({ roomName }: { roomName: string }) {
   };
 
   return (
-    <div>
+    <div className="room-page">
       <RoomHeader onExitRoom={() => void exit()} onPlayGame={play} />
       <PlayersInfo />
       <div className="main-content room-content">
@@ -209,7 +217,7 @@ export function RoomContent({ roomName }: { roomName: string }) {
                       )}
                       <button
                         type="button"
-                        className="btn min-w-0! w-auto p-0! text-2xl"
+                        className="btn btn-square"
                         disabled={copied}
                         title={t("button.copy_to_clipboard")}
                         onClick={copyShareUrl}

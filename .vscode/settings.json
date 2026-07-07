@@ -1,0 +1,13 @@
+{
+  "files.associations": {
+    "*.page-template": "vue",
+    "*.layout-template": "vue",
+    "*.vue": "vue",
+    "*.css": "tailwindcss",
+    "plyconfig.json": "jsonc"
+  },
+  "i18n-ally.localesPaths": [
+    "messages",
+    "src/i18n"
+  ]
+}
