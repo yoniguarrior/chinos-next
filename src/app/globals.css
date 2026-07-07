@@ -715,3 +715,118 @@ main.room-main {
 .room-footer {
   @apply relative w-full bg-neutral-700;
 }
+
+/* ------------------------------------------------------------------ *
+ * GameBox (ported from GameBox.vue scoped styles)
+ * ------------------------------------------------------------------ */
+
+.txt-custom {
+  color: var(--color-chmain) !important;
+}
+
+.game-container {
+  width: var(--gb-dim);
+  height: var(--gb-dim);
+  margin: 0 auto;
+  position: relative;
+}
+
+.game-circle {
+  position: absolute;
+  width: calc(var(--circle-radius) * 2);
+  height: calc(var(--circle-radius) * 2);
+  border: dashed 1px;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 0;
+}
+
+.player-view {
+  width: 11vh;
+  height: 13vh;
+  top: 50%;
+  left: 50%;
+}
+
+.player-view,
+.player-in-turn,
+.player-coins,
+.player-bet {
+  position: absolute;
+  text-align: center;
+}
+
+.player-view .hand-icon {
+  color: var(--color-hand);
+  width: var(--hand-size);
+  height: var(--hand-size);
+  margin: 0 auto;
+  transform: rotateY(180deg) translate(-0.6vh);
+}
+
+.player-view .hand-icon.closed {
+  transform: rotateY(0) translate(-0.6vh);
+}
+
+.game-pause {
+  height: auto;
+  margin: auto 0;
+  max-width: 90vw;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.player-coins,
+.player-bet,
+.player-in-turn {
+  z-index: 100;
+  font-size: 3vh;
+  width: 3.6vh;
+  height: 3.6vh;
+  line-height: 2.8vh;
+}
+
+.player-coins,
+.player-bet {
+  border: 0.3vh solid darkgoldenrod;
+  border-radius: 50%;
+  background: #daa520;
+  color: #fff;
+}
+
+.player-coins {
+  top: 50%;
+  left: 50%;
+}
+
+.player-bet {
+  top: -25%;
+  left: 50%;
+}
+
+.player-in-turn {
+  color: var(--color-chmain) !important;
+  top: 50%;
+  left: -35%;
+  transform: translate(35%, -50%);
+}
+
+.in-turn-flag {
+  width: 3vh;
+  height: 3vh;
+}
+
+.player-name {
+  font-size: calc(var(--label-font-size) * 1.4);
+  padding: 0;
+  margin: 0;
+  line-height: calc(var(--label-font-size) * 1.8);
+}
+
+.player-name.rotate {
+  transform: rotate(180deg);
+}
