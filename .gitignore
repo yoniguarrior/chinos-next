@@ -20,6 +20,11 @@
 # compiled websocket server bundle
 /dist-server/
 
+# serwist service worker (generated at build time)
+/public/sw.js
+/public/sw.js.map
+/public/swe-worker-*.js
+
 # production
 /build
 

@@ -28,6 +28,12 @@ export const metadata: Metadata = {
   icons: {
     icon: [{ url: "/favicon.svg" }, { url: "/favicon.ico" }],
     apple: "/pwa-192x192.png",
+    other: [
+      { rel: "mask-icon", url: "/safari-pinned-tab.svg", color: "#b91c1c" },
+    ],
+  },
+  other: {
+    "msapplication-TileColor": "#b91c1c",
   },
 };
 
