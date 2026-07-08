@@ -30,6 +30,16 @@ const nextConfig: NextConfig = {
           { key: "Service-Worker-Allowed", value: "/" },
         ],
       },
+      {
+        // Never HTTP-cache the active service worker or its precache manifest,
+        // so a redeploy is picked up immediately instead of leaving the PWA
+        // frozen on a stale shell that references now-404 JS chunks.
+        source: "/serwist/:path*",
+        headers: [
+          { key: "Cache-Control", value: "no-store, must-revalidate" },
+          { key: "Service-Worker-Allowed", value: "/" },
+        ],
+      },
     ];
   },
 };
