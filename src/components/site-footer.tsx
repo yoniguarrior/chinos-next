@@ -7,7 +7,7 @@ export function SiteFooter() {
   const t = useTranslations();
 
   return (
-    <div className="w-full flex-none bg-gray-700 pt-3 pb-2">
+    <div className="site-footer w-full flex-none bg-gray-700 pt-3 pb-2">
       <div className="mx-auto mb-2 flex max-w-7xl justify-center">
         <nav className="flex divide-x divide-gray-400 text-gray-400">
           <Link className="footer-menu-item" href="/privacy">

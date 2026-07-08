@@ -1,85 +1,141 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { getLocalState } from "@/lib/local-state";
-
-const MOBILE_UA =
-  /(android|bb\d+|meego).+mobile|armv7l|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|redmi|series[46]0|samsungbrowser.*mobile|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i;
-
-function isMobileDevice(): boolean {
-  if (typeof navigator === "undefined") return false;
-  const ua = navigator.userAgent;
-  return MOBILE_UA.test(ua) && !/CrOS/.test(ua);
-}
+import { isMobileDevice } from "@/lib/mobile";
 
 const EXIT_WINDOW_MS = 2000;
+const BLOCK_STATE = { mobileBackTrap: true } as const;
+
+type BackAction = { type: "navigate"; href: string } | { type: "exit-app" };
+
+function resolveBackAction(pathname: string): BackAction {
+  const room = getLocalState().room;
+
+  if (room) {
+    const roomPath = `/rooms/${encodeURIComponent(room)}`;
+    if (pathname !== roomPath) {
+      return { type: "navigate", href: roomPath };
+    }
+    return { type: "navigate", href: "/rooms" };
+  }
+
+  if (pathname === "/") {
+    return { type: "exit-app" };
+  }
+
+  if (pathname === "/rooms" || pathname === "/rooms/create") {
+    return { type: "navigate", href: "/" };
+  }
+
+  if (pathname.startsWith("/rooms/join/")) {
+    return { type: "navigate", href: "/rooms" };
+  }
+
+  if (/^\/rooms\/[^/]+$/.test(pathname)) {
+    return { type: "navigate", href: "/rooms" };
+  }
+
+  if (
+    pathname === "/login" ||
+    pathname === "/register" ||
+    pathname === "/forgot-password" ||
+    pathname === "/register-success" ||
+    pathname === "/logout"
+  ) {
+    return { type: "navigate", href: "/" };
+  }
+
+  if (
+    pathname.startsWith("/verify-email/") ||
+    pathname.startsWith("/verify-forgot-pass/")
+  ) {
+    return { type: "navigate", href: "/login" };
+  }
+
+  if (pathname === "/profile") {
+    return { type: "navigate", href: "/" };
+  }
+
+  if (
+    pathname === "/history" ||
+    pathname === "/rules" ||
+    pathname === "/ranking" ||
+    pathname === "/privacy" ||
+    pathname === "/cookies" ||
+    pathname === "/legal"
+  ) {
+    return { type: "navigate", href: "/" };
+  }
+
+  return { type: "navigate", href: "/" };
+}
 
 /**
- * App-like handling of the mobile hardware back button:
- * - Keeps a sentinel history entry so the first back press is intercepted
- *   instead of leaving the site immediately.
- * - If the player is in a room, back returns to that room.
- * - Otherwise the first back shows "press back again to exit" and only the
- *   second press within a short window actually leaves the app.
- *
- * Unlike the previous implementation, it does NOT redirect to "/" on mount, so
- * deep links and shared room URLs keep working on mobile.
+ * Fully replaces the mobile hardware back button with app-like navigation.
+ * The browser history stack is trapped (every popstate is cancelled) and back
+ * follows our own route map instead of the real history depth.
  */
 export function MobileBackGuard() {
   const router = useRouter();
+  const pathname = usePathname();
   const t = useTranslations("misc");
   const [showTooltip, setShowTooltip] = useState(false);
+  const pathnameRef = useRef(pathname);
+  const armedRef = useRef(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  useEffect(() => {
+    pathnameRef.current = pathname;
+  }, [pathname]);
 
   useEffect(() => {
     if (!isMobileDevice()) return;
 
-    let armed = false;
-    let leaving = false;
-    let timer: ReturnType<typeof setTimeout> | undefined;
-
-    const pushGuard = () => {
-      window.history.pushState({ chBackGuard: true }, "");
+    const pushTrap = () => {
+      window.history.pushState(BLOCK_STATE, "", window.location.href);
     };
 
-    pushGuard();
+    const disarmExit = () => {
+      armedRef.current = false;
+      if (timerRef.current) clearTimeout(timerRef.current);
+      setShowTooltip(false);
+    };
 
-    const handlePopState = () => {
-      if (leaving) {
-        leaving = false;
+    const handleBack = () => {
+      const action = resolveBackAction(pathnameRef.current);
+
+      if (action.type === "navigate") {
+        disarmExit();
+        router.replace(action.href);
         return;
       }
 
-      const roomName = getLocalState().room;
-      if (roomName) {
-        void router.replace(`/rooms/${encodeURIComponent(roomName)}`);
-        pushGuard();
+      if (armedRef.current) {
+        disarmExit();
+        window.close();
         return;
       }
 
-      if (armed) {
-        armed = false;
-        if (timer) clearTimeout(timer);
-        setShowTooltip(false);
-        leaving = true;
-        window.history.back();
-        return;
-      }
-
-      armed = true;
+      armedRef.current = true;
       setShowTooltip(true);
-      pushGuard();
-      timer = setTimeout(() => {
-        armed = false;
-        setShowTooltip(false);
-      }, EXIT_WINDOW_MS);
+      if (timerRef.current) clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(disarmExit, EXIT_WINDOW_MS);
     };
 
-    window.addEventListener("popstate", handlePopState);
+    pushTrap();
+
+    const onPopState = () => {
+      pushTrap();
+      handleBack();
+    };
+
+    window.addEventListener("popstate", onPopState);
     return () => {
-      window.removeEventListener("popstate", handlePopState);
-      if (timer) clearTimeout(timer);
+      window.removeEventListener("popstate", onPopState);
+      if (timerRef.current) clearTimeout(timerRef.current);
     };
   }, [router]);
 

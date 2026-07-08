@@ -143,6 +143,29 @@
   --ui-secondary: #666666;
 }
 
+/* Installed mobile PWA: keep content above the system navigation bar. */
+html.pwa-mobile body {
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 2.75rem);
+}
+
+html.pwa-mobile.pwa-immersive body {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+html.pwa-mobile .site-footer {
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+html.pwa-mobile:not(.pwa-immersive) .site-footer {
+  transform: translateY(0);
+}
+
+html.pwa-mobile.pwa-immersive .site-footer {
+  transform: translateY(calc(100% + env(safe-area-inset-bottom, 0px)));
+  opacity: 0;
+  pointer-events: none;
+}
+
 :root.room {
   --header-height: 6.5vh;
   --p-info-height: 5.2vh;

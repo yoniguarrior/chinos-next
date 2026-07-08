@@ -7,6 +7,7 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Clásico juego de Los Chinos para jugar online",
     start_url: "/",
     display: "standalone",
+    display_override: ["fullscreen", "standalone"],
     orientation: "portrait",
     background_color: "#ffffff",
     theme_color: "#b91c1c",
