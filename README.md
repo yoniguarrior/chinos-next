@@ -101,8 +101,15 @@ En **Websites & Domains → Apache & nginx Settings**:
 
    ```nginx
    passenger_min_instances 1;
-   passenger_max_pool_size 1;
    ```
+
+   > `passenger_max_pool_size` **no** se puede poner aquí (solo es válido en el
+   > contexto `http` global de nginx; en el vhost da
+   > `directive is not allowed here`). Con `passenger_min_instances 1` basta:
+   > Plesk mantiene un único proceso por app. Si de verdad necesitas forzar el
+   > límite global, edita el bloque `http { }` de nginx por SSH
+   > (`passenger_max_pool_size 1;` + `nginx -t && systemctl reload nginx`),
+   > sabiendo que afecta a **todas** las apps Passenger del servidor.
 
 ### 5. Migración desde la PWA Nuxt
 
