@@ -9,13 +9,29 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
-const DISMISS_KEY = "pwa-install-dismissed";
+const DISMISS_COOKIE = "pwa-install-dismissed";
+const DISMISS_DAYS = 7;
+
+function isDismissed(): boolean {
+  return document.cookie
+    .split("; ")
+    .some((c) => c === `${DISMISS_COOKIE}=1`);
+}
+
+function setDismissed(): void {
+  const maxAge = DISMISS_DAYS * 24 * 60 * 60;
+  document.cookie = `${DISMISS_COOKIE}=1;path=/;max-age=${maxAge};samesite=lax`;
+}
 
 /**
- * Restores the "install the app" suggestion that the previous Nuxt app showed
- * via @vite-pwa/nuxt. Captures the browser's `beforeinstallprompt` event and
- * shows a small banner with an install button. The banner is hidden when the
- * app is already installed (standalone) or the user dismissed it.
+ * Restores the "install the app" suggestion the previous Nuxt app showed.
+ *
+ * When the browser fires `beforeinstallprompt` we try to open the native
+ * install dialog directly. Browsers require a user gesture to call `prompt()`,
+ * so when that is not available we fall back to a small banner whose button
+ * provides the gesture. Dismissing (banner "not now" or the native "cancel")
+ * stores a cookie for a few days so the prompt does not reappear on every
+ * navigation or refresh.
  */
 export function PwaInstallPrompt() {
   const t = useTranslations("pwa");
@@ -29,12 +45,24 @@ export function PwaInstallPrompt() {
       (window.navigator as { standalone?: boolean }).standalone === true;
     if (isStandalone) return;
 
-    if (window.localStorage.getItem(DISMISS_KEY) === "1") return;
+    if (isDismissed()) return;
 
     const handleBeforeInstall = (event: Event) => {
       event.preventDefault();
-      setDeferredPrompt(event as BeforeInstallPromptEvent);
-      setVisible(true);
+      const promptEvent = event as BeforeInstallPromptEvent;
+
+      // Try to show the native dialog straight away. If the browser rejects it
+      // (no user gesture available), show the fallback banner instead.
+      void (async () => {
+        try {
+          await promptEvent.prompt();
+          const { outcome } = await promptEvent.userChoice;
+          if (outcome === "dismissed") setDismissed();
+        } catch {
+          setDeferredPrompt(promptEvent);
+          setVisible(true);
+        }
+      })();
     };
 
     const handleInstalled = () => {
@@ -54,13 +82,14 @@ export function PwaInstallPrompt() {
   const install = async () => {
     if (!deferredPrompt) return;
     await deferredPrompt.prompt();
-    await deferredPrompt.userChoice;
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === "dismissed") setDismissed();
     setDeferredPrompt(null);
     setVisible(false);
   };
 
   const dismiss = () => {
-    window.localStorage.setItem(DISMISS_KEY, "1");
+    setDismissed();
     setVisible(false);
   };
 
