@@ -42,7 +42,7 @@ export function SiteHeader() {
 
   return (
     <div className="main-header bg-red-700">
-      <div className="mx-auto max-w-5xl px-4 py-2 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-5xl px-2 py-1 sm:px-6 sm:py-2 lg:px-8">
         <div className="flex items-center justify-between">
           <div className="flex w-screen items-center">
             <div className="shrink-0">
@@ -51,11 +51,11 @@ export function SiteHeader() {
             <div className="ml-2 hidden flex-1 items-baseline justify-center space-x-2 md:ml-6 md:flex">
               <NavBar menuItems={mainMenuItems} onNavigate={closeMobMenu} />
             </div>
-            <div className="ml-2 flex flex-1 items-baseline justify-center space-x-4 md:ml-6 md:flex-none md:justify-end">
+            <div className="ml-1 flex flex-1 items-center justify-end space-x-1 sm:ml-2 sm:space-x-4 md:ml-6 md:flex-none md:items-baseline">
               <NavBar menuItems={userMenuItems} onNavigate={closeMobMenu} />
               <LanguageSwitcher />
             </div>
-            <div className="-mr-2 flex md:hidden">
+            <div className="-mr-1 flex sm:-mr-2 md:hidden">
               <button
                 type="button"
                 className="btn-mob-menu"

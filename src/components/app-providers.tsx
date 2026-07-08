@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { SerwistProvider } from "@serwist/turbopack/react";
 import { useAuthStore } from "@/stores/auth";
 import { MobileBackGuard } from "@/components/mobile-back-guard";
+import { PwaInstallPrompt } from "@/components/pwa-install-prompt";
 
 /**
  * Client-side bootstrapping (port of the Nuxt client plugins):
@@ -52,6 +53,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
     <SerwistProvider swUrl="/serwist/sw.js">
       {children}
       <MobileBackGuard />
+      <PwaInstallPrompt />
     </SerwistProvider>
   );
 }

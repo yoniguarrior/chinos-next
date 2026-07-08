@@ -365,7 +365,7 @@ main {
 }
 
 .menu-item {
-  @apply border-b-[3px] border-transparent bg-transparent p-2 text-base font-[400] text-white not-italic no-underline! opacity-100 transition duration-200 ease-in-out hover:bg-white hover:text-red-700;
+  @apply border-b-[3px] border-transparent bg-transparent p-1.5 text-sm font-[400] text-white not-italic whitespace-nowrap no-underline! opacity-100 transition duration-200 ease-in-out hover:bg-white hover:text-red-700 sm:p-2 sm:text-base;
 }
 
 .menu-item-active {
@@ -381,7 +381,7 @@ main {
 }
 
 .btn-mob-menu {
-  @apply inline-flex items-center justify-center rounded-md bg-transparent p-2 text-white hover:bg-white hover:text-red-700 focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-red-700 focus:outline-none;
+  @apply inline-flex items-center justify-center rounded-md bg-transparent p-1.5 text-white hover:bg-white hover:text-red-700 focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-red-700 focus:outline-none sm:p-2;
 }
 
 .form-field {
@@ -574,7 +574,8 @@ main {
   flex: none;
 }
 
-/* Hide the main site header once a game is in play. */
+/* Hide the main site header while inside a room (and during a game). */
+:root.room .main-header,
 :root.game-playing .main-header {
   display: none;
 }

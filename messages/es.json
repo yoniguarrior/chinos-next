@@ -189,6 +189,12 @@
     "processing": "Procesando ...",
     "valid_user_name": "letras, números y _"
   },
+  "pwa": {
+    "dismiss": "Ahora no",
+    "install": "Instalar",
+    "install_text": "Instala Los Chinos en tu dispositivo para jugar más rápido y a pantalla completa.",
+    "install_title": "Instalar la app"
+  },
   "no_viable_bet": "Ya está dicho",
   "page": {},
   "pages": {
