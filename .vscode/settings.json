@@ -9,5 +9,9 @@
   "i18n-ally.localesPaths": [
     "messages",
     "src/i18n"
+  ],
+  "cSpell.words": [
+    "Juego",
+    "Sala"
   ]
 }

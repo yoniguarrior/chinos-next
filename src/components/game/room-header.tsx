@@ -36,7 +36,7 @@ export function RoomHeader({ onExitRoom, onPlayGame }: RoomHeaderProps) {
             <h2 className="room-title ml-1 inline">{roomName}</h2>
           </div>
           {!gameInPlay && (
-            <div id="header-buttons" className="flex-shrink-0 text-center">
+            <div id="header-buttons" className="shrink-0 text-center">
               {connectedPlayers > 1 && (
                 <button
                   className="header-btn card-btn"
