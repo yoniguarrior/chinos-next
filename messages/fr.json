@@ -186,7 +186,7 @@
   "misc": {
     "alt_logo": "Jeu Los Chinos",
     "play": "Jouer",
-    "press_back_again_to_exit": "Appuyez à nouveau sur retour pour quitter",
+    "press_back_again_to_exit": "Appuyez à nouveau pour quitter l'application",
     "processing": "Traitement ...",
     "valid_user_name": "lettres, chiffres et _"
   },
