@@ -542,6 +542,51 @@ export async function gameStop(data: IWsData): Promise<WsResult> {
 }
 
 /* ------------------------------------------------------------------ *
+ * gameAbandon — end the current game without persisting stats/ranking.
+ * Previously completed games (already saved via gameStop) are untouched.
+ * ------------------------------------------------------------------ */
+
+export async function gameAbandon(data: IWsData): Promise<WsResult> {
+  const roomData = await RoomModel.findOne({ roomName: data.roomName });
+  if (!roomData) throw new WsError("non_existing_room");
+
+  const gameData = roomData.game;
+
+  if (gameData.status === "waitingStart") {
+    return { event: "stopRes", data: roomData };
+  }
+
+  gameData.status = "waitingStart";
+  gameData.playerStart = 0;
+  gameData.playerInTurn = 0;
+  gameData.gameInPause = false;
+  gameData.usersReconn = [];
+  gameData.players.forEach((p) => {
+    p.bet = null;
+    p.coins = null;
+    p.lifted = true;
+    p.saved = false;
+    p.playedRounds = 0;
+    p.wonRounds = { first: 0, won5: 0, won4: 0, won3: 0, won2: 0 };
+    p.lostRounds = 0;
+    p.points = 0;
+  });
+  gameData.inGamePlayers = [];
+  gameData.activePlayers = 0;
+  gameData.winner = null;
+  gameData.looser = null;
+  gameData.totalCoins = null;
+
+  if (roomData.game.players.length < 5) roomData.status = "open";
+
+  roomData.game = gameData;
+  roomData.markModified("game");
+  await roomData.save();
+
+  return { event: "stopRes", data: roomData };
+}
+
+/* ------------------------------------------------------------------ *
  * messageSent
  * ------------------------------------------------------------------ */
 

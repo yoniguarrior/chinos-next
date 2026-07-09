@@ -16,6 +16,7 @@ import {
 import { GameStatus } from "@/types/enums";
 import type { IUserAction } from "@/types/game";
 import { useGameSocket } from "@/hooks/use-game-socket";
+import { useRoomExitGuard } from "@/hooks/use-room-exit-guard";
 import { BaseModal } from "@/components/base-modal";
 import { Loading } from "@/components/loading";
 import { ChatBox } from "./chat-box";
@@ -52,7 +53,12 @@ export function RoomContent({ roomName }: { roomName: string }) {
   const hasError = errorStatus !== "";
 
   const [copied, setCopied] = useState(false);
+  const [showAbandonConfirm, setShowAbandonConfirm] = useState(false);
+  const [exiting, setExiting] = useState(false);
   const connectedRef = useRef(false);
+  const exitingViaAppRef = useRef(false);
+
+  useRoomExitGuard({ gameInPlay, exitingViaAppRef });
 
   useEffect(() => {
     if (connectedRef.current) return;
@@ -93,18 +99,38 @@ export function RoomContent({ roomName }: { roomName: string }) {
     setTimeout(() => setCopied(false), 1000);
   };
 
-  const exit = async () => {
-    await leaveRoom();
+  const exit = async (abandon = false) => {
+    setExiting(true);
+    try {
+      await leaveRoom(abandon);
 
-    if (!errorIsEmpty(useErrorStore.getState())) {
-      console.log("Error exiting room:", useErrorStore.getState().details);
+      if (!errorIsEmpty(useErrorStore.getState())) {
+        console.log("Error exiting room:", useErrorStore.getState().details);
+        return;
+      }
+
+      socketEmit("exitRoom");
+      close();
+      useRoomStore.getState().reset();
+      setLocalState({ room: "" });
+      exitingViaAppRef.current = true;
+      router.push("/rooms");
+    } finally {
+      setExiting(false);
+      setShowAbandonConfirm(false);
     }
+  };
 
-    socketEmit("exitRoom");
-    useRoomStore.getState().reset();
-    setLocalState({ room: "" });
+  const requestExit = () => {
+    if (gameInPlay) {
+      setShowAbandonConfirm(true);
+      return;
+    }
+    void exit(false);
+  };
 
-    router.push("/rooms");
+  const confirmAbandonAndExit = () => {
+    void exit(true);
   };
 
   const play = () => {
@@ -158,7 +184,7 @@ export function RoomContent({ roomName }: { roomName: string }) {
 
   return (
     <div className="room-page">
-      <RoomHeader onExitRoom={() => void exit()} onPlayGame={play} />
+      <RoomHeader onExitRoom={requestExit} onPlayGame={play} />
       <PlayersInfo />
       <div className="main-content room-content">
         {hasError ? (
@@ -172,7 +198,7 @@ export function RoomContent({ roomName }: { roomName: string }) {
             <p>{t(`error.${errorMessage}_exp`)}</p>
             {errorMessage === "no_joined_room" ? (
               <div className="btn-exit">
-                <button className="btn" onClick={() => void exit()}>
+                <button className="btn" onClick={() => void exit(false)}>
                   {t("button.back")}
                 </button>
               </div>
@@ -237,6 +263,44 @@ export function RoomContent({ roomName }: { roomName: string }) {
           </BaseModal>
         )}
       </div>
+
+      {showAbandonConfirm && (
+        <BaseModal>
+          <div className="card max-w-md">
+            <div className="card-body text-center">
+              <h3 className="mb-2 text-lg font-semibold">
+                {t("room.abandon_title")}
+              </h3>
+              <p className="mb-6 text-sm text-neutral-600">
+                {t("room.abandon_text")}
+              </p>
+              <div className="flex justify-center gap-3">
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={() => setShowAbandonConfirm(false)}
+                >
+                  {t("room.abandon_cancel")}
+                </button>
+                <button
+                  type="button"
+                  className="card-btn"
+                  onClick={confirmAbandonAndExit}
+                  disabled={exiting}
+                >
+                  {t("room.abandon_confirm")}
+                </button>
+              </div>
+            </div>
+          </div>
+        </BaseModal>
+      )}
+
+      {exiting && (
+        <BaseModal>
+          <Loading />
+        </BaseModal>
+      )}
     </div>
   );
 }

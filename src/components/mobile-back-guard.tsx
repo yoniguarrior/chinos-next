@@ -1,22 +1,30 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { isInRoom } from "@/lib/in-room";
 import { isMobileDevice, isStandalonePwa } from "@/lib/mobile";
 
 const EXIT_WINDOW_MS = 3000;
 const BLOCK_STATE = { mobileBackTrap: true } as const;
 
 /**
- * In the installed mobile PWA, disables the standard back button and replaces
- * it with a double-press-to-exit flow: first back shows a short message,
- * second back within the window closes the app.
+ * In the installed mobile PWA (outside a room), replaces the hardware back
+ * button with a double-press-to-exit flow. While inside a room, back is fully
+ * blocked until the player leaves via the in-app exit flow.
  */
 export function MobileBackGuard() {
+  const pathname = usePathname();
   const t = useTranslations("misc");
   const [showTooltip, setShowTooltip] = useState(false);
   const armedRef = useRef(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const pathnameRef = useRef(pathname);
+
+  useEffect(() => {
+    pathnameRef.current = pathname;
+  }, [pathname]);
 
   useEffect(() => {
     if (!isMobileDevice() || !isStandalonePwa()) return;
@@ -33,11 +41,14 @@ export function MobileBackGuard() {
 
     const exitApp = () => {
       window.close();
-      // window.close() is often blocked in PWAs; fall back to leaving history.
       window.history.go(-Math.max(window.history.length - 1, 1));
     };
 
     const handleBack = () => {
+      if (isInRoom(pathnameRef.current)) {
+        return;
+      }
+
       if (armedRef.current) {
         disarmExit();
         exitApp();

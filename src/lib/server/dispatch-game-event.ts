@@ -5,6 +5,7 @@ import {
   annotateMsg,
   closeHand,
   closeRound,
+  gameAbandon,
   gameStop,
   getSyncData,
   newRound,
@@ -71,6 +72,10 @@ export async function dispatchGameEvent(
     }
     case "gameStop": {
       const result = await gameStop(wsData);
+      return { broadcast: result };
+    }
+    case "gameAbandon": {
+      const result = await gameAbandon(wsData);
       return { broadcast: result };
     }
     case "messageSent": {

@@ -6,6 +6,8 @@ import { comparePassword } from "./crypto";
 import { getRefreshCookie, getWsCookie } from "./cookies";
 import { signWsToken, verifyRefreshToken, verifyWsToken } from "./jwt";
 import { serverConfig } from "./config";
+import { gameAbandon, roomToClientPayload } from "./game";
+import { pushToRoom } from "./ws-peers";
 
 function createDefaultGame(): Game {
   return {
@@ -345,7 +347,18 @@ export async function leaveRoom(req: Request): Promise<LeaveRoomResult> {
   const payload = verifyWsToken(wsCookie);
   if (!payload) throw apiError(400, "no_joined_room");
 
-  const room = await RoomModel.findOne({ roomName: payload.sub }).setOptions({
+  let abandon = false;
+  const contentType = req.headers.get("content-type") ?? "";
+  if (contentType.includes("application/json")) {
+    try {
+      const body = (await req.json()) as { abandon?: boolean };
+      abandon = Boolean(body.abandon);
+    } catch {
+      // Empty or invalid body: treat as a normal leave request.
+    }
+  }
+
+  let room = await RoomModel.findOne({ roomName: payload.sub }).setOptions({
     sanitizeFilter: true,
   });
 
@@ -353,7 +366,24 @@ export async function leaveRoom(req: Request): Promise<LeaveRoomResult> {
     ensureRoomGame(room);
 
     if (room.game.status !== "waitingStart") {
-      throw apiError(403, "game_in_play");
+      if (!abandon) throw apiError(403, "game_in_play");
+
+      const abandonResult = await gameAbandon({
+        roomName: payload.sub,
+        playerName: payload.userName,
+      });
+      pushToRoom(
+        payload.sub,
+        "stopRes",
+        roomToClientPayload(abandonResult.data as HydratedDocument<Room>),
+      );
+
+      room = await RoomModel.findOne({ roomName: payload.sub }).setOptions({
+        sanitizeFilter: true,
+      });
+      if (!room) {
+        return { roomName: payload.sub, playerName: payload.userName };
+      }
     }
 
     const ix = room.game.players.findIndex((p) => p.name === payload.userName);

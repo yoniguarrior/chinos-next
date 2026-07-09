@@ -175,10 +175,10 @@ export async function joinPublicRoom(
   }
 }
 
-export async function leaveRoom(): Promise<void> {
+export async function leaveRoom(abandon = false): Promise<void> {
   const { post } = createApi("/rooms/leave");
   try {
-    await post();
+    await post({ abandon });
     setLocalState({ room: "" });
     errorStore().reset();
   } catch (e) {
