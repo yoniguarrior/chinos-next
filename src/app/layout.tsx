@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Open_Sans, Raleway } from "next/font/google";
+import { DM_Mono, Open_Sans, Raleway } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { Toaster } from "@/components/ui/sonner";
@@ -16,6 +16,13 @@ const openSans = Open_Sans({
 const raleway = Raleway({
   variable: "--font-raleway",
   subsets: ["latin"],
+  weight: ["400", "700", "800"],
+});
+
+const dmMono = DM_Mono({
+  variable: "--font-dm-mono",
+  subsets: ["latin"],
+  weight: ["400", "500"],
 });
 
 export const metadata: Metadata = {
@@ -28,17 +35,17 @@ export const metadata: Metadata = {
   icons: {
     icon: [{ url: "/favicon.svg" }, { url: "/favicon.ico" }],
     apple: "/pwa-192x192.png",
-    other: [
-      { rel: "mask-icon", url: "/safari-pinned-tab.svg", color: "#b91c1c" },
+      other: [
+      { rel: "mask-icon", url: "/safari-pinned-tab.svg", color: "#e0a23f" },
     ],
   },
   other: {
-    "msapplication-TileColor": "#b91c1c",
+    "msapplication-TileColor": "#161513",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#b91c1c",
+  themeColor: "#161513",
   viewportFit: "cover",
 };
 
@@ -53,9 +60,10 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
-      className={`${openSans.variable} ${raleway.variable} h-full antialiased`}
+      suppressHydrationWarning
+      className={`${openSans.variable} ${raleway.variable} ${dmMono.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col">
+      <body className="flex min-h-full flex-col" suppressHydrationWarning>
         <NextIntlClientProvider locale={locale} messages={messages}>
           <AppProviders>
             <main className="flex flex-col">

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Share2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { leaveRoom } from "@/lib/rooms";
 import { setLocalState } from "@/lib/local-state";
 import { useErrorStore, errorIsEmpty } from "@/stores/error";
@@ -17,6 +17,7 @@ import { GameStatus } from "@/types/enums";
 import type { IUserAction } from "@/types/game";
 import { useGameSocket } from "@/hooks/use-game-socket";
 import { useRoomExitGuard } from "@/hooks/use-room-exit-guard";
+import { useWakeLock } from "@/hooks/use-wake-lock";
 import { BaseModal } from "@/components/base-modal";
 import { Loading } from "@/components/loading";
 import { ChatBox } from "./chat-box";
@@ -38,6 +39,8 @@ function resizeGb() {
 export function RoomContent({ roomName }: { roomName: string }) {
   const t = useTranslations();
   const router = useRouter();
+
+  useWakeLock();
 
   const { connect, close, socketEmit } = useGameSocket();
 
@@ -137,6 +140,14 @@ export function RoomContent({ roomName }: { roomName: string }) {
     socketEmit("gameStart");
   };
 
+  const newRound = () => {
+    socketEmit("selectNext");
+  };
+
+  const stopGame = () => {
+    socketEmit("gameStop");
+  };
+
   const handleUserAction = (data: IUserAction) => {
     switch (data.action) {
       case "coins-taken":
@@ -184,7 +195,12 @@ export function RoomContent({ roomName }: { roomName: string }) {
 
   return (
     <div className="room-page">
-      <RoomHeader onExitRoom={requestExit} onPlayGame={play} />
+      <RoomHeader
+        onExitRoom={requestExit}
+        onPlayGame={play}
+        onNewRound={newRound}
+        onExitGame={stopGame}
+      />
       <PlayersInfo />
       <div className="main-content room-content">
         {hasError ? (
@@ -211,11 +227,17 @@ export function RoomContent({ roomName }: { roomName: string }) {
             )}
           </div>
         ) : isReady ? (
-          <div className="play-container">
+          <div className={`play-container ${gameInPlay ? "playing" : "waiting-room"}`}>
             {gameInPlay ? (
               <GameBox onUserAction={handleUserAction} />
             ) : (
-              <div className="waiting-start px-6 md:px-0">
+              <div className="waiting-start">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  className="mb-4 h-20 w-20"
+                  src="/logo-icon.svg"
+                  alt="Juego de Los Chinos"
+                />
                 {connectedPlayers < 2 ? (
                   <div className="waiting">
                     <h2 className="mt-0!">{t("room.wait_title")}</h2>
@@ -234,29 +256,35 @@ export function RoomContent({ roomName }: { roomName: string }) {
                 )}
                 {connectedPlayers < 5 && (
                   <div className="room-share">
-                    <p>{t("text.share_url")}</p>
-                    <div className="flex w-full items-center justify-end">
+                    <p className="mb-0 text-sm font-semibold text-ch-text">
+                      {t("text.share_url")}
+                    </p>
+                    <input
+                      type="text"
+                      readOnly
+                      value={shareUrl}
+                      className="room-share-url"
+                    />
+                    <div className="mt-3 flex items-center justify-end gap-2">
                       {copied && (
-                        <div className="text-md mr-3 text-red-700">
-                          {t("text.Copied")}
-                        </div>
+                        <span className="text-sm text-ch-win">{t("text.Copied")}</span>
                       )}
                       <button
                         type="button"
-                        className="btn btn-square"
+                        className="card-btn card-btn-primary"
                         disabled={copied}
                         title={t("button.copy_to_clipboard")}
                         onClick={copyShareUrl}
                       >
-                        <Share2 className="inline h-6 w-6" />
+                        {t("button.copy_to_clipboard")}
                       </button>
                     </div>
                   </div>
                 )}
               </div>
             )}
-            <ChatBox onUserAction={handleUserAction} />
           </div>
+          <ChatBox onUserAction={handleUserAction} />
         ) : (
           <BaseModal>
             <Loading />
