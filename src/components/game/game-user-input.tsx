@@ -7,6 +7,7 @@ import type { IUserAction, IUserInput } from "@/types/game";
 
 interface GameUserInputProps {
   inputData: IUserInput;
+  playerName?: string;
   onCloseInput: () => void;
   onSetData: (data: IUserAction) => void;
 }
@@ -20,6 +21,7 @@ const ACTION_MAP: Record<string, string> = {
 
 export function GameUserInput({
   inputData,
+  playerName = "",
   onCloseInput,
   onSetData,
 }: GameUserInputProps) {
@@ -70,62 +72,59 @@ export function GameUserInput({
   if (inputData.action === "show-coins") {
     return (
       <div className="show-coins">
-        <button className="btn btn-custom m-0" type="button" onClick={() => confirm()}>
-          {t("button.show")}
-        </button>
+        <div className="show-coins-panel">
+          <span className="show-coins-text">{t("text.show_coins_prompt")}</span>
+          <button
+            className="show-coins-btn"
+            type="button"
+            onClick={() => confirm()}
+          >
+            {t("button.show")}
+          </button>
+        </div>
       </div>
     );
   }
 
+  // Title for coin/bet picker and new-round (design 6a).
+  const showTitle =
+    (inputData.action === "take-coins" ||
+      inputData.action === "set-bet" ||
+      inputData.action === "new-round") &&
+    Boolean(title);
+
   return (
-    <div className={`game-input-data card ${inputData.action}`}>
-      <div className="action-header">
-        <h5>{title}</h5>
-      </div>
-      <div className="action-body">
-        {inputData.action !== "new-round" && (
-          <div className="input-field">
-            {inputData.list.length === 0 ? (
-              <div className="no-bets-msg">{t("no_viable_bet")}</div>
-            ) : (
-              <input
-                id="input-data"
-                className="input-coins"
-                type="text"
-                name="input-data"
-                value={selected}
-                disabled
-                readOnly
-              />
-            )}
-          </div>
-        )}
-        <div className="btn-actions-group">
-          {buttons.map((btn) => (
+    <div className={`game-input-data ${inputData.action}`}>
+      {showTitle && <div className="turn-panel">{title}</div>}
+      <div className="bet-row">
+        {inputData.list.length === 0 ? (
+          <div className="no-bets-msg">{t("no_viable_bet")}</div>
+        ) : (
+          buttons.map((btn) => (
             <button
               key={btn}
-              className={inputData.action !== "new-round" ? "btn-square" : "btn-wide"}
+              className={`bet-cell ${btn === selected ? "selected" : ""}`}
               type="button"
-              disabled={btn === selected}
               onClick={() => {
                 setSelected(btn);
                 setHasSelected(true);
               }}
             >
-              {btn}
+              {inputData.action === "new-round" && btn === playerName
+                ? t("You")
+                : btn}
             </button>
-          ))}
-        </div>
-        <div className="btn-group mt-0!">
-          <button
-            className="btn btn-check"
-            disabled={!hasSelected && inputData.list.length !== 0}
-            type="button"
-            onClick={() => confirm()}
-          >
-            <Check className="inline h-6 w-6" />
-          </button>
-        </div>
+          ))
+        )}
+        <button
+          className="bet-check"
+          disabled={!hasSelected && inputData.list.length !== 0}
+          type="button"
+          aria-label={t("button.continue")}
+          onClick={() => confirm()}
+        >
+          <Check className="h-4 w-4" strokeWidth={3} />
+        </button>
       </div>
     </div>
   );

@@ -11,9 +11,15 @@ export default async function HistoryPage() {
 
   return (
     <div className="main-content">
-      <h2 className="mt-4 text-center">{t("pages.history.title")}</h2>
-      <p className="text-justify">{t("pages.history.paragraph1")}</p>
-      <p className="text-justify">{t("pages.history.paragraph2")}</p>
+      <h2 className="content-page-title">{t("pages.history.title")}</h2>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        className="history-hero"
+        src="/origenes_del_juego.jpg"
+        alt={t("pages.history.title")}
+      />
+      <p className="content-body-text text-justify">{t("pages.history.paragraph1")}</p>
+      <p className="content-body-text text-justify">{t("pages.history.paragraph2")}</p>
     </div>
   );
 }

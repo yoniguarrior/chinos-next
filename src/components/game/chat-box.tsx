@@ -2,19 +2,29 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Send } from "lucide-react";
+import { ChevronDown, Maximize2, MessageCircle, Send } from "lucide-react";
 import { useRoomStore } from "@/stores/room";
 import type { IUserAction } from "@/types/game";
 
 const pad = (n: number) => String(n).padStart(2, "0");
+const PLAYER_COLOR_VARIANTS = 5;
 
-/** Formats a message timestamp as "[dd ]HH:MM" (day only when not today). */
+function playerColorClass(name: string): string {
+  let hash = 0;
+  for (let i = 0; i < name.length; i += 1) {
+    hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
+  }
+  return `player-color-${(hash % PLAYER_COLOR_VARIANTS) + 1}`;
+}
+
 function formatTime(timeSent: Date | string): string {
   const date = new Date(timeSent);
   const now = new Date();
   const dayPart = now.getDate() !== date.getDate() ? `${pad(date.getDate())} ` : "";
   return `${dayPart}${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
+
+type ChatState = "idle" | "preview" | "expanded";
 
 export function ChatBox({
   onUserAction,
@@ -26,7 +36,9 @@ export function ChatBox({
   const rawMessages = useRoomStore((s) => s.roomData.messages);
 
   const [text, setText] = useState("");
+  const [chatState, setChatState] = useState<ChatState>("idle");
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const messages = useMemo(
     () =>
@@ -38,60 +50,144 @@ export function ChatBox({
     [rawMessages],
   );
 
+  const lastMsg = messages.at(-1);
+
+  // Transition to preview when first message arrives while idle
   useEffect(() => {
-    const el = scrollRef.current;
-    if (el) el.scrollTop = el.scrollHeight;
-  }, [messages.length]);
+    if (messages.length > 0 && chatState === "idle") {
+      setChatState("preview");
+    }
+  }, [messages.length, chatState]);
+
+  // Scroll to bottom when expanded
+  useEffect(() => {
+    if (chatState === "expanded") {
+      const el = scrollRef.current;
+      if (el) el.scrollTop = el.scrollHeight;
+    }
+  }, [messages.length, chatState]);
+
+  // Focus input when panel opens
+  useEffect(() => {
+    if (chatState === "expanded") {
+      inputRef.current?.focus();
+    }
+  }, [chatState]);
+
+  const open = () => setChatState("expanded");
+
+  const collapse = () => setChatState(messages.length > 0 ? "preview" : "idle");
 
   const send = () => {
-    if (text !== "") {
-      onUserAction({ action: "message-sent", value: text });
+    const trimmed = text.trim();
+    if (trimmed) {
+      onUserAction({ action: "message-sent", value: trimmed });
       setText("");
     }
   };
 
-  return (
-    <div id="chatbox" className="chat-box card">
-      <div className="msg-box-header rounded-t-lg bg-gray-500">
-        <h5>&nbsp;Chat&nbsp;</h5>
-      </div>
-      <div id="chatboxscroll" ref={scrollRef} className="card-body p-1!">
-        {messages.map((msg, ix) => (
-          <div
-            key={`${ix}-${msg.timeSent}`}
-            className={`chat-msg ${msg.fromUser === playerName ? "justify-end!" : ""}`}
-          >
-            <div className="message-time">&nbsp;[{msg.timeSent}]&nbsp;</div>
-            {msg.fromUser === playerName ? (
-              <div className="message-from own">{t("You")}:</div>
+  // ── Idle: floating icon button ────────────────────────────────────────────
+  if (chatState === "idle") {
+    return (
+      <button
+        type="button"
+        className="chat-fab"
+        aria-label="Abrir chat"
+        onClick={open}
+      >
+        <MessageCircle className="h-6 w-6" />
+      </button>
+    );
+  }
+
+  // ── Preview: thin bottom bar with last message (design 2a) ────────────────
+  if (chatState === "preview") {
+    return (
+      <button
+        type="button"
+        className="chat-preview"
+        aria-label="Expandir chat"
+        onClick={open}
+      >
+        <span className="chat-preview-label">Chat</span>
+        {lastMsg && (
+          <span className="chat-preview-text">
+            {lastMsg.fromUser === playerName ? (
+              <span className="chat-preview-author own">{t("You")}:</span>
             ) : (
-              <div className="message-from other">{msg.fromUser}:</div>
-            )}
-            <div className="message-text">{msg.text}</div>
-          </div>
-        ))}
+              <span
+                className={`chat-preview-author ${playerColorClass(lastMsg.fromUser)}`}
+              >
+                {lastMsg.fromUser}:
+              </span>
+            )}{" "}
+            {lastMsg.text}
+          </span>
+        )}
+        <Maximize2 className="chat-preview-expand" aria-hidden />
+      </button>
+    );
+  }
+
+  // ── Expanded: full panel sliding up from bottom ───────────────────────────
+  return (
+    <>
+      <div className="chat-backdrop" onClick={collapse} aria-hidden="true" />
+      <div id="chatbox" className="chat-panel">
+        <div className="chat-panel-header">
+          <span className="chat-panel-title">Chat</span>
+          <button
+            type="button"
+            className="chat-panel-close"
+            aria-label="Cerrar chat"
+            onClick={collapse}
+          >
+            <ChevronDown className="h-3.5 w-3.5" />
+          </button>
+        </div>
+
+        <div ref={scrollRef} className="chat-panel-messages">
+          {messages.map((msg, ix) => (
+            <div
+              key={`${ix}-${msg.timeSent}`}
+              className="chat-line"
+            >
+              {msg.fromUser === playerName ? (
+                <span className="message-from own">{t("You")}: </span>
+              ) : (
+                <span
+                  className={`message-from other ${playerColorClass(msg.fromUser)}`}
+                >
+                  {msg.fromUser}:{" "}
+                </span>
+              )}
+              <span className="message-text">{msg.text}</span>
+            </div>
+          ))}
+        </div>
+
+        <div className="chat-panel-footer">
+          <input
+            ref={inputRef}
+            type="text"
+            className="chat-panel-input"
+            placeholder={t("write_msg")}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            onKeyUp={(e) => {
+              if (e.key === "Enter") send();
+            }}
+          />
+          <button
+            type="button"
+            className="chat-panel-send"
+            onClick={send}
+            aria-label="Enviar"
+          >
+            <Send className="h-4 w-4" />
+          </button>
+        </div>
       </div>
-      <div className="input-group flex rounded border-1 border-gray-300 p-0!">
-        <input
-          id="message-input"
-          type="text"
-          className="form-control"
-          placeholder={t("write_msg")}
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          onKeyUp={(e) => {
-            if (e.key === "Enter") send();
-          }}
-        />
-        <button
-          id="send-button"
-          className="btn btn-custom"
-          type="button"
-          onClick={send}
-        >
-          <Send className="inline h-[27px] w-[27px]" />
-        </button>
-      </div>
-    </div>
+    </>
   );
 }

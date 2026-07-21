@@ -5,6 +5,10 @@ import { withSerwist } from "@serwist/turbopack";
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const nextConfig: NextConfig = {
+  // TypeScript 7 has no JS compiler API; use the local `tsc` CLI instead.
+  experimental: {
+    useTypeScriptCli: true,
+  },
   // Lightweight security headers (CSP intentionally omitted to avoid breaking
   // images and the game WebSocket, same as the previous app).
   async headers() {

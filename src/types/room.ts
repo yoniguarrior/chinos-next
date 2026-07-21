@@ -26,6 +26,8 @@ export interface Game {
   inGamePlayers: string[];
   activePlayers: number;
   gameInPause: boolean;
+  reconnFailed: boolean;
+  reconnAttempt: number;
 }
 
 export interface Message {

@@ -12,8 +12,8 @@ export default async function LoginPage() {
   const t = await getTranslations();
 
   return (
-    <div className="main-content">
-      <h2 className="mt-4 text-center">{t("pages.login.title")}</h2>
+    <div className="main-content auth-page">
+      <h2 className="form-page-title">{t("pages.login.title")}</h2>
       <Suspense>
         <LoginForm />
       </Suspense>

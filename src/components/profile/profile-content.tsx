@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { SquareChevronDown, SquareChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { profile } from "@/lib/user";
 import { getUserRanking } from "@/lib/ranking";
 import { useAuthStore } from "@/stores/auth";
@@ -58,27 +58,27 @@ export function ProfileContent() {
   }
 
   return (
-    <div className="mx-auto w-full">
-      <div className="user-profile border-b">
+    <>
+      <h2 className="content-page-title">{t("pages.profile.title")}</h2>
+
+      <div className="profile-card profile-main-card">
         {editMode ? (
           <EditUser user={userData} onCloseEdit={() => setEditMode(false)} />
         ) : (
           <UserData user={userData} />
         )}
 
-        <hr />
-
         {!editMode && (
-          <div className="flex items-center justify-center py-4">
+          <div className="profile-actions-row">
             <button
-              className="card-btn mr-2"
+              className="profile-edit-btn"
               type="button"
               onClick={() => setEditMode(true)}
             >
               {t("button.edit")}
             </button>
             <button
-              className="card-btn"
+              className="profile-pass-btn"
               type="button"
               onClick={() => setShowChangePass(true)}
             >
@@ -94,18 +94,18 @@ export function ProfileContent() {
         )}
       </div>
 
-      <div className="rooms-data mt-6">
-        <div className="toggle-tab">
-          <h4 className="m-0">{t("private_rooms")}</h4>
+      <div className="profile-section-card">
+        <div className="profile-section-head">
+          <h4 className="profile-section-title">{t("private_rooms")}</h4>
           <button
             type="button"
-            className="icon-btn text-3xl align-middle"
+            className="profile-section-toggle"
             onClick={() => setShowRooms((v) => !v)}
           >
             {showRooms ? (
-              <SquareChevronUp className="inline h-7 w-7" />
+              <ChevronUp className="h-4.5 w-4.5" />
             ) : (
-              <SquareChevronDown className="inline h-7 w-7" />
+              <ChevronDown className="h-4.5 w-4.5" />
             )}
           </button>
         </div>
@@ -118,18 +118,18 @@ export function ProfileContent() {
         )}
       </div>
 
-      <div className="ranking-data mt-6">
-        <div className="toggle-tab">
-          <h4 className="m-0">{t("ranking.user")}</h4>
+      <div className="profile-section-card">
+        <div className="profile-section-head profile-section-head-open">
+          <h4 className="profile-section-title">{t("ranking.user")}</h4>
           <button
             type="button"
-            className="icon-btn text-3xl align-middle"
+            className="profile-section-toggle profile-section-toggle-open"
             onClick={() => setShowRanking((v) => !v)}
           >
             {showRanking ? (
-              <SquareChevronUp className="inline h-7 w-7" />
+              <ChevronUp className="h-4.5 w-4.5" />
             ) : (
-              <SquareChevronDown className="inline h-7 w-7" />
+              <ChevronDown className="h-4.5 w-4.5" />
             )}
           </button>
         </div>
@@ -137,6 +137,6 @@ export function ProfileContent() {
           <UserRankingData myRanking={userRanking} onRefresh={refreshRanking} />
         )}
       </div>
-    </div>
+    </>
   );
 }

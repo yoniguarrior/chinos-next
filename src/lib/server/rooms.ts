@@ -19,6 +19,8 @@ function createDefaultGame(): Game {
     inGamePlayers: [],
     activePlayers: 0,
     gameInPause: false,
+    reconnFailed: false,
+    reconnAttempt: 0,
   };
 }
 
@@ -394,7 +396,9 @@ export async function leaveRoom(req: Request): Promise<LeaveRoomResult> {
         sanitizeFilter: true,
       });
     } else {
+      room.markModified("game");
       await room.save();
+      pushToRoom(payload.sub, "userSync", roomToClientPayload(room));
     }
   }
 

@@ -340,6 +340,7 @@
     "create_data": "Dati della stanza da creare",
     "full": "sala piena",
     "join": "Aderire",
+    "lost_rounds_suffix": "P",
     "maxp_text": "La sala ha raggiunto la capienza massima (5 giocatori). Non sono più ammessi. Puoi iniziare il gioco",
     "maxp_title": "Piena capacità della sala",
     "name": "Nome della stanza",

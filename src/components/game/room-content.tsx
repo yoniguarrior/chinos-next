@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Share2 } from "lucide-react";
+import { Check, Copy } from "lucide-react";
 import { leaveRoom } from "@/lib/rooms";
 import { setLocalState } from "@/lib/local-state";
 import { useErrorStore, errorIsEmpty } from "@/stores/error";
@@ -17,6 +17,7 @@ import { GameStatus } from "@/types/enums";
 import type { IUserAction } from "@/types/game";
 import { useGameSocket } from "@/hooks/use-game-socket";
 import { useRoomExitGuard } from "@/hooks/use-room-exit-guard";
+import { useWakeLock } from "@/hooks/use-wake-lock";
 import { BaseModal } from "@/components/base-modal";
 import { Loading } from "@/components/loading";
 import { ChatBox } from "./chat-box";
@@ -38,6 +39,8 @@ function resizeGb() {
 export function RoomContent({ roomName }: { roomName: string }) {
   const t = useTranslations();
   const router = useRouter();
+
+  useWakeLock();
 
   const { connect, close, socketEmit } = useGameSocket();
 
@@ -99,6 +102,26 @@ export function RoomContent({ roomName }: { roomName: string }) {
     setTimeout(() => setCopied(false), 1000);
   };
 
+  /**
+   * Teardown after a server-initiated disconnection (session expired, kicked,
+   * WS error, etc.).  Fires a best-effort HTTP leave so the server can clean
+   * up the DB even when the WS is already closed.  Navigation is not blocked
+   * by the API result: errors are swallowed because the session may already be
+   * invalid.
+   */
+  const exitCleanup = () => {
+    // Fire-and-forget: don't await so the user navigates immediately.
+    // leaveRoom() catches its own errors internally, so this never throws.
+    void leaveRoom(false);
+
+    close();
+    useRoomStore.getState().reset();
+    useErrorStore.getState().reset();
+    setLocalState({ room: "" });
+    exitingViaAppRef.current = true;
+    router.push("/rooms");
+  };
+
   const exit = async (abandon = false) => {
     setExiting(true);
     try {
@@ -106,12 +129,14 @@ export function RoomContent({ roomName }: { roomName: string }) {
 
       if (!errorIsEmpty(useErrorStore.getState())) {
         console.log("Error exiting room:", useErrorStore.getState().details);
-        return;
+        // API call failed (e.g. session already gone) – fall through to
+        // local cleanup so the user can still leave.
       }
 
       socketEmit("exitRoom");
       close();
       useRoomStore.getState().reset();
+      useErrorStore.getState().reset();
       setLocalState({ room: "" });
       exitingViaAppRef.current = true;
       router.push("/rooms");
@@ -135,6 +160,22 @@ export function RoomContent({ roomName }: { roomName: string }) {
 
   const play = () => {
     socketEmit("gameStart");
+  };
+
+  const newRound = () => {
+    socketEmit("selectNext");
+  };
+
+  const stopGame = () => {
+    socketEmit("gameStop");
+  };
+
+  const retryReconn = () => {
+    socketEmit("retryReconn");
+  };
+
+  const abandonGame = () => {
+    socketEmit("gameAbandon");
   };
 
   const handleUserAction = (data: IUserAction) => {
@@ -184,7 +225,13 @@ export function RoomContent({ roomName }: { roomName: string }) {
 
   return (
     <div className="room-page">
-      <RoomHeader onExitRoom={requestExit} onPlayGame={play} />
+      <RoomHeader
+        hasError={hasError}
+        onExitRoom={requestExit}
+        onPlayGame={play}
+        onNewRound={newRound}
+        onExitGame={stopGame}
+      />
       <PlayersInfo />
       <div className="main-content room-content">
         {hasError ? (
@@ -196,67 +243,79 @@ export function RoomContent({ roomName }: { roomName: string }) {
               })}
             </h4>
             <p>{t(`error.${errorMessage}_exp`)}</p>
-            {errorMessage === "no_joined_room" ? (
-              <div className="btn-exit">
-                <button className="btn" onClick={() => void exit(false)}>
-                  {t("button.back")}
-                </button>
-              </div>
-            ) : (
-              <div className="btn-back">
-                <button className="btn" onClick={() => router.back()}>
-                  {t("button.back")}
-                </button>
-              </div>
-            )}
+            <div className="btn-back">
+              <button className="btn" onClick={exitCleanup}>
+                {t("button.back")}
+              </button>
+            </div>
           </div>
         ) : isReady ? (
-          <div className="play-container">
+          <>
+          <div className={`play-container ${gameInPlay ? "playing" : "waiting-room"}`}>
             {gameInPlay ? (
-              <GameBox onUserAction={handleUserAction} />
+              <GameBox
+                onUserAction={handleUserAction}
+                onRetryReconn={retryReconn}
+                onAbandonGame={abandonGame}
+              />
             ) : (
-              <div className="waiting-start px-6 md:px-0">
+              <div className="waiting-start">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  className="mb-5 h-[88px] w-[88px] opacity-90"
+                  src="/logo-icon.svg"
+                  alt="Juego de Los Chinos"
+                />
                 {connectedPlayers < 2 ? (
                   <div className="waiting">
                     <h2 className="mt-0!">{t("room.wait_title")}</h2>
-                    <p>{t("room.wait_text")}</p>
+                    <p className="waiting-text">{t("room.wait_text")}</p>
                   </div>
                 ) : connectedPlayers < 5 ? (
                   <div className="enabled">
-                    <h2>{t("room.start_title")}</h2>
-                    <p>{t("room.start_text")}</p>
+                    <h2 className="mt-0!">{t("room.start_title")}</h2>
+                    <p className="waiting-text">
+                      {t("room.start_text", { count: connectedPlayers })}
+                    </p>
                   </div>
                 ) : (
                   <div className="closed">
-                    <h2>{t("room.maxp_title")}</h2>
-                    <p>{t("room.maxp_text")}</p>
+                    <h2 className="mt-0!">{t("room.maxp_title")}</h2>
+                    <p className="waiting-text">{t("room.maxp_text")}</p>
                   </div>
                 )}
                 {connectedPlayers < 5 && (
                   <div className="room-share">
-                    <p>{t("text.share_url")}</p>
-                    <div className="flex w-full items-center justify-end">
-                      {copied && (
-                        <div className="text-md mr-3 text-red-700">
-                          {t("text.Copied")}
-                        </div>
-                      )}
+                    <p className="room-share-label">{t("text.share_url")}</p>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        readOnly
+                        value={shareUrl}
+                        className="room-share-url"
+                      />
                       <button
                         type="button"
-                        className="btn btn-square"
+                        className="room-share-copy"
                         disabled={copied}
                         title={t("button.copy_to_clipboard")}
+                        aria-label={t("button.copy_to_clipboard")}
                         onClick={copyShareUrl}
                       >
-                        <Share2 className="inline h-6 w-6" />
+                        {copied ? (
+                          <Check className="h-4.5 w-4.5" />
+                        ) : (
+                          <Copy className="h-4.5 w-4.5" />
+                        )}
                       </button>
                     </div>
                   </div>
                 )}
               </div>
             )}
-            <ChatBox onUserAction={handleUserAction} />
           </div>
+          <ChatBox onUserAction={handleUserAction} />
+          </>
         ) : (
           <BaseModal>
             <Loading />

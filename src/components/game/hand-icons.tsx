@@ -1,10 +1,9 @@
 import type { SVGProps } from "react";
 
 /**
- * Solid hand glyphs (Font Awesome Free 6, CC BY 4.0). Used in the game board
- * to show each player's hand: a closed fist while hiding coins and an open
- * hand once revealed. They are true solid icons (single fill path), less
- * rounded than the outline sets.
+ * Solid hand glyphs (Font Awesome Free 6, CC BY 4.0).
+ * Design v4: open hand while still choosing / after reveal; closed fist once
+ * coins are hidden (and during betting / before reveal).
  */
 
 /** Closed fist (fa6-solid:hand-back-fist). */

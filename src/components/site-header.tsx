@@ -41,24 +41,23 @@ export function SiteHeader() {
   const closeMobMenu = () => setMobMenuOpen(false);
 
   return (
-    <div className="main-header bg-red-700">
-      <div className="mx-auto max-w-5xl px-2 py-1 sm:px-6 sm:py-2 lg:px-8">
+    <div className="main-header">
+      <div className="mx-auto max-w-[820px] px-[18px] py-4">
         <div className="flex items-center justify-between">
-          <div className="flex w-screen items-center">
-            <div className="shrink-0">
-              <Logo src="/logo2.svg" alt={t("misc.alt_logo")} />
-            </div>
-            <div className="ml-2 hidden flex-1 items-baseline justify-center space-x-2 md:ml-6 md:flex">
+          <div className="shrink-0">
+              <Logo src="/logo-icon.svg" alt={t("misc.alt_logo")} className="h-[34px] w-[34px]" />
+          </div>
+          <div className="hidden flex-1 items-baseline justify-center space-x-2 md:flex">
               <NavBar menuItems={mainMenuItems} onNavigate={closeMobMenu} />
-            </div>
-            <div className="ml-1 flex flex-1 items-center justify-end space-x-1 sm:ml-2 sm:space-x-4 md:ml-6 md:flex-none md:items-baseline">
-              <NavBar menuItems={userMenuItems} onNavigate={closeMobMenu} />
+          </div>
+          <div className="flex items-center justify-end space-x-2">
+              <div className="hidden md:flex md:items-baseline md:space-x-2">
+                <NavBar menuItems={userMenuItems} onNavigate={closeMobMenu} />
+              </div>
               <LanguageSwitcher />
-            </div>
-            <div className="-mr-1 flex sm:-mr-2 md:hidden">
               <button
                 type="button"
-                className="btn-mob-menu"
+                className="btn-mob-menu md:hidden"
                 aria-controls="mobile-menu"
                 aria-expanded={mobMenuOpen}
                 onClick={() => setMobMenuOpen((open) => !open)}
@@ -70,14 +69,14 @@ export function SiteHeader() {
                   <Menu className="h-6 w-6" aria-hidden="true" />
                 )}
               </button>
-            </div>
           </div>
         </div>
       </div>
       {mobMenuOpen && (
-        <div id="mobile-menu" className="border-t border-red-800 px-4 pb-3 md:hidden">
+        <div id="mobile-menu" className="border-t border-ch-accent-dim px-4 pb-3 md:hidden">
           <div className="flex flex-col space-y-1 pt-2">
             <NavBar menuItems={mainMenuItems} onNavigate={closeMobMenu} vertical />
+            <NavBar menuItems={userMenuItems} onNavigate={closeMobMenu} vertical />
           </div>
         </div>
       )}
