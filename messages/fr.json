@@ -340,6 +340,7 @@
     "create_data": "Données de la salle à créer",
     "full": "pleine",
     "join": "Rejoindre",
+    "lost_rounds_suffix": "P",
     "maxp_text": "La salle a atteint sa capacité maximale (5 joueurs). Aucun autre n'est autorisé. Vous pouvez commencer le jeu",
     "maxp_title": "Pleine capacité de la salle",
     "name": "Nom de la salle",

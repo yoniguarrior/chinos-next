@@ -49,78 +49,66 @@ export function LoginForm() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-84">
-      <div className="card">
-        <form className="card-body" onSubmit={handleSubmit(onSubmit)}>
+    <>
+      <div className="form-panel">
+        <form onSubmit={handleSubmit(onSubmit)}>
           {errorDetails && (
             <div className="form-error">{t(`error.${errorDetails}`)}</div>
           )}
-          <div className="form-field">
-            <label
-              className="mb-1 block text-sm font-medium text-neutral-700"
-              htmlFor="userName"
-            >
+          <div className="form-field-v4">
+            <label className="form-label-v4" htmlFor="userName">
               {t("form.field.user_name")}
             </label>
             <input
               id="userName"
               type="text"
               autoComplete="username"
-              className="form-input border border-neutral-300"
+              className="form-input"
               {...register("userName")}
             />
             {errors.userName && (
-              <p className="mt-1 text-sm text-red-500">
-                {errors.userName.message}
-              </p>
+              <p className="form-error-text">{errors.userName.message}</p>
             )}
           </div>
-          <div className="form-field">
-            <label
-              className="mb-1 block text-sm font-medium text-neutral-700"
-              htmlFor="password"
-            >
+          <div className="form-field-v4">
+            <label className="form-label-v4" htmlFor="password">
               {t("form.field.password")}
             </label>
             <PasswordInput
               id="password"
               autoComplete="current-password"
-              className="form-input border border-neutral-300"
+              className="form-input"
               {...register("password")}
             />
             {errors.password && (
-              <p className="mt-1 text-sm text-red-500">
-                {errors.password.message}
-              </p>
+              <p className="form-error-text">{errors.password.message}</p>
             )}
           </div>
-          <div className="mb-2 flex items-center justify-between pt-4">
+          <div className="auth-actions-row">
             <button
-              className="card-btn"
+              className="form-submit-btn"
               type="submit"
               disabled={!isValid || processing}
             >
               {t("button.login")}
             </button>
-            <Link className="login-link" href="/forgot-password">
+            <Link className="auth-inline-link" href="/forgot-password">
               {t("pages.login.forgotpass")}
             </Link>
           </div>
         </form>
       </div>
-      <div className="-mt-6 text-center">
-        <span className="text-sm text-gray-600">
-          {t("pages.login.notregistered")}
-        </span>
-        <Link href="/register" className="login-link">
+      <p className="auth-footer-text">
+        {t("pages.login.notregistered")}{" "}
+        <Link href="/register" className="auth-footer-link">
           {t("pages.login.register")}
         </Link>
-      </div>
+      </p>
       {processing && (
         <BaseModal>
           <Loading />
         </BaseModal>
       )}
-    </div>
+    </>
   );
 }

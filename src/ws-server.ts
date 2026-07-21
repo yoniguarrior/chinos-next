@@ -35,10 +35,15 @@ import {
 
 export const WS_PATH = "/api/ws/game";
 
+/** How often the server pings clients to detect dead connections (e.g. network drop). */
+const HEARTBEAT_MS = 10_000;
+
 interface Envelope {
   event: string;
   data?: Record<string, unknown>;
 }
+
+type AliveSocket = WebSocket & { isAlive?: boolean };
 
 function send(socket: WebSocket, event: string, data: unknown): void {
   try {
@@ -56,6 +61,24 @@ const WS_DEBUG = process.env.WS_DEBUG === "1";
 
 export function attachGameWebSocketServer(server: HttpServer): void {
   const wss = new WebSocketServer({ noServer: true });
+
+  const heartbeat = setInterval(() => {
+    for (const client of wss.clients) {
+      const ws = client as AliveSocket;
+      if (ws.isAlive === false) {
+        ws.terminate();
+        continue;
+      }
+      ws.isAlive = false;
+      try {
+        ws.ping();
+      } catch {
+        ws.terminate();
+      }
+    }
+  }, HEARTBEAT_MS);
+
+  wss.on("close", () => clearInterval(heartbeat));
 
   server.on(
     "upgrade",
@@ -83,6 +106,11 @@ export function attachGameWebSocketServer(server: HttpServer): void {
   );
 
   wss.on("connection", (socket: WebSocket, req: IncomingMessage) => {
+    const alive = socket as AliveSocket;
+    alive.isAlive = true;
+    alive.on("pong", () => {
+      alive.isAlive = true;
+    });
     void handleConnection(socket, req);
   });
 }
@@ -181,7 +209,7 @@ async function handleConnection(
     void (async () => {
       try {
         await dbConnect();
-        const result = await disconnectUser(data, false);
+        const result = await disconnectUser(data, false, peer.id);
         if (result.data) {
           toOthers(result.event, result.data);
         }

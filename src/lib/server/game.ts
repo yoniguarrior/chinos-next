@@ -1,10 +1,19 @@
 import jwt from "jsonwebtoken";
 import type { HydratedDocument } from "mongoose";
-import { RoomModel, type Player, type Room } from "../../models/room";
+import { RoomModel, type Game, type Player, type Room } from "../../models/room";
 import { UserModel } from "../../models/user";
 import { RankingModel } from "../../models/ranking";
 import { serverConfig } from "./config";
 import { ensureRoomGame } from "./rooms";
+import {
+  cancelPlayerReconn,
+  cancelRoomReconn,
+  MAX_SERVER_RECONN_ATTEMPTS,
+  scheduleOfflinePlayersReconn,
+  schedulePlayerReconn,
+  setReconnTimeoutHandler,
+} from "./reconn-timer";
+import { pushToRoom } from "./ws-peers";
 
 export interface IWsData {
   playerName: string;
@@ -80,6 +89,28 @@ export function nextPlayer(turn: number, players: Player[]): number {
   return ix;
 }
 
+function ensureReconnFields(gameData: Game): void {
+  if (gameData.reconnFailed === undefined) gameData.reconnFailed = false;
+  if (gameData.reconnAttempt === undefined) gameData.reconnAttempt = 0;
+}
+
+function rebuildUsersReconn(gameData: Game): void {
+  gameData.usersReconn = gameData.players
+    .filter((p) => !p.online)
+    .map((p) => p.name);
+}
+
+function clearReconnState(gameData: Game): void {
+  gameData.gameInPause = false;
+  gameData.usersReconn = [];
+  gameData.reconnFailed = false;
+  gameData.reconnAttempt = 0;
+}
+
+function assertGameNotPaused(gameData: Game): void {
+  if (gameData.gameInPause) throw new WsError("game_in_pause");
+}
+
 /* ------------------------------------------------------------------ *
  * sync
  * ------------------------------------------------------------------ */
@@ -107,19 +138,20 @@ export async function getSyncData(
       ensureRoomGame(roomData);
 
       const gameData = roomData.game;
+      ensureReconnFields(gameData);
       const playerIx = gameData.players.findIndex(
         (p) => p.name === data.playerName,
       );
 
       if (playerIx !== -1) {
+        cancelPlayerReconn(data.roomName, data.playerName);
         gameData.players[playerIx]!.online = true;
         gameData.players[playerIx]!.socketId = socketId;
-        if (gameData.gameInPause) {
-          gameData.usersReconn = [];
-          gameData.players.forEach((p) => {
-            if (!p.online) gameData.usersReconn.push(p.name);
-          });
-          if (gameData.usersReconn.length === 0) gameData.gameInPause = false;
+        if (gameData.gameInPause || gameData.reconnFailed) {
+          rebuildUsersReconn(gameData);
+          if (gameData.usersReconn.length === 0) {
+            clearReconnState(gameData);
+          }
         }
       } else if (gameData.status !== "waitingStart") {
         throw new WsError("game_in_play");
@@ -217,7 +249,8 @@ export async function processStart(data: IWsData): Promise<WsResult> {
     .filter((p) => !p.saved)
     .forEach((player) => gameData.inGamePlayers.push(player.name));
   gameData.activePlayers = gameData.inGamePlayers.length;
-  gameData.gameInPause = false;
+  clearReconnState(gameData);
+  cancelRoomReconn(data.roomName);
 
   roomData.game = gameData;
   roomData.markModified("game");
@@ -238,6 +271,7 @@ export async function annotateCoins(
   if (!roomData) throw new WsError("non_existing_room");
 
   const gameData = roomData.game;
+  assertGameNotPaused(gameData);
   const ix = gameData.players.findIndex((p) => p.name === data.playerName);
   if (ix === -1) throw new WsError("player_not_in_game");
 
@@ -270,6 +304,7 @@ export async function annotateBet(
   if (!roomData) throw new WsError("non_existing_room");
 
   const gameData = roomData.game;
+  assertGameNotPaused(gameData);
   const ix = gameData.players.findIndex((p) => p.name === data.playerName);
   if (ix === -1) throw new WsError("player_not_in_game");
 
@@ -305,6 +340,7 @@ export async function showCoins(data: IWsData): Promise<WsResult> {
   if (!roomData) throw new WsError("non_existing_room");
 
   const gameData = roomData.game;
+  assertGameNotPaused(gameData);
   const ix = gameData.players.findIndex((p) => p.name === data.playerName);
   if (ix !== -1 && !gameData.players[ix]!.saved) {
     gameData.players[ix]!.lifted = true;
@@ -347,6 +383,7 @@ export async function closeHand(data: IWsData): Promise<WsResult> {
   if (!roomData) throw new WsError("non_existing_room");
 
   const gameData = roomData.game;
+  assertGameNotPaused(gameData);
 
   const firstHand = gameData.activePlayers === gameData.players.length;
 
@@ -416,6 +453,7 @@ export async function closeRound(data: IWsData): Promise<WsResult> {
   if (!roomData) throw new WsError("non_existing_room");
 
   const gameData = roomData.game;
+  assertGameNotPaused(gameData);
 
   gameData.players[gameData.looser!]!.lostRounds += 1;
   gameData.playerInTurn = gameData.looser!;
@@ -437,6 +475,8 @@ export async function selectNext(data: IWsData): Promise<WsResult> {
   const roomData = await RoomModel.findOne({ roomName: data.roomName });
   if (!roomData) throw new WsError("non_existing_room");
 
+  assertGameNotPaused(roomData.game);
+
   roomData.game.status = "selectingNext";
   roomData.markModified("game");
   await roomData.save();
@@ -456,6 +496,7 @@ export async function newRound(
   if (!roomData) throw new WsError("non_existing_room");
 
   const gameData = roomData.game;
+  assertGameNotPaused(gameData);
   const startIx = gameData.players.findIndex((p) => p.name === playerStart);
 
   gameData.status = "takingCoins";
@@ -532,6 +573,9 @@ export async function gameStop(data: IWsData): Promise<WsResult> {
   gameData.winner = null;
   gameData.looser = null;
 
+  clearReconnState(gameData);
+  cancelRoomReconn(data.roomName);
+
   if (roomData.game.players.length < 5) roomData.status = "open";
 
   roomData.game = gameData;
@@ -559,8 +603,8 @@ export async function gameAbandon(data: IWsData): Promise<WsResult> {
   gameData.status = "waitingStart";
   gameData.playerStart = 0;
   gameData.playerInTurn = 0;
-  gameData.gameInPause = false;
-  gameData.usersReconn = [];
+  clearReconnState(gameData);
+  cancelRoomReconn(data.roomName);
   gameData.players.forEach((p) => {
     p.bet = null;
     p.coins = null;
@@ -615,6 +659,8 @@ export async function annotateMsg(
 export async function disconnectUser(
   data: IWsData,
   throwWs = false,
+  /** Peer id of the closing socket; ignored if a newer connection already synced. */
+  socketId?: string,
 ): Promise<WsResult> {
   let roomData: RoomDoc | null = null;
 
@@ -632,14 +678,28 @@ export async function disconnectUser(
 
       if (roomData) {
         const gameData = roomData.game;
+        ensureReconnFields(gameData);
         const ix = gameData.players.findIndex((p) => p.name === data.playerName);
         if (ix !== -1) {
-          gameData.players[ix]!.online = false;
-          gameData.players[ix]!.socketId = "";
+          const player = gameData.players[ix]!;
+          // Stale close after a faster reconnect: keep the new session.
+          if (
+            socketId &&
+            player.socketId &&
+            player.socketId !== socketId
+          ) {
+            return { event: "userSync", data: null };
+          }
+
+          player.online = false;
+          player.socketId = "";
           if (gameData.status !== "waitingStart") {
             if (!gameData.usersReconn.includes(data.playerName))
               gameData.usersReconn.push(data.playerName);
             gameData.gameInPause = true;
+            gameData.reconnFailed = false;
+            gameData.reconnAttempt = 0;
+            schedulePlayerReconn(data.roomName, data.playerName);
           }
           roomData.game = gameData;
           roomData.markModified("game");
@@ -654,9 +714,107 @@ export async function disconnectUser(
       unlockRoom(data.roomName);
     }
 
-    return { event: "userSync", data: roomData };
+    return {
+      event: "userSync",
+      data: roomData ? roomToClientPayload(roomData) : null,
+    };
   }
 }
+
+/* ------------------------------------------------------------------ *
+ * Reconnection timeout / retry (server-side retry windows)
+ * ------------------------------------------------------------------ */
+
+export async function processReconnTimeout(
+  roomName: string,
+  playerName: string,
+): Promise<WsResult | null> {
+  for (;;) {
+    if (roomLocked.includes(roomName)) {
+      await waitTick();
+      continue;
+    }
+
+    lockRoom(roomName);
+    let roomData: RoomDoc | null = null;
+    try {
+      roomData = await RoomModel.findOne({ roomName }).setOptions({
+        sanitizeFilter: true,
+      });
+      if (!roomData) return null;
+
+      const gameData = roomData.game;
+      ensureReconnFields(gameData);
+
+      const player = gameData.players.find((p) => p.name === playerName);
+      if (!player || player.online || gameData.status === "waitingStart") {
+        return null;
+      }
+
+      if (!gameData.usersReconn.includes(playerName)) {
+        gameData.usersReconn.push(playerName);
+      }
+      gameData.gameInPause = true;
+      gameData.reconnAttempt += 1;
+
+      if (gameData.reconnAttempt >= MAX_SERVER_RECONN_ATTEMPTS) {
+        gameData.reconnFailed = true;
+      } else {
+        schedulePlayerReconn(roomName, playerName);
+      }
+
+      roomData.game = gameData;
+      roomData.markModified("game");
+      await roomData.save();
+    } finally {
+      unlockRoom(roomName);
+    }
+
+    return {
+      event: "userSync",
+      data: roomData ? roomToClientPayload(roomData) : null,
+    };
+  }
+}
+
+export async function retryReconn(data: IWsData): Promise<WsResult> {
+  const roomData = await RoomModel.findOne({ roomName: data.roomName });
+  if (!roomData) throw new WsError("non_existing_room");
+
+  const gameData = roomData.game;
+  ensureReconnFields(gameData);
+
+  if (!gameData.reconnFailed || !gameData.gameInPause) {
+    throw new WsError("reconn_not_failed");
+  }
+
+  gameData.reconnFailed = false;
+  gameData.reconnAttempt = 0;
+
+  const offline = gameData.usersReconn.filter((name) => {
+    const p = gameData.players.find((pl) => pl.name === name);
+    return p && !p.online;
+  });
+
+  roomData.game = gameData;
+  roomData.markModified("game");
+  await roomData.save();
+
+  scheduleOfflinePlayersReconn(data.roomName, offline);
+
+  return { event: "userSync", data: roomToClientPayload(roomData) };
+}
+
+setReconnTimeoutHandler(async (roomName, playerName) => {
+  try {
+    const result = await processReconnTimeout(roomName, playerName);
+    if (result?.data) {
+      pushToRoom(roomName, result.event, result.data);
+    }
+  } catch (err) {
+    console.error("[reconn] timeout error:", err);
+  }
+});
 
 /* ------------------------------------------------------------------ *
  * JWT (ws_chgame cookie) helpers
@@ -673,8 +831,8 @@ function parseCookie(header: string, name: string): string | null {
 
 /**
  * Resolves the { playerName, roomName } bound to a ws_chgame cookie.
- * On an expired token it removes the player from the room (exitRoom) and
- * returns null, mirroring the original gateway behaviour.
+ * Expired/invalid tokens return null without removing the player — they stay
+ * offline in the room so reconnection (or an explicit leave/abandon) can run.
  */
 export async function getWsDataFromCookie(
   cookieHeader: string | null | undefined,
@@ -696,19 +854,7 @@ export async function getWsDataFromCookie(
       return { playerName: payload.userName, roomName: payload.sub };
     }
     return null;
-  } catch (err) {
-    if ((err as Error).name === "TokenExpiredError") {
-      try {
-        const payload = jwt.verify(token, secret, {
-          ignoreExpiration: true,
-        }) as { userName?: string; sub?: string };
-        if (payload.userName && payload.sub) {
-          await exitRoom(payload.userName, payload.sub);
-        }
-      } catch {
-        // ignore
-      }
-    }
+  } catch {
     return null;
   }
 }

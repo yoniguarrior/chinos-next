@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { LogIn } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import { RoomStatus, type RoomType } from "@/types/enums";
 import type { IRoom } from "@/types/room";
 
@@ -10,38 +10,41 @@ interface RoomsListProps {
   onJoinRoom: (roomName: string, roomType?: RoomType) => void;
 }
 
-export function RoomsList({ rooms, onJoinRoom }: RoomsListProps) {
-  const t = useTranslations();
+const MAX_PLAYERS = 5;
 
+export function RoomsList({ rooms, onJoinRoom }: RoomsListProps) {
   return (
-    <div className="list">
-      <div className="list-header">
-        <div className="list-row cols-3">
-          <div className="list-cell first">{t("room.name")}</div>
-          <div className="list-cell num-players">{t("room.num_players")}</div>
-          <div className="list-cell actions">{t("room.join")}</div>
-        </div>
-      </div>
-      <div className="list-body">
-        {rooms.map((room) => (
-          <div key={room.roomName} className="list-row cols-3">
-            <div className="list-cell first">{room.roomName}</div>
-            <div className="list-cell num-players">
-              {room.game?.players?.length}
+    <div className="rooms-panel">
+      {rooms.map((room, index) => {
+        const playerCount = room.game?.players?.length ?? 0;
+        const isOpen = room.status === RoomStatus.Open;
+        const isLast = index === rooms.length - 1;
+
+        return (
+          <div
+            key={room.roomName}
+            className={`room-row${isLast ? " room-row-last" : ""}`}
+          >
+            <div className="room-row-name">{room.roomName}</div>
+            <div className="room-row-count">
+              {playerCount}/{MAX_PLAYERS}
             </div>
-            <div className="list-cell actions">
-              {room.status === RoomStatus.Open && (
-                <button
-                  className="btn actions"
-                  onClick={() => onJoinRoom(room.roomName, room.roomType)}
-                >
-                  <LogIn className="inline h-5 w-5" />
-                </button>
-              )}
-            </div>
+            <button
+              type="button"
+              className="room-join-btn"
+              disabled={!isOpen}
+              aria-label={room.roomName}
+              onClick={() => onJoinRoom(room.roomName, room.roomType)}
+            >
+              <ExternalLink
+                className="h-4 w-4"
+                strokeWidth={2.5}
+                aria-hidden
+              />
+            </button>
           </div>
-        ))}
-      </div>
+        );
+      })}
     </div>
   );
 }

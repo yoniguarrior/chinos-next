@@ -2,13 +2,22 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { getRanking } from "@/lib/ranking";
-import { RankingPeriod, RankingType } from "@/types/enums";
-import type { IPeriodBlock, IRanking } from "@/types/ranking";
+import { getRanking, getUserRanking } from "@/lib/ranking";
+import { useAuthStore } from "@/stores/auth";
+import { RankingPeriod } from "@/types/enums";
+import type { IRanking, IURanking } from "@/types/ranking";
 import { Loading } from "@/components/loading";
-import { RankingTable } from "./ranking-table";
+import { Leaderboard, RankingSummary } from "./leaderboard";
 
-const emptyBlock = (): IPeriodBlock => ({
+const DISPLAY_PERIODS = [
+  RankingPeriod.Global,
+  RankingPeriod.Month,
+  RankingPeriod.Week,
+] as const;
+
+type DisplayPeriod = (typeof DISPLAY_PERIODS)[number];
+
+const emptyBlock = () => ({
   points: [],
   games_won: [],
   games_lost: [],
@@ -23,13 +32,14 @@ const EMPTY_RANKING: IRanking = {
 
 export function RankingContent() {
   const t = useTranslations();
+  const isLogged = useAuthStore((s) => s.user.userId !== "");
+  const userName = useAuthStore((s) => s.user.userName);
 
   const [ranking, setRanking] = useState<IRanking>(EMPTY_RANKING);
+  const [userRanking, setUserRanking] = useState<IURanking | undefined>();
+  const [period, setPeriod] = useState<DisplayPeriod>(RankingPeriod.Global);
   const [loaded, setLoaded] = useState(false);
   const startedRef = useRef(false);
-
-  const periods = Object.values(RankingPeriod);
-  const types = Object.values(RankingType);
 
   useEffect(() => {
     if (startedRef.current) return;
@@ -39,40 +49,47 @@ export function RankingContent() {
       if (data) setRanking({ ...EMPTY_RANKING, ...data });
       setLoaded(true);
     });
-  }, []);
+
+    if (isLogged) {
+      void getUserRanking().then(setUserRanking);
+    }
+  }, [isLogged]);
+
+  const points = ranking[period].points;
+  const userBlock = userRanking?.[period];
 
   return (
-    <>
-      {periods.map((period) => (
-        <div key={period} className="group-ranking pt-2">
-          <h4 className="ranking-group-title">{t(`ranking.${period}`)}</h4>
+    <div className="ranking-page">
+      <div className="period-pills">
+        {DISPLAY_PERIODS.map((p) => (
+          <button
+            key={p}
+            type="button"
+            className={`period-pill${period === p ? " period-pill-active" : ""}`}
+            onClick={() => setPeriod(p)}
+          >
+            {t(`ranking.${p}`)}
+          </button>
+        ))}
+      </div>
 
-          {ranking[period].points.length > 0 ? (
-            <div className="type-wrapper">
-              <hr />
-              {types.map((type) => (
-                <div key={type} className="ranking-wrap">
-                  <h5 className="list-title">{t(`ranking.${type}`)}</h5>
-                  <div id={`ranking-${period}-${type}`} className="ranking-table">
-                    {loaded ? (
-                      <RankingTable
-                        listType={type}
-                        listData={ranking[period][type]}
-                      />
-                    ) : (
-                      <Loading />
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="no-data">
-              <p className="pl-8 font-bold">{t("ranking.no_data")}</p>
-            </div>
+      {!loaded ? (
+        <Loading />
+      ) : (
+        <>
+          <Leaderboard
+            items={points}
+            currentUserName={isLogged ? userName : undefined}
+          />
+          {isLogged && userBlock && userBlock.totalUsers > 0 && (
+            <RankingSummary
+              position={userBlock.points.position}
+              totalUsers={userBlock.totalUsers}
+              winRatio={userBlock.games_won.score}
+            />
           )}
-        </div>
-      ))}
-    </>
+        </>
+      )}
+    </div>
   );
 }

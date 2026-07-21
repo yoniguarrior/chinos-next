@@ -2,11 +2,20 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { ChevronDown, ChevronUp, MessageCircle, Send } from "lucide-react";
+import { ChevronDown, Maximize2, MessageCircle, Send } from "lucide-react";
 import { useRoomStore } from "@/stores/room";
 import type { IUserAction } from "@/types/game";
 
 const pad = (n: number) => String(n).padStart(2, "0");
+const PLAYER_COLOR_VARIANTS = 5;
+
+function playerColorClass(name: string): string {
+  let hash = 0;
+  for (let i = 0; i < name.length; i += 1) {
+    hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
+  }
+  return `player-color-${(hash % PLAYER_COLOR_VARIANTS) + 1}`;
+}
 
 function formatTime(timeSent: Date | string): string {
   const date = new Date(timeSent);
@@ -91,7 +100,7 @@ export function ChatBox({
     );
   }
 
-  // ── Preview: thin bottom bar with last message ────────────────────────────
+  // ── Preview: thin bottom bar with last message (design 2a) ────────────────
   if (chatState === "preview") {
     return (
       <button
@@ -103,18 +112,19 @@ export function ChatBox({
         <span className="chat-preview-label">Chat</span>
         {lastMsg && (
           <span className="chat-preview-text">
-            <span
-              className={
-                lastMsg.fromUser === playerName ? "text-ch-accent" : "text-ch-win"
-              }
-            >
-              {lastMsg.fromUser === playerName ? t("You") : lastMsg.fromUser}
-            </span>
-            {": "}
+            {lastMsg.fromUser === playerName ? (
+              <span className="chat-preview-author own">{t("You")}:</span>
+            ) : (
+              <span
+                className={`chat-preview-author ${playerColorClass(lastMsg.fromUser)}`}
+              >
+                {lastMsg.fromUser}:
+              </span>
+            )}{" "}
             {lastMsg.text}
           </span>
         )}
-        <ChevronUp className="chat-preview-chevron" aria-hidden />
+        <Maximize2 className="chat-preview-expand" aria-hidden />
       </button>
     );
   }
@@ -132,7 +142,7 @@ export function ChatBox({
             aria-label="Cerrar chat"
             onClick={collapse}
           >
-            <ChevronDown className="h-5 w-5" />
+            <ChevronDown className="h-3.5 w-3.5" />
           </button>
         </div>
 
@@ -140,15 +150,18 @@ export function ChatBox({
           {messages.map((msg, ix) => (
             <div
               key={`${ix}-${msg.timeSent}`}
-              className={`chat-msg ${msg.fromUser === playerName ? "justify-end!" : ""}`}
+              className="chat-line"
             >
-              <div className="message-time">&nbsp;[{msg.timeSent}]&nbsp;</div>
               {msg.fromUser === playerName ? (
-                <div className="message-from own">{t("You")}:</div>
+                <span className="message-from own">{t("You")}: </span>
               ) : (
-                <div className="message-from other">{msg.fromUser}:</div>
+                <span
+                  className={`message-from other ${playerColorClass(msg.fromUser)}`}
+                >
+                  {msg.fromUser}:{" "}
+                </span>
               )}
-              <div className="message-text">{msg.text}</div>
+              <span className="message-text">{msg.text}</span>
             </div>
           ))}
         </div>
@@ -171,7 +184,7 @@ export function ChatBox({
             onClick={send}
             aria-label="Enviar"
           >
-            <Send className="h-5 w-5" />
+            <Send className="h-4 w-4" />
           </button>
         </div>
       </div>

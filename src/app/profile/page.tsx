@@ -8,11 +8,8 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ProfilePage() {
-  const t = await getTranslations();
-
   return (
     <div className="main-content">
-      <h2 className="mt-4 text-center">{t("pages.profile.title")}</h2>
       <ProfileContent />
     </div>
   );

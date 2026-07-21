@@ -12,68 +12,63 @@ export function HomeContent() {
   const showGuestHome = !clientReady || !isLogged;
 
   return (
-    <div className="main-content">
-      <div className="mx-auto w-1/3 max-w-36">
+    <div className="main-content home-page">
+      <section className="home-hero">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo2.svg" alt="Logo Juego de Los Chinos" />
-      </div>
-      <h3 className="mt-4 mb-2 text-center">{t("pages.home.subtitle")}</h3>
-      <h2 className="mb-4 text-center font-semibold text-red-700">
-        {t("pages.home.title")}
-      </h2>
-      <div className="flex items-center justify-center">
-        <p className="px-6">
-          <Link href="/history">{t("button.origins")}</Link>
-        </p>
-        <p className="px-6">
-          <Link href="/rules">{t("button.rules")}</Link>
-        </p>
-      </div>
-      <hr className="mb-4" />
-      <h4>{t("misc.play")}</h4>
-      {showGuestHome && <p className="text-justify">{t("pages.home.desc")}</p>}
-      <div className="card">
-        <div className="card-header">
-          {showGuestHome
-            ? t("pages.home.play_anonymous")
-            : t("pages.home.play_now")}
+        <img
+          className="home-hero-logo"
+          src="/logo-icon.svg"
+          alt="Logo Juego de Los Chinos"
+        />
+        <p className="home-kicker">{t("pages.home.subtitle")}</p>
+        <h1 className="home-title">{t("pages.home.title")}</h1>
+        <div className="home-hero-links">
+          <Link className="home-pill" href="/history">
+            {t("button.origins")}
+          </Link>
+          <Link className="home-pill" href="/rules">
+            {t("button.rules")}
+          </Link>
         </div>
-        <div className="card-body">
-          <p className="text-justify">{t("pages.home.play")}</p>
-          <div className="max-w-82 mx-auto flex items-center justify-between">
-            <div>
-              <Link className="card-btn" href="/rooms">
-                {t("button.see_rooms")}
+      </section>
+
+      <hr className="home-divider" aria-hidden />
+
+      <div className="home-cards">
+        <article className="home-card">
+          <h2 className="home-card-title">
+            {showGuestHome
+              ? t("pages.home.play_anonymous")
+              : t("pages.home.play_now")}
+          </h2>
+          <p className="home-card-desc">{t("pages.home.play")}</p>
+          <div className="home-card-actions">
+            <Link className="home-outline-btn" href="/rooms">
+              {t("button.see_rooms")}
+            </Link>
+            <Link className="home-outline-btn" href="/rooms/create">
+              {t("button.new_room")}
+            </Link>
+          </div>
+        </article>
+
+        {showGuestHome && (
+          <article className="home-card">
+            <h2 className="home-card-title">
+              {t("pages.home.play_registered")}
+            </h2>
+            <p className="home-card-desc">{t("pages.home.registered")}</p>
+            <div className="home-card-actions">
+              <Link className="home-outline-btn" href="/login">
+                {t("button.login")}
+              </Link>
+              <Link className="home-outline-btn" href="/register">
+                {t("button.register")}
               </Link>
             </div>
-            <div>
-              <Link className="card-btn" href="/rooms/create">
-                {t("button.new_room")}
-              </Link>
-            </div>
-          </div>
-        </div>
+          </article>
+        )}
       </div>
-      {showGuestHome && (
-        <div className="card">
-          <div className="card-header">{t("pages.home.play_registered")}</div>
-          <div className="card-body">
-            <p className="text-justify">{t("pages.home.registered")}</p>
-            <div className="max-w-82 mx-auto flex items-center justify-between">
-              <div>
-                <Link className="card-btn" href="/login">
-                  {t("button.login")}
-                </Link>
-              </div>
-              <div>
-                <Link className="card-btn" href="/register">
-                  {t("button.register")}
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

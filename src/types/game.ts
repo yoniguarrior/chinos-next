@@ -7,6 +7,7 @@ export interface IBtnMsg {
 
 export interface IGameMsg {
   text: string;
+  detail?: string;
   type: MessageType;
   timeOut: number | null;
   buttons: IBtnMsg[] | null;

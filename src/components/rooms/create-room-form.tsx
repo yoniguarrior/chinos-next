@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -29,13 +29,15 @@ interface CreateRoomFields {
 }
 
 export function CreateRoomForm({
-  roomType,
+  roomType: initialRoomType,
   playerName,
   onCloseModal,
   onCreateRoom,
 }: CreateRoomFormProps) {
   const t = useTranslations();
   const tr = t as Translate;
+
+  const [roomType, setRoomType] = useState(initialRoomType);
 
   const needsPlayerName = roomType === RoomType.Public && playerName === "";
   const isPrivate = roomType === RoomType.Private;
@@ -47,9 +49,6 @@ export function CreateRoomForm({
         .nonempty(tr("error.required", { field: t("form.field.room_name") }))
         .min(4, tr("error.min_chars", { min: 4 }))
         .max(20, tr("error.max_chars", { max: 20 })),
-      // The inputs always submit strings ("" when empty), so the "required"
-      // rules still apply; `.optional()` only aligns the inferred type with
-      // CreateRoomFields.
       playerName: (needsPlayerName
         ? z
             .string()
@@ -83,7 +82,6 @@ export function CreateRoomForm({
   });
 
   const onSubmit = async (data: CreateRoomFields) => {
-    // Public guest names must not collide with a registered user.
     if (needsPlayerName && data.playerName) {
       const isUser = await checkUser(data.playerName);
       if (isUser) {
@@ -101,65 +99,85 @@ export function CreateRoomForm({
   };
 
   return (
-    <>
-      <h4 className="mt-4 text-center">{t("room.create_data")}</h4>
-      <form className="card-body" onSubmit={handleSubmit(onSubmit)}>
-        <div className="form-field">
+    <div className="create-room-form">
+      <h4 className="create-room-title">{t("room.create_data")}</h4>
+
+      <div className="segmented-track">
+        <button
+          type="button"
+          className={roomType === RoomType.Public ? "active" : ""}
+          onClick={() => setRoomType(RoomType.Public)}
+        >
+          {t("room.public")}
+        </button>
+        <button
+          type="button"
+          className={roomType === RoomType.Private ? "active" : ""}
+          onClick={() => setRoomType(RoomType.Private)}
+        >
+          {t("room.private")}
+        </button>
+      </div>
+
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <div className="form-field-v4">
+          <label className="form-label-v4" htmlFor="roomName">
+            {t("form.field.room_name")}
+          </label>
           <input
+            id="roomName"
             type="text"
-            placeholder={t("form.field.room_name")}
-            className="form-input border border-neutral-300"
+            className="form-input"
             {...register("roomName")}
           />
           {errors.roomName && (
-            <p className="mt-1 text-sm text-red-500">
-              {errors.roomName.message}
-            </p>
+            <p className="form-error-text">{errors.roomName.message}</p>
           )}
         </div>
 
-        {roomType === RoomType.Public && (
-          <div className="form-field">
+        {roomType === RoomType.Public && needsPlayerName && (
+          <div className="form-field-v4">
+            <label className="form-label-v4" htmlFor="playerName">
+              {t("form.field.player_name")}
+            </label>
             <input
+              id="playerName"
               type="text"
-              placeholder={t("form.field.player_name")}
-              disabled={playerName !== ""}
-              className="form-input border border-neutral-300"
+              className="form-input"
               {...register("playerName")}
             />
             {errors.playerName && (
-              <p className="mt-1 text-sm text-red-500">
-                {errors.playerName.message}
-              </p>
+              <p className="form-error-text">{errors.playerName.message}</p>
             )}
           </div>
         )}
 
         {roomType === RoomType.Private && (
-          <div className="form-field">
+          <div className="form-field-v4">
+            <label className="form-label-v4" htmlFor="password">
+              {t("form.field.password")}
+            </label>
             <PasswordInput
+              id="password"
               autoComplete="new-password"
-              placeholder={t("form.field.password")}
-              className="form-input border border-neutral-300 pr-9"
+              className="form-input pr-9"
               {...register("password")}
             />
             {errors.password && (
-              <p className="mt-1 text-sm text-red-500">
-                {errors.password.message}
-              </p>
+              <p className="form-error-text">{errors.password.message}</p>
             )}
           </div>
         )}
 
-        <div className="mt-4 flex items-baseline justify-center">
-          <button className="card-btn" type="submit" disabled={!isValid}>
-            {t("button.create")}
-          </button>
-          <button className="card-btn" type="button" onClick={onCloseModal}>
+        <div className="form-actions-row">
+          <button className="form-cancel-btn" type="button" onClick={onCloseModal}>
             {t("button.cancel")}
+          </button>
+          <button className="form-submit-btn" type="submit" disabled={!isValid}>
+            {t("button.create")}
           </button>
         </div>
       </form>
-    </>
+    </div>
   );
 }

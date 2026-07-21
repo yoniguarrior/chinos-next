@@ -56,8 +56,6 @@ export function RoomsContent() {
     if (isReady) refresh();
   }, [isReady, isLogged, refresh]);
 
-  // Handle create-room request. When roomName is empty we just open the
-  // create form modal; otherwise we create and join the new room.
   const handleCreate = async (
     type: RoomType,
     roomName = "",
@@ -100,7 +98,6 @@ export function RoomsContent() {
     setProcessing(false);
   };
 
-  // Handle join-room request from the rooms list.
   const handleJoin = async (
     roomName: string,
     roomType?: RoomType,
@@ -140,7 +137,6 @@ export function RoomsContent() {
     }
   };
 
-  // A guest supplied a player name for a public room.
   const handleSetPlayer = (name: string) => {
     void handleJoin(currentRoom, RoomType.Public, name);
   };
@@ -174,34 +170,44 @@ export function RoomsContent() {
   }
 
   return (
-    <div className="mx-auto w-full">
-      <div className="refresh w-full text-right">
-        <button type="button" className="btn btn-square" onClick={refresh}>
-          <RefreshCw className="inline h-5 w-5" />
+    <div className="rooms-page">
+      <div className="rooms-page-header">
+        <h2 className="rooms-page-title">{t("pages.rooms.title")}</h2>
+        <button
+          type="button"
+          className="rooms-refresh-btn"
+          onClick={refresh}
+          aria-label={t("button.refresh")}
+        >
+          <RefreshCw className="h-4.75 w-4.75" aria-hidden />
         </button>
       </div>
 
-      <h2 className="mt-4 text-center">{t("pages.rooms.title")}</h2>
+      <section className="rooms-section">
+        <h3 className="rooms-section-title">{t("list.public_rooms")}</h3>
+        {publicRooms.length > 0 ? (
+          <RoomsList
+            rooms={publicRooms}
+            onJoinRoom={(roomName, roomType) => void handleJoin(roomName, roomType)}
+          />
+        ) : (
+          <div className="rooms-empty">{t("room.no_publics")}</div>
+        )}
+        <div className="rooms-add-row">
+          <button
+            type="button"
+            className="pill-add-outline"
+            onClick={() => void handleCreate(RoomType.Public)}
+          >
+            + {t("button.new_public")}
+          </button>
+        </div>
+      </section>
 
-      <h4 className="list-title">{t("list.public_rooms")}</h4>
-      {publicRooms.length > 0 ? (
-        <RoomsList
-          rooms={publicRooms}
-          onJoinRoom={(roomName, roomType) => void handleJoin(roomName, roomType)}
-        />
-      ) : (
-        <div className="no-rooms">{t("room.no_publics")}</div>
-      )}
-      <div className="btn-create">
-        <button className="btn" onClick={() => void handleCreate(RoomType.Public)}>
-          {t("button.new_public")}
-        </button>
-      </div>
-
-      {isLogged && (
-        <div id="list-privates">
-          <h4 className="list-title">{t("list.private_rooms")}</h4>
-          {privateRooms.length > 0 ? (
+      <section className="rooms-section">
+        <h3 className="rooms-section-title">{t("list.private_rooms")}</h3>
+        {isLogged ? (
+          privateRooms.length > 0 ? (
             <RoomsList
               rooms={privateRooms}
               onJoinRoom={(roomName, roomType) =>
@@ -209,18 +215,25 @@ export function RoomsContent() {
               }
             />
           ) : (
-            <div className="no-rooms">{t("room.no_privates")}</div>
-          )}
-          <div className="btn-create">
-            <button
-              className="btn m-3 mt-8"
-              onClick={() => void handleCreate(RoomType.Private)}
-            >
-              {t("button.new_private")}
-            </button>
-          </div>
+            <div className="rooms-empty">{t("room.no_privates")}</div>
+          )
+        ) : (
+          <div className="rooms-empty">{t("room.no_privates")}</div>
+        )}
+        <div className="rooms-add-row">
+          <button
+            type="button"
+            className="pill-add-filled"
+            onClick={() =>
+              isLogged
+                ? void handleCreate(RoomType.Private)
+                : router.push("/register")
+            }
+          >
+            + {t("button.new_private")}
+          </button>
         </div>
-      )}
+      </section>
 
       {showCreate && (
         <BaseModal>

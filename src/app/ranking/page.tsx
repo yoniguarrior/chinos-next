@@ -12,7 +12,7 @@ export default async function RankingPage() {
 
   return (
     <div className="main-content">
-      <h2 className="mt-4 text-center">{t("pages.ranking.title")}</h2>
+      <h2 className="content-page-title">{t("pages.ranking.title")}</h2>
       <RankingContent />
     </div>
   );

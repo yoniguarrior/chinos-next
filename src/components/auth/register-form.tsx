@@ -61,47 +61,57 @@ export function RegisterForm() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-88">
-      <div className="card">
-        <form className="card-body" onSubmit={handleSubmit(onSubmit)}>
+    <>
+      <div className="form-panel form-panel-stack">
+        <form onSubmit={handleSubmit(onSubmit)}>
           {alertError && (
             <div className="form-error">{t(`error.${alertError}`)}</div>
           )}
 
-          <div className="form-field">
+          <div className="form-field-v4">
+            <label className="form-label-v4" htmlFor="userName">
+              {t("form.field.user_name")}
+            </label>
             <input
+              id="userName"
               type="text"
               autoComplete="username"
-              placeholder={t("form.field.user_name")}
-              className="form-input border border-neutral-300"
+              placeholder={t("misc.valid_user_name")}
+              className="form-input"
               {...register("userName")}
             />
             {errors.userName && (
-              <p className="mt-1 text-sm text-red-500">
-                {errors.userName.message}
-              </p>
+              <p className="form-error-text">{errors.userName.message}</p>
             )}
           </div>
 
-          <div className="form-field relative">
+          <div className="form-field-v4">
+            <div className="form-label-row">
+              <label className="form-label-v4" htmlFor="email">
+                {t("form.field.email")}{" "}
+                <span className="form-label-optional">
+                  ({t("login.optional")})
+                </span>
+              </label>
+              <button
+                type="button"
+                className="form-info-btn"
+                aria-label={t("register.email_info")}
+                onClick={() => setShowMailInfo(true)}
+              >
+                <Info className="h-3.75 w-3.75" aria-hidden />
+              </button>
+            </div>
             <input
+              id="email"
               type="text"
               autoComplete="email"
-              placeholder={t("form.field.email")}
-              className="form-input border border-neutral-300 pr-9"
+              placeholder={t("form.placeholder.email")}
+              className="form-input"
               {...register("email")}
             />
-            <button
-              type="button"
-              className="icon-btn absolute top-1/2 right-2 -translate-y-1/2"
-              onClick={() => setShowMailInfo(true)}
-            >
-              <Info className="h-5 w-5" />
-            </button>
             {errors.email && (
-              <p className="mt-1 text-sm text-red-500">
-                {errors.email.message}
-              </p>
+              <p className="form-error-text">{errors.email.message}</p>
             )}
           </div>
           {showMailInfo && (
@@ -110,54 +120,60 @@ export function RegisterForm() {
             </BaseModal>
           )}
 
-          <div className="form-field">
+          <div className="form-field-v4">
+            <label className="form-label-v4" htmlFor="password">
+              {t("form.field.password")}
+            </label>
             <PasswordInput
+              id="password"
               autoComplete="new-password"
-              placeholder={t("form.field.password")}
-              className="form-input border border-neutral-300 pr-9"
+              className="form-input pr-9"
               {...register("password")}
             />
             {errors.password && (
-              <p className="mt-1 text-sm text-red-500">
-                {errors.password.message}
-              </p>
+              <p className="form-error-text">{errors.password.message}</p>
             )}
           </div>
 
-          <div className="form-field">
+          <div className="form-field-v4">
+            <label className="form-label-v4" htmlFor="confirm">
+              {t("register.confirm")}
+            </label>
             <PasswordInput
+              id="confirm"
               autoComplete="new-password"
-              placeholder={t("register.confirm")}
-              className="form-input border border-neutral-300 pr-9"
+              className="form-input pr-9"
               {...register("confirm")}
             />
             {errors.confirm && (
-              <p className="mt-1 text-sm text-red-500">
-                {errors.confirm.message}
-              </p>
+              <p className="form-error-text">{errors.confirm.message}</p>
             )}
           </div>
 
-          <div className="mb-2 flex flex-row-reverse items-center pt-4">
-            <button className="card-btn" type="submit" disabled={!isValid}>
+          <div className="form-actions-row form-actions-row-end">
+            <button
+              className="form-submit-btn"
+              type="submit"
+              disabled={!isValid}
+            >
               {t("button.register")}
             </button>
           </div>
         </form>
       </div>
 
-      <div className="-mt-6 text-center">
-        <span className="text-sm text-gray-600">{t("login.registered")}</span>
-        <Link href="/login" className="login-link">
+      <p className="auth-footer-text">
+        {t("login.registered")}{" "}
+        <Link href="/login" className="auth-footer-link">
           {t("button.login")}
         </Link>
-      </div>
+      </p>
 
       {processing && (
         <BaseModal>
           <Loading />
         </BaseModal>
       )}
-    </div>
+    </>
   );
 }

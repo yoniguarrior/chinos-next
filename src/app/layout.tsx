@@ -33,9 +33,12 @@ export const metadata: Metadata = {
   description: "Clásico juego de Los Chinos para jugar online",
   manifest: "/manifest.webmanifest",
   icons: {
-    icon: [{ url: "/favicon.svg" }, { url: "/favicon.ico" }],
+    icon: [
+      { url: "/logo-icon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
     apple: "/pwa-192x192.png",
-      other: [
+    other: [
       { rel: "mask-icon", url: "/safari-pinned-tab.svg", color: "#e0a23f" },
     ],
   },

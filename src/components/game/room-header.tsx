@@ -9,6 +9,7 @@ import {
 import { GameStatus } from "@/types/enums";
 
 interface RoomHeaderProps {
+  hasError?: boolean;
   onExitRoom: () => void;
   onPlayGame: () => void;
   onNewRound: () => void;
@@ -16,6 +17,7 @@ interface RoomHeaderProps {
 }
 
 export function RoomHeader({
+  hasError = false,
   onExitRoom,
   onPlayGame,
   onNewRound,
@@ -31,8 +33,8 @@ export function RoomHeader({
 
   return (
     <div className="header flex items-center">
-      <div className="flex w-full items-center gap-3 px-4">
-        <div className="flex-none">
+      <div className="flex w-full items-center justify-between gap-3 px-[18px]">
+        <div className="flex min-w-0 items-center gap-2">
           <span className="sr-only">Chinos Game</span>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -40,60 +42,65 @@ export function RoomHeader({
             src="/logo-icon.svg"
             alt="Juego de Los Chinos"
           />
+          <div className="room-title-line truncate">
+            Sala: <span className="room-title-name">{roomName}</span>
+          </div>
         </div>
 
-        <div className="flex min-w-0 flex-1 flex-col items-center justify-center text-center">
-          <span className="text-[0.6rem] font-semibold tracking-widest text-ch-text-dim uppercase">
-            Sala:
-          </span>
-          <h2 className="room-title font-bold leading-none text-ch-accent">
-            {roomName}
-          </h2>
-        </div>
-
-        <div id="header-buttons" className="flex shrink-0 items-center gap-2">
-          {/* Waiting lobby: Jugar (if 2+ players) + Salir */}
-          {!gameInPlay && (
-            <>
-              {connectedPlayers > 1 && (
+        {!hasError && (
+          <div id="header-buttons" className="flex shrink-0 items-center gap-2">
+            {/* Waiting lobby: Jugar (outline) + Salir — design 5a */}
+            {!gameInPlay && (
+              <>
+                {connectedPlayers > 1 && (
+                  <button
+                    className="room-pill"
+                    type="button"
+                    onClick={onPlayGame}
+                  >
+                    {t("button.play")}
+                  </button>
+                )}
                 <button
-                  className="header-btn card-btn card-btn-primary"
+                  className="room-pill"
                   type="button"
-                  onClick={onPlayGame}
+                  onClick={onExitRoom}
                 >
-                  {t("button.play")}
+                  {t("button.exit")}
                 </button>
-              )}
+              </>
+            )}
+            {/* End of round: Nueva partida + Salir */}
+            {gameInPlay && isWaitingNewRound && (
+              <>
+                <button
+                  className="room-pill"
+                  type="button"
+                  onClick={onNewRound}
+                >
+                  {t("button.new_round")}
+                </button>
+                <button
+                  className="room-pill"
+                  type="button"
+                  onClick={onExitGame}
+                >
+                  {t("button.exit")}
+                </button>
+              </>
+            )}
+            {/* During active play: Salir always visible (design 6a–9a) */}
+            {gameInPlay && !isWaitingNewRound && (
               <button
-                className="header-btn card-btn"
+                className="room-pill"
                 type="button"
                 onClick={onExitRoom}
               >
                 {t("button.exit")}
               </button>
-            </>
-          )}
-          {/* End of game round: Nueva partida + Salir */}
-          {gameInPlay && isWaitingNewRound && (
-            <>
-              <button
-                className="header-btn card-btn card-btn-primary"
-                type="button"
-                onClick={onNewRound}
-              >
-                {t("button.new_round")}
-              </button>
-              <button
-                className="header-btn card-btn"
-                type="button"
-                onClick={onExitGame}
-              >
-                {t("button.exit")}
-              </button>
-            </>
-          )}
-          {/* During active play: no buttons shown */}
-        </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

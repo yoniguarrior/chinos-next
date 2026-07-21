@@ -46,6 +46,8 @@ export interface Game {
   inGamePlayers: string[];
   activePlayers: number;
   gameInPause: boolean;
+  reconnFailed: boolean;
+  reconnAttempt: number;
 }
 
 export interface Message {
@@ -93,6 +95,8 @@ const gameSchema = new Schema<Game>({
   inGamePlayers: [String],
   activePlayers: { type: Number, default: 0 },
   gameInPause: { type: Boolean, default: false },
+  reconnFailed: { type: Boolean, default: false },
+  reconnAttempt: { type: Number, default: 0 },
 });
 
 const messageSchema = new Schema<Message>({

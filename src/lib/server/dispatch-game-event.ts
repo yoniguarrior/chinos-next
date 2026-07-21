@@ -10,6 +10,7 @@ import {
   getSyncData,
   newRound,
   processStart,
+  retryReconn,
   selectNext,
   showCoins,
   WsError,
@@ -76,6 +77,10 @@ export async function dispatchGameEvent(
     }
     case "gameAbandon": {
       const result = await gameAbandon(wsData);
+      return { broadcast: result };
+    }
+    case "retryReconn": {
+      const result = await retryReconn(wsData);
       return { broadcast: result };
     }
     case "messageSent": {

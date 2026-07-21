@@ -31,6 +31,13 @@ const MAX_SYNC_ATTEMPTS = 10;
 const RECONNECT_DELAY_MS = 2000;
 const MAX_RECONNECT_ATTEMPTS = 5;
 
+/** Errors that mean the session is gone — do not retry forever. */
+const FATAL_WS_ERRORS = new Set([
+  "no_joined_room",
+  "non_existing_room",
+  "already_disconnected",
+]);
+
 export interface GameSocket {
   connect: () => void;
   close: () => void;
@@ -54,6 +61,8 @@ export function useGameSocket(): GameSocket {
   const syncAttemptsRef = useRef(0);
   const reconnectAttemptsRef = useRef(0);
   const manuallyClosedRef = useRef(false);
+  const fatalErrorRef = useRef(false);
+  const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const roomIsReady = () => selectIsReady(useRoomStore.getState());
 
@@ -63,42 +72,66 @@ export function useGameSocket(): GameSocket {
     syncAttemptsRef.current = 0;
   }, []);
 
+  const stopReconnect = useCallback(() => {
+    if (reconnectTimerRef.current) {
+      clearTimeout(reconnectTimerRef.current);
+      reconnectTimerRef.current = null;
+    }
+  }, []);
+
+  const markFatal = useCallback(
+    (code: string) => {
+      fatalErrorRef.current = true;
+      manuallyClosedRef.current = true;
+      stopSyncRetries();
+      stopReconnect();
+      useErrorStore.getState().setWsError(code);
+    },
+    [stopReconnect, stopSyncRetries],
+  );
+
   const applyRoomState = useCallback((data: SyncResData) => {
     const room = useRoomStore.getState();
     if (!room.isJoined) room.setJoined(data.roomData.roomName, data.playerName);
     room.setRoomData(data.roomData);
     room.setPlayerName(data.playerName);
     room.setOwnCoins(data.ownCoins);
+    fatalErrorRef.current = false;
     useErrorStore.getState().reset();
   }, []);
 
   /**
    * HTTP bootstrap for the waiting screen when `syncRes` does not arrive
    * via WS (common behind reverse proxies). Notifies other players
-   * server-side.
+   * server-side. Also used after reconnect to refresh full game state.
    */
-  const syncViaHttp = useCallback(async () => {
-    if (roomIsReady()) return;
-    try {
-      const { get } = createApi("/rooms/sync");
-      const res = await get<{ data: SyncResData }>();
-      if (res.data) {
-        applyRoomState(res.data);
-        stopSyncRetries();
-      }
-    } catch (err: unknown) {
-      // Surface an error only when neither the WS nor the HTTP fallback could
-      // bring the room up (e.g. invalid ws cookie). If the WS later delivers
-      // syncRes, applyRoomState() clears the error.
-      if (!roomIsReady() && !wsSyncedRef.current) {
+  const syncViaHttp = useCallback(
+    async (force = false) => {
+      if (fatalErrorRef.current) return;
+      if (!force && roomIsReady()) return;
+      try {
+        const { get } = createApi("/rooms/sync");
+        const res = await get<{ data: SyncResData }>();
+        if (res.data) {
+          applyRoomState(res.data);
+          stopSyncRetries();
+        }
+      } catch (err: unknown) {
         const code =
           err instanceof Error && err.message
             ? err.message
             : "ws_connection_error";
-        useErrorStore.getState().setWsError(code);
+        if (FATAL_WS_ERRORS.has(code)) {
+          markFatal(code);
+          return;
+        }
+        if (!roomIsReady() && !wsSyncedRef.current) {
+          useErrorStore.getState().setWsError(code);
+        }
       }
-    }
-  }, [applyRoomState, stopSyncRetries]);
+    },
+    [applyRoomState, markFatal, stopSyncRetries],
+  );
 
   const emitViaHttp = useCallback(
     async (event: string, payload?: Record<string, unknown>) => {
@@ -108,10 +141,14 @@ export function useGameSocket(): GameSocket {
       } catch (err: unknown) {
         const code =
           err instanceof Error && err.message ? err.message : "ws_error";
+        if (FATAL_WS_ERRORS.has(code)) {
+          markFatal(code);
+          return;
+        }
         useErrorStore.getState().setWsError(code);
       }
     },
-    [],
+    [markFatal],
   );
 
   const sendRaw = (envelope: Envelope) => {
@@ -128,13 +165,13 @@ export function useGameSocket(): GameSocket {
   }, []);
 
   const startSyncRetries = useCallback(() => {
-    if (roomIsReady()) return;
+    if (fatalErrorRef.current || roomIsReady()) return;
 
     stopSyncRetries();
     sendSync();
 
     syncTimerRef.current = setInterval(() => {
-      if (wsSyncedRef.current || roomIsReady()) {
+      if (fatalErrorRef.current || wsSyncedRef.current || roomIsReady()) {
         stopSyncRetries();
         return;
       }
@@ -178,9 +215,13 @@ export function useGameSocket(): GameSocket {
           break;
         }
         case "error": {
-          stopSyncRetries();
           const code =
             (envelope.data as { error?: string })?.error ?? "ws_error";
+          if (FATAL_WS_ERRORS.has(code)) {
+            markFatal(code);
+            break;
+          }
+          stopSyncRetries();
           useErrorStore.getState().setWsError(code);
           break;
         }
@@ -188,11 +229,26 @@ export function useGameSocket(): GameSocket {
           console.warn("[useGameSocket] unknown event:", envelope.event);
       }
     },
-    [applyRoomState, stopSyncRetries],
+    [applyRoomState, markFatal, stopSyncRetries],
   );
+
+  const scheduleReconnect = useCallback(() => {
+    if (manuallyClosedRef.current || fatalErrorRef.current) return;
+    if (reconnectAttemptsRef.current >= MAX_RECONNECT_ATTEMPTS) return;
+
+    reconnectAttemptsRef.current += 1;
+    stopReconnect();
+    reconnectTimerRef.current = setTimeout(() => {
+      reconnectTimerRef.current = null;
+      if (!manuallyClosedRef.current && !fatalErrorRef.current) {
+        connectRef.current();
+      }
+    }, RECONNECT_DELAY_MS);
+  }, [stopReconnect]);
 
   const connect = useCallback(() => {
     if (typeof window === "undefined") return;
+    if (fatalErrorRef.current) return;
     if (wsRef.current && wsRef.current.readyState <= WebSocket.OPEN) return;
 
     manuallyClosedRef.current = false;
@@ -207,10 +263,12 @@ export function useGameSocket(): GameSocket {
 
     ws.onopen = () => {
       reconnectAttemptsRef.current = 0;
-      if (roomIsReady()) return;
       wsSyncedRef.current = false;
-      void syncViaHttp();
-      startSyncRetries();
+      sendSync();
+      void syncViaHttp(true);
+      if (!roomIsReady()) {
+        startSyncRetries();
+      }
     };
 
     ws.onmessage = (ev) => {
@@ -226,26 +284,45 @@ export function useGameSocket(): GameSocket {
     };
 
     ws.onclose = () => {
+      wsRef.current = null;
+      wsSyncedRef.current = false;
       stopSyncRetries();
-      if (
-        !manuallyClosedRef.current &&
-        reconnectAttemptsRef.current < MAX_RECONNECT_ATTEMPTS
-      ) {
-        reconnectAttemptsRef.current += 1;
-        setTimeout(() => {
-          if (!manuallyClosedRef.current) connectRef.current();
-        }, RECONNECT_DELAY_MS);
-      }
+      scheduleReconnect();
     };
-  }, [handleMessage, startSyncRetries, stopSyncRetries, syncViaHttp]);
+  }, [
+    handleMessage,
+    scheduleReconnect,
+    startSyncRetries,
+    stopSyncRetries,
+    syncViaHttp,
+  ]);
 
   useEffect(() => {
     connectRef.current = connect;
   }, [connect]);
 
+  // Reconnect promptly when the browser reports the network is back.
+  useEffect(() => {
+    const onOnline = () => {
+      if (manuallyClosedRef.current || fatalErrorRef.current) return;
+      reconnectAttemptsRef.current = 0;
+      const ws = wsRef.current;
+      if (!ws || ws.readyState === WebSocket.CLOSED) {
+        connectRef.current();
+      } else if (ws.readyState === WebSocket.OPEN) {
+        sendRaw({ event: "sync" });
+        void syncViaHttp(true);
+      }
+    };
+
+    window.addEventListener("online", onOnline);
+    return () => window.removeEventListener("online", onOnline);
+  }, [syncViaHttp]);
+
   const close = useCallback(() => {
     manuallyClosedRef.current = true;
     stopSyncRetries();
+    stopReconnect();
     const ws = wsRef.current;
     if (ws) {
       if (wsSyncedRef.current && ws.readyState === WebSocket.OPEN) {
@@ -254,7 +331,7 @@ export function useGameSocket(): GameSocket {
       ws.close();
       wsRef.current = null;
     }
-  }, [stopSyncRetries]);
+  }, [stopReconnect, stopSyncRetries]);
 
   const socketEmit = useCallback(
     (event: string, payload?: Record<string, unknown>) => {
@@ -268,7 +345,12 @@ export function useGameSocket(): GameSocket {
     [emitViaHttp],
   );
 
-  useEffect(() => stopSyncRetries, [stopSyncRetries]);
+  useEffect(() => {
+    return () => {
+      stopSyncRetries();
+      stopReconnect();
+    };
+  }, [stopReconnect, stopSyncRetries]);
 
   return { connect, close, socketEmit };
 }

@@ -9,10 +9,23 @@ import { MobileImmersive } from "@/components/mobile-immersive";
 import { PwaInstallPrompt } from "@/components/pwa-install-prompt";
 import { isStandalonePwa } from "@/lib/mobile";
 
+const isDev = process.env.NODE_ENV === "development";
+
+/** In dev, drop any registered workers/caches so stale PWA assets cannot break Turbopack HMR. */
+async function clearDevServiceWorkers() {
+  if (!("serviceWorker" in navigator)) return;
+  const registrations = await navigator.serviceWorker.getRegistrations();
+  await Promise.all(registrations.map((r) => r.unregister()));
+  if ("caches" in window) {
+    const keys = await caches.keys();
+    await Promise.all(keys.map((key) => caches.delete(key)));
+  }
+}
+
 /**
  * Client-side bootstrapping (port of the Nuxt client plugins):
  * hydrates the auth session after mount and registers the PWA
- * service worker.
+ * service worker (production only).
  */
 export function AppProviders({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -20,6 +33,11 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     void useAuthStore.getState().getUser();
+
+    if (isDev) {
+      void clearDevServiceWorkers();
+      return;
+    }
 
     if (typeof navigator === "undefined" || !("serviceWorker" in navigator)) {
       return;
@@ -65,12 +83,22 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
     router.refresh();
   }, [pathname, router]);
 
-  return (
-    <SerwistProvider swUrl="/serwist/sw.js" cacheOnNavigation={false}>
+  const extras = (
+    <>
       {children}
       <MobileBackGuard />
       <MobileImmersive />
       <PwaInstallPrompt />
+    </>
+  );
+
+  if (isDev) {
+    return extras;
+  }
+
+  return (
+    <SerwistProvider swUrl="/serwist/sw.js" cacheOnNavigation={false}>
+      {extras}
     </SerwistProvider>
   );
 }

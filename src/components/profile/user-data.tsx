@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { Check } from "lucide-react";
 import { resendVerifyEmail } from "@/lib/user";
 import type { IUser } from "@/types/user";
 import { BaseModal } from "@/components/base-modal";
@@ -22,37 +23,39 @@ export function UserData({ user }: { user?: IUser }) {
 
   return (
     <>
-      <div className="mx-auto w-full max-w-120">
-        <div className="p-3">
-          <div className="user-data-row">
-            <div className="user-data-label">{t("login.username")}</div>
-            <div className="user-data-field">{user?.userName}</div>
+      <div className="mx-auto w-full">
+        <div className="profile-identity">
+          <div className="profile-avatar">
+            {user?.userName?.charAt(0).toUpperCase() ?? "?"}
           </div>
-          <div className="user-data-row">
-            <div className="user-data-label">{t("login.email")}</div>
-            <div className="user-data-field">{user?.email}</div>
+          <div className="min-w-0">
+            <div className="profile-name">{user?.userName}</div>
+            <div className="profile-mail">{user?.email}</div>
           </div>
-          <div className="user-data-row">
-            <div className="user-data-label" />
-            {user?.emailVerified ? (
-              <div className="text-gray-700">{t("profile.email_verified")}</div>
-            ) : (
-              <div className="flex-grow-1 flex items-center">
-                <div className="font-semibold text-gray-700">
-                  {t("profile.email_not_verified")}
-                </div>
-                {!sent ? (
-                  <button className="card-btn" type="button" onClick={handleVerify}>
-                    {t("button.verify_email")}
-                  </button>
-                ) : (
-                  <button className="card-btn" type="button" disabled>
-                    {t("button.send_verify")}
-                  </button>
-                )}
+        </div>
+
+        <div className="profile-verification-wrap">
+          {user?.emailVerified ? (
+            <span className="verified-badge">
+              <Check className="h-4 w-4" aria-hidden />
+              {t("profile.email_verified")}
+            </span>
+          ) : (
+            <div className="profile-unverified">
+              <div className="profile-unverified-text">
+                {t("profile.email_not_verified")}
               </div>
-            )}
-          </div>
+              {!sent ? (
+                <button className="profile-pass-btn" type="button" onClick={handleVerify}>
+                  {t("button.verify_email")}
+                </button>
+              ) : (
+                <button className="profile-pass-btn" type="button" disabled>
+                  {t("button.send_verify")}
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
