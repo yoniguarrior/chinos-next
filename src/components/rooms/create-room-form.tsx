@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -29,15 +29,13 @@ interface CreateRoomFields {
 }
 
 export function CreateRoomForm({
-  roomType: initialRoomType,
+  roomType,
   playerName,
   onCloseModal,
   onCreateRoom,
 }: CreateRoomFormProps) {
   const t = useTranslations();
   const tr = t as Translate;
-
-  const [roomType, setRoomType] = useState(initialRoomType);
 
   const needsPlayerName = roomType === RoomType.Public && playerName === "";
   const isPrivate = roomType === RoomType.Private;
@@ -82,6 +80,11 @@ export function CreateRoomForm({
   });
 
   const onSubmit = async (data: CreateRoomFields) => {
+    if (isPrivate && playerName === "") {
+      window.location.assign("/login?redirect=/rooms/create");
+      return;
+    }
+
     if (needsPlayerName && data.playerName) {
       const isUser = await checkUser(data.playerName);
       if (isUser) {
@@ -94,30 +97,17 @@ export function CreateRoomForm({
       roomType,
       data.roomName,
       roomType === RoomType.Public ? (data.playerName ?? playerName) : undefined,
-      roomType === RoomType.Private ? data.password : undefined,
+      isPrivate ? data.password : undefined,
     );
   };
 
+  const title = isPrivate
+    ? t("room.create_data_private")
+    : t("room.create_data_public");
+
   return (
     <div className="create-room-form">
-      <h4 className="create-room-title">{t("room.create_data")}</h4>
-
-      <div className="segmented-track">
-        <button
-          type="button"
-          className={roomType === RoomType.Public ? "active" : ""}
-          onClick={() => setRoomType(RoomType.Public)}
-        >
-          {t("room.public")}
-        </button>
-        <button
-          type="button"
-          className={roomType === RoomType.Private ? "active" : ""}
-          onClick={() => setRoomType(RoomType.Private)}
-        >
-          {t("room.private")}
-        </button>
-      </div>
+      <h4 className="create-room-title">{title}</h4>
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="form-field-v4">
@@ -152,7 +142,7 @@ export function CreateRoomForm({
           </div>
         )}
 
-        {roomType === RoomType.Private && (
+        {isPrivate && (
           <div className="form-field-v4">
             <label className="form-label-v4" htmlFor="password">
               {t("form.field.password")}

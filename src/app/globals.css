@@ -1505,7 +1505,7 @@ main {
 }
 
 .rooms-add-row {
-  @apply mt-0.5 flex justify-end;
+  @apply mt-3 flex justify-end;
 }
 
 .pill-add-outline {
@@ -1590,15 +1590,15 @@ main {
 }
 
 .segmented-track {
-  @apply mb-5 flex rounded-[10px] bg-ch-field p-1;
+  @apply mb-5 flex gap-1 rounded-[10px] bg-ch-field p-1;
 }
 
 .segmented-track button {
-  @apply min-h-0 flex-1 rounded-lg border-0 bg-transparent px-2 py-2 text-[12.5px] font-bold text-ch-text-dim transition;
+  @apply min-h-10 flex-1 cursor-pointer rounded-lg border border-transparent bg-transparent px-2 py-2 text-[12.5px] font-bold text-ch-text-dim transition hover:text-ch-text;
 }
 
 .segmented-track button.active {
-  @apply bg-ch-accent text-ch-on-accent;
+  @apply border-ch-accent bg-ch-accent text-ch-on-accent;
 }
 
 .modal-window:has(.create-room-form) {
