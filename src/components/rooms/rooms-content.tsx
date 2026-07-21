@@ -74,6 +74,10 @@ export function RoomsContent() {
     const errorEmpty = () => errorIsEmpty(useErrorStore.getState());
 
     if (type === RoomType.Private) {
+      if (!isLogged) {
+        router.push("/login?redirect=/rooms");
+        return;
+      }
       await createPrivateRoom(roomName, password ?? "");
       if (errorEmpty()) {
         await joinPrivateRoom(roomName);
@@ -204,10 +208,10 @@ export function RoomsContent() {
         </div>
       </section>
 
-      <section className="rooms-section">
-        <h3 className="rooms-section-title">{t("list.private_rooms")}</h3>
-        {isLogged ? (
-          privateRooms.length > 0 ? (
+      {isLogged && (
+        <section className="rooms-section">
+          <h3 className="rooms-section-title">{t("list.private_rooms")}</h3>
+          {privateRooms.length > 0 ? (
             <RoomsList
               rooms={privateRooms}
               onJoinRoom={(roomName, roomType) =>
@@ -216,24 +220,18 @@ export function RoomsContent() {
             />
           ) : (
             <div className="rooms-empty">{t("room.no_privates")}</div>
-          )
-        ) : (
-          <div className="rooms-empty">{t("room.no_privates")}</div>
-        )}
-        <div className="rooms-add-row">
-          <button
-            type="button"
-            className="pill-add-filled"
-            onClick={() =>
-              isLogged
-                ? void handleCreate(RoomType.Private)
-                : router.push("/register")
-            }
-          >
-            + {t("button.new_private")}
-          </button>
-        </div>
-      </section>
+          )}
+          <div className="rooms-add-row">
+            <button
+              type="button"
+              className="pill-add-filled"
+              onClick={() => void handleCreate(RoomType.Private)}
+            >
+              + {t("button.new_private")}
+            </button>
+          </div>
+        </section>
+      )}
 
       {showCreate && (
         <BaseModal>

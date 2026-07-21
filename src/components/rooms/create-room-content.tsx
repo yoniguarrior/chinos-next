@@ -16,7 +16,6 @@ import { useClientReady } from "@/hooks/use-client-ready";
 import { BaseModal } from "@/components/base-modal";
 import { Loading } from "@/components/loading";
 import { CreateRoomForm } from "./create-room-form";
-import { RoomTypeForm } from "./room-type-form";
 
 export function CreateRoomContent() {
   const t = useTranslations();
@@ -27,19 +26,8 @@ export function CreateRoomContent() {
 
   const playerName = isLogged && userName ? userName : "";
 
-  const [roomType, setRoomType] = useState<RoomType>(RoomType.Public);
-  // Registered users choose the room type first; guests can only create
-  // public rooms so they go straight to the create form.
-  const [typeSelected, setTypeSelected] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [alertError, setAlertError] = useState("");
-
-  const showRoomTypeForm = playerName !== "" && !typeSelected;
-
-  const handleSetType = (type: RoomType) => {
-    setRoomType(type);
-    setTypeSelected(true);
-  };
 
   const createRoom = async (
     type: RoomType,
@@ -47,6 +35,11 @@ export function CreateRoomContent() {
     pName?: string,
     password?: string,
   ) => {
+    if (type === RoomType.Private && !isLogged) {
+      router.push("/login?redirect=/rooms/create");
+      return;
+    }
+
     setProcessing(true);
 
     const name = pName ?? playerName;
@@ -96,25 +89,16 @@ export function CreateRoomContent() {
 
   return (
     <div className="mx-auto w-full">
-      {showRoomTypeForm ? (
-        <BaseModal>
-          <RoomTypeForm
-            onCloseModal={() => router.back()}
-            onSetType={handleSetType}
-          />
-        </BaseModal>
-      ) : (
-        <BaseModal>
-          <CreateRoomForm
-            roomType={roomType}
-            playerName={playerName}
-            onCloseModal={() => router.back()}
-            onCreateRoom={(type, roomName, pName, password) =>
-              void createRoom(type, roomName, pName, password)
-            }
-          />
-        </BaseModal>
-      )}
+      <BaseModal>
+        <CreateRoomForm
+          roomType={RoomType.Public}
+          playerName={playerName}
+          onCloseModal={() => router.back()}
+          onCreateRoom={(type, roomName, pName, password) =>
+            void createRoom(type, roomName, pName, password)
+          }
+        />
+      </BaseModal>
     </div>
   );
 }
