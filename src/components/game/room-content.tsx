@@ -262,7 +262,7 @@ export function RoomContent({ roomName }: { roomName: string }) {
               <div className="waiting-start">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  className="mb-5 h-[88px] w-[88px] opacity-90"
+                  className="mb-5 h-22 w-22 opacity-90"
                   src="/logo-icon.svg"
                   alt="Juego de Los Chinos"
                 />

@@ -8,7 +8,7 @@ interface LogoProps {
 
 export function Logo({ src, alt = "Chinos Game", className }: LogoProps) {
   return (
-    <Link href="/" className="!opacity-100">
+    <Link href="/" className="opacity-100!">
       <span className="sr-only">{alt}</span>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img

@@ -10,8 +10,12 @@
     "messages",
     "src/i18n"
   ],
+  "cSpell.configFile": "${workspaceFolder}/cspell.json",
   "cSpell.words": [
-    "Juego",
-    "Sala"
+    "minmax",
+    "nowrap",
+    "raleway",
+    "rgba",
+    "serwist"
   ]
 }

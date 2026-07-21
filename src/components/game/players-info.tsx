@@ -14,7 +14,7 @@ export function PlayersInfo() {
     <div className="game-info">
       <div className="players-row">
         {numPlayers === 0 ? (
-          <div className="px-[18px] py-1 text-center text-sm text-ch-text-dim">
+          <div className="px-4.5 py-1 text-center text-sm text-ch-text-dim">
             {t("room.no_players")}
           </div>
         ) : (

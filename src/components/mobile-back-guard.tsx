@@ -79,7 +79,7 @@ export function MobileBackGuard() {
     <div
       role="status"
       aria-live="polite"
-      className="pointer-events-none fixed bottom-5 left-1/2 z-[9999] -translate-x-1/2 rounded-lg bg-black/80 px-5 py-2.5 text-sm text-white transition-opacity duration-300"
+      className="pointer-events-none fixed bottom-5 left-1/2 z-9999 -translate-x-1/2 rounded-lg bg-black/80 px-5 py-2.5 text-sm text-white transition-opacity duration-300"
       style={{ opacity: showTooltip ? 1 : 0 }}
     >
       {t("press_back_again_to_exit")}

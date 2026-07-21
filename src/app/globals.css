@@ -270,7 +270,7 @@ p {
 }
 
 a {
-  @apply font-[500] text-ch-accent not-italic opacity-90 hover:underline hover:opacity-100;
+  @apply font-medium text-ch-accent not-italic opacity-90 hover:underline hover:opacity-100;
 }
 
 main {
@@ -287,7 +287,7 @@ main {
 }
 
 .main-content {
-  @apply mx-auto w-95/100 max-w-[390px] flex-1 px-4 py-6 md:w-85/100;
+  @apply mx-auto w-95/100 max-w-97.5 flex-1 px-4 py-6 md:w-85/100;
 }
 
 .room-content {
@@ -328,7 +328,7 @@ main {
 }
 
 .card-btn-primary {
-  @apply border-ch-accent bg-ch-accent text-ch-on-accent hover:border-[#c48a2e] hover:bg-[#c48a2e] hover:text-ch-on-accent;
+  @apply border-ch-accent bg-ch-accent text-ch-on-accent hover:border-chalt hover:bg-chalt hover:text-ch-on-accent;
 }
 
 .header-btn {
@@ -383,12 +383,12 @@ main {
 }
 
 .action-body .input-coins {
-  @apply h-[var(--action-input-dim)] w-[var(--action-input-dim)] rounded-full border-3 border-ch-accent-dim! bg-ch-accent! text-center font-bold! text-ch-on-accent!;
+  @apply h-(--action-input-dim) w-(--action-input-dim) rounded-full border-3 border-ch-accent-dim! bg-ch-accent! text-center font-bold! text-ch-on-accent!;
   font-size: calc(var(--label-font-size) * 1.5);
 }
 
 .i-rounded {
-  @apply mb-1 h-12 w-12 rounded rounded-full border-3 border-neutral-500 text-center;
+  @apply mb-1 h-12 w-12 rounded-full border-3 border-neutral-500 text-center;
 }
 
 .i-wide {
@@ -396,7 +396,7 @@ main {
 }
 
 .menu-item {
-  @apply border-b-[3px] border-transparent bg-transparent p-1.5 text-sm font-[400] text-ch-text-dim not-italic whitespace-nowrap no-underline! opacity-100 transition duration-200 ease-in-out hover:text-ch-accent sm:p-2 sm:text-base;
+  @apply border-b-[3px] border-transparent bg-transparent p-1.5 text-sm font-normal text-ch-text-dim not-italic whitespace-nowrap no-underline! opacity-100 transition duration-200 ease-in-out hover:text-ch-accent sm:p-2 sm:text-base;
 }
 
 .menu-item-active {
@@ -404,11 +404,11 @@ main {
 }
 
 .submenu-item {
-  @apply my-1 block px-3 py-2 text-base font-[400] text-ch-text-dim not-italic opacity-100 transition duration-200 ease-in-out hover:bg-ch-bg2 hover:text-ch-accent;
+  @apply my-1 block px-3 py-2 text-base font-normal text-ch-text-dim not-italic opacity-100 transition duration-200 ease-in-out hover:bg-ch-bg2 hover:text-ch-accent;
 }
 
 .footer-menu-item {
-  @apply cursor-pointer px-2 text-sm font-[400] text-ch-text-dim not-italic transition duration-200 ease-in-out hover:text-ch-accent;
+  @apply cursor-pointer px-2 text-sm font-normal text-ch-text-dim not-italic transition duration-200 ease-in-out hover:text-ch-accent;
 }
 
 @layer components {
@@ -458,7 +458,7 @@ main {
 }
 
 .login-link {
-  @apply ml-2 inline-block align-baseline text-sm font-semibold text-ch-accent hover:text-[#c48a2e];
+  @apply ml-2 inline-block align-baseline text-sm font-semibold text-ch-accent hover:text-chalt;
 }
 
 .loading-wrapper {
@@ -466,7 +466,7 @@ main {
 }
 
 .form-error {
-  @apply mt-2 rounded-lg bg-ch-bg2 py-2 text-center font-[500] text-destructive;
+  @apply mt-2 rounded-lg bg-ch-bg2 py-2 text-center font-medium text-destructive;
 }
 
 .user-data-label {
@@ -474,11 +474,11 @@ main {
 }
 
 .user-data-field {
-  @apply min-h-8 w-full flex-grow-1 appearance-none rounded-[10px] border border-ch-accent-dim bg-ch-field px-3 py-2 leading-tight text-ch-text;
+  @apply min-h-8 w-full grow appearance-none rounded-[10px] border border-ch-accent-dim bg-ch-field px-3 py-2 leading-tight text-ch-text;
 }
 
 .btn.actions {
-  @apply m-0 mr-3 min-w-0 border-none bg-ch-accent text-ch-on-accent! hover:bg-[#c48a2e] hover:text-ch-on-accent!;
+  @apply m-0 mr-3 min-w-0 border-none bg-ch-accent text-ch-on-accent! hover:bg-chalt hover:text-ch-on-accent!;
   padding: 0.375rem 0.75rem;
   border-radius: 10px;
   font-size: 0.875rem;
@@ -561,7 +561,7 @@ main {
 }
 
 .btn-create .btn {
-  @apply m-0 rounded-[22px] bg-ch-accent! text-ch-on-accent! hover:bg-[#c48a2e]! hover:text-ch-on-accent!;
+  @apply m-0 rounded-[22px] bg-ch-accent! text-ch-on-accent! hover:bg-chalt! hover:text-ch-on-accent!;
 }
 
 .room-title {
@@ -646,7 +646,7 @@ main {
 }
 
 .players-list {
-  @apply flex w-full flex-wrap justify-center gap-1.5 px-[18px];
+  @apply flex w-full flex-wrap justify-center gap-1.5 px-4.5;
 }
 
 /* Player chips (design 5a / 6a) */
@@ -655,7 +655,7 @@ main {
 }
 
 .player-chip .chip-dot {
-  @apply h-[7px] w-[7px] shrink-0 rounded-full bg-ch-win;
+  @apply h-1.75 w-1.75 shrink-0 rounded-full bg-ch-win;
 }
 
 .player-chip .chip-name {
@@ -684,11 +684,11 @@ main {
 }
 
 .room-pill {
-  @apply inline-flex items-center justify-center rounded-[20px] border border-ch-accent-dim px-4 py-[7px] text-[12px] font-semibold text-ch-text-dim transition hover:border-ch-accent hover:bg-ch-accent hover:text-ch-on-accent;
+  @apply inline-flex items-center justify-center rounded-[20px] border border-ch-accent-dim px-4 py-1.75 text-[12px] font-semibold text-ch-text-dim transition hover:border-ch-accent hover:bg-ch-accent hover:text-ch-on-accent;
 }
 
 .room-pill-primary {
-  @apply border-ch-accent bg-ch-accent px-4 text-[12px] font-bold text-ch-on-accent hover:border-[#c48a2e] hover:bg-[#c48a2e] hover:text-ch-on-accent;
+  @apply border-ch-accent bg-ch-accent px-4 text-[12px] font-bold text-ch-on-accent hover:border-chalt hover:bg-chalt hover:text-ch-on-accent;
 }
 
 .room .header .header-content {
@@ -702,7 +702,7 @@ main {
 
 .pl-connex,
 .lost-item {
-  @apply w-auto flex-none p-[var(--p-item-padding)];
+  @apply w-auto flex-none p-(--p-item-padding);
 }
 
 .pl-name {
@@ -771,11 +771,11 @@ main {
 }
 
 #game-msg .btns-group {
-  @apply mt-[10px];
+  @apply mt-2.5;
 }
 
 #game-msg .btn-answer {
-  @apply my-0 w-[100px]! min-w-0! p-1 text-sm;
+  @apply my-0 w-25! min-w-0! p-1 text-sm;
   padding: calc(var(--label-font-size) / 2.5);
 }
 
@@ -803,7 +803,7 @@ main {
 }
 
 .chat-preview {
-  @apply flex h-11 w-full shrink-0 cursor-pointer items-center gap-2 border-t border-ch-accent/15 bg-ch-bg px-[18px] pb-4 pt-2 text-left transition hover:bg-ch-bg2;
+  @apply flex h-11 w-full shrink-0 cursor-pointer items-center gap-2 border-t border-ch-accent/15 bg-ch-bg px-4.5 pb-4 pt-2 text-left transition hover:bg-ch-bg2;
 }
 
 .chat-preview-label {
@@ -877,7 +877,7 @@ main {
 }
 
 .chat-panel-close {
-  @apply flex h-[26px] w-[26px] items-center justify-center rounded-lg border border-ch-accent-dim bg-ch-bg p-0 text-ch-text-dim transition hover:text-ch-text;
+  @apply flex h-6.5 w-6.5 items-center justify-center rounded-lg border border-ch-accent-dim bg-ch-bg p-0 text-ch-text-dim transition hover:text-ch-text;
 }
 
 .chat-panel-messages {
@@ -889,11 +889,11 @@ main {
 }
 
 .chat-panel-input {
-  @apply h-[30px] flex-1 rounded-[10px] border border-ch-accent-dim bg-ch-bg px-3 py-0 text-xs text-ch-text placeholder:text-ch-text-dim focus-visible:outline-none;
+  @apply h-7.5 flex-1 rounded-[10px] border border-ch-accent-dim bg-ch-bg px-3 py-0 text-xs text-ch-text placeholder:text-ch-text-dim focus-visible:outline-none;
 }
 
 .chat-panel-send {
-  @apply flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-[10px] border-0 bg-ch-accent text-ch-on-accent transition hover:bg-[#c48a2e];
+  @apply flex h-7.5 w-7.5 shrink-0 items-center justify-center rounded-[10px] border-0 bg-ch-accent text-ch-on-accent transition hover:bg-chalt;
 }
 
 /* Messages inside the panel (design 10a) */
@@ -938,7 +938,7 @@ main {
 }
 
 #actions .action-header {
-  @apply rounded-t-[14px] border-0 bg-ch-bg2 px-[10px] text-ch-text-dim;
+  @apply rounded-t-[14px] border-0 bg-ch-bg2 px-2.5 text-ch-text-dim;
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.06em;
@@ -946,7 +946,7 @@ main {
 }
 
 #actions .action-body {
-  @apply flex items-center justify-between rounded-b-[14px] border border-ch-accent-dim bg-ch-panel px-2 py-[var(--action-body-padding)];
+  @apply flex items-center justify-between rounded-b-[14px] border border-ch-accent-dim bg-ch-panel px-2 py-(--action-body-padding);
 }
 
 #actions,
@@ -959,7 +959,7 @@ main {
 }
 
 #actions h5 {
-  @apply m-0 text-[1rem] leading-[1.5rem];
+  @apply m-0 text-[1rem] leading-6;
 }
 
 .room-footer {
@@ -1275,7 +1275,7 @@ main {
 
 /* Turn / result panels + bet selector (design 2a / 3a) */
 .user-ix-box {
-  @apply mx-auto flex w-full max-w-[390px] flex-col gap-3 px-[18px] py-3.5;
+  @apply mx-auto flex w-full max-w-97.5 flex-col gap-3 px-4.5 py-3.5;
 }
 
 .turn-panel,
@@ -1298,7 +1298,7 @@ main {
 }
 
 .pill-cta {
-  @apply inline-flex h-11 items-center justify-center rounded-[22px] bg-ch-accent px-7 text-[13px] font-bold text-ch-on-accent transition hover:bg-[#c48a2e];
+  @apply inline-flex h-11 items-center justify-center rounded-[22px] bg-ch-accent px-7 text-[13px] font-bold text-ch-on-accent transition hover:bg-chalt;
 }
 
 .bet-row {
@@ -1306,7 +1306,7 @@ main {
 }
 
 .bet-cell {
-  @apply flex h-[34px] w-[68px] shrink-0 items-center justify-center rounded-lg border-2 border-ch-accent-dim bg-ch-panel text-[13px] font-bold text-ch-text transition hover:border-ch-accent;
+  @apply flex h-8.5 w-17 shrink-0 items-center justify-center rounded-lg border-2 border-ch-accent-dim bg-ch-panel text-[13px] font-bold text-ch-text transition hover:border-ch-accent;
 }
 
 .bet-cell.selected {
@@ -1315,7 +1315,7 @@ main {
 }
 
 .bet-check {
-  @apply flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-lg bg-ch-accent text-ch-on-accent transition hover:bg-[#c48a2e] disabled:cursor-default disabled:opacity-35;
+  @apply flex h-8.5 w-8.5 shrink-0 items-center justify-center rounded-lg bg-ch-accent text-ch-on-accent transition hover:bg-chalt disabled:cursor-default disabled:opacity-35;
 }
 
 .show-coins {
@@ -1331,7 +1331,7 @@ main {
 }
 
 .show-coins-btn {
-  @apply inline-flex h-[38px] shrink-0 items-center justify-center rounded-[19px] bg-ch-accent px-5 text-[13px] font-bold text-ch-on-accent transition hover:bg-[#c48a2e];
+  @apply inline-flex h-9.5 shrink-0 items-center justify-center rounded-[19px] bg-ch-accent px-5 text-[13px] font-bold text-ch-on-accent transition hover:bg-chalt;
 }
 
 .no-bets-msg {
@@ -1351,7 +1351,7 @@ main {
 }
 
 .site-footer {
-  @apply border-t-0 bg-transparent px-[18px] pt-6 pb-[18px];
+  @apply border-t-0 bg-transparent px-4.5 pt-6 pb-4.5;
 }
 
 .footer-links {
@@ -1371,7 +1371,7 @@ main {
 }
 
 .home-page {
-  @apply max-w-[390px] px-0 py-0;
+  @apply max-w-97.5 px-0 py-0;
 }
 
 .home-hero {
@@ -1379,7 +1379,7 @@ main {
 }
 
 .home-hero-logo {
-  @apply mb-5 block h-[104px] w-[104px];
+  @apply mb-5 block h-26 w-26;
 }
 
 .home-kicker {
@@ -1395,7 +1395,7 @@ main {
 }
 
 .home-pill {
-  @apply inline-flex items-center justify-center rounded-[20px] border border-ch-accent-dim px-4 py-[7px] font-sans text-xs font-semibold text-ch-text-dim no-underline! transition hover:border-ch-accent hover:bg-ch-accent hover:text-ch-on-accent;
+  @apply inline-flex items-center justify-center rounded-[20px] border border-ch-accent-dim px-4 py-1.75 font-sans text-xs font-semibold text-ch-text-dim no-underline! transition hover:border-ch-accent hover:bg-ch-accent hover:text-ch-on-accent;
 }
 
 .home-divider {
@@ -1465,7 +1465,7 @@ main {
 }
 
 .rooms-refresh-btn {
-  @apply inline-flex items-center justify-center border-0 bg-transparent p-0 text-ch-accent transition hover:text-[#c48a2e];
+  @apply inline-flex items-center justify-center border-0 bg-transparent p-0 text-ch-accent transition hover:text-chalt;
 }
 
 .rooms-section {
@@ -1493,11 +1493,11 @@ main {
 }
 
 .room-row-count {
-  @apply w-[60px] text-center text-xs text-ch-text-dim;
+  @apply w-15 text-center text-xs text-ch-text-dim;
 }
 
 .room-join-btn {
-  @apply flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-lg bg-ch-accent text-ch-on-accent transition hover:bg-[#c48a2e] disabled:bg-transparent disabled:text-ch-text-dim disabled:opacity-30;
+  @apply flex h-8.5 w-8.5 shrink-0 items-center justify-center rounded-lg bg-ch-accent text-ch-on-accent transition hover:bg-chalt disabled:bg-transparent disabled:text-ch-text-dim disabled:opacity-30;
 }
 
 .rooms-empty {
@@ -1509,16 +1509,16 @@ main {
 }
 
 .pill-add-outline {
-  @apply inline-flex cursor-pointer items-center rounded-[20px] border border-ch-accent-dim bg-transparent px-3.5 py-[7px] text-xs font-semibold text-ch-accent transition hover:border-ch-accent;
+  @apply inline-flex cursor-pointer items-center rounded-[20px] border border-ch-accent-dim bg-transparent px-3.5 py-1.75 text-xs font-semibold text-ch-accent transition hover:border-ch-accent;
 }
 
 .pill-add-filled {
-  @apply inline-flex cursor-pointer items-center rounded-[20px] bg-ch-accent px-3.5 py-[7px] text-xs font-semibold text-ch-on-accent transition hover:bg-[#c48a2e];
+  @apply inline-flex cursor-pointer items-center rounded-[20px] bg-ch-accent px-3.5 py-1.75 text-xs font-semibold text-ch-on-accent transition hover:bg-chalt;
 }
 
 /* Forms (3a, 3b, 4b) */
 .form-panel {
-  @apply rounded-[16px] border border-ch-accent-dim bg-ch-panel p-[22px];
+  @apply rounded-[16px] border border-ch-accent-dim bg-ch-panel p-5.5;
 }
 
 .form-panel-stack form {
@@ -1562,7 +1562,7 @@ main {
 }
 
 .form-submit-btn {
-  @apply inline-flex h-11 items-center justify-center rounded-[10px] bg-ch-accent px-6 font-sans text-[13px] font-bold text-ch-on-accent transition hover:bg-[#c48a2e] disabled:cursor-default disabled:opacity-40;
+  @apply inline-flex h-11 items-center justify-center rounded-[10px] bg-ch-accent px-6 font-sans text-[13px] font-bold text-ch-on-accent transition hover:bg-chalt disabled:cursor-default disabled:opacity-40;
 }
 
 .auth-actions-row {
@@ -1570,19 +1570,19 @@ main {
 }
 
 .auth-inline-link {
-  @apply text-[11.5px] font-semibold text-ch-accent no-underline! transition hover:text-[#c48a2e];
+  @apply text-[11.5px] font-semibold text-ch-accent no-underline! transition hover:text-chalt;
 }
 
 .auth-footer-text {
-  @apply mt-[18px] text-center text-[13px] text-ch-text-dim;
+  @apply mt-4.5 text-center text-[13px] text-ch-text-dim;
 }
 
 .auth-footer-link {
-  @apply font-semibold text-ch-accent no-underline! transition hover:text-[#c48a2e];
+  @apply font-semibold text-ch-accent no-underline! transition hover:text-chalt;
 }
 
 .create-room-form {
-  @apply w-full min-w-[min(100%,320px)] p-[26px];
+  @apply w-full min-w-[min(100%,320px)] p-6.5;
 }
 
 .create-room-title {
@@ -1607,7 +1607,7 @@ main {
 
 /* Ranking (2a) */
 .ranking-page {
-  @apply flex flex-col gap-[18px];
+  @apply flex flex-col gap-4.5;
 }
 
 .period-pills {
@@ -1615,7 +1615,7 @@ main {
 }
 
 .period-pill {
-  @apply cursor-pointer rounded-2xl border border-ch-accent-dim bg-transparent px-3.5 py-[5px] text-[11px] font-semibold text-ch-text-dim transition;
+  @apply cursor-pointer rounded-2xl border border-ch-accent-dim bg-transparent px-3.5 py-1.25 text-[11px] font-semibold text-ch-text-dim transition;
 }
 
 .period-pill-active {
@@ -1635,11 +1635,11 @@ main {
 }
 
 .leaderboard-rank {
-  @apply w-[22px] text-center text-[13px] font-bold text-ch-text-dim;
+  @apply w-5.5 text-center text-[13px] font-bold text-ch-text-dim;
 }
 
 .leaderboard-avatar {
-  @apply flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-full border-2 border-ch-accent-dim bg-ch-field font-heading text-[15px] font-bold text-ch-text-dim;
+  @apply flex h-9.5 w-9.5 shrink-0 items-center justify-center rounded-full border-2 border-ch-accent-dim bg-ch-field font-heading text-[15px] font-bold text-ch-text-dim;
 }
 
 .leaderboard-row-self .leaderboard-avatar {
@@ -1684,7 +1684,7 @@ main {
 
 /* Rules (1c) */
 .rules-cta {
-  @apply inline-flex h-11 items-center justify-center rounded-[22px] bg-ch-accent px-7 font-sans text-[13px] font-bold text-ch-on-accent no-underline! transition hover:bg-[#c48a2e];
+  @apply inline-flex h-11 items-center justify-center rounded-[22px] bg-ch-accent px-7 font-sans text-[13px] font-bold text-ch-on-accent no-underline! transition hover:bg-chalt;
 }
 
 .list-title {
@@ -1704,7 +1704,7 @@ main {
 }
 
 .waiting-start {
-  @apply flex flex-col items-center gap-[22px] px-7 text-center;
+  @apply flex flex-col items-center gap-5.5 px-7 text-center;
 }
 
 .waiting-start h2 {
@@ -1712,7 +1712,7 @@ main {
 }
 
 .waiting-text {
-  @apply mx-auto max-w-[280px] text-[13.5px] leading-normal text-ch-text-dim;
+  @apply mx-auto max-w-70 text-[13.5px] leading-normal text-ch-text-dim;
 }
 
 .room-share {
@@ -1728,7 +1728,7 @@ main {
 }
 
 .room-share-copy {
-  @apply flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-ch-accent text-ch-on-accent transition hover:bg-[#c48a2e] disabled:opacity-60;
+  @apply flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-ch-accent text-ch-on-accent transition hover:bg-chalt disabled:opacity-60;
 }
 
 .profile-card {
@@ -1740,11 +1740,11 @@ main {
 }
 
 .profile-identity {
-  @apply mb-[18px] flex items-center gap-3.5;
+  @apply mb-4.5 flex items-center gap-3.5;
 }
 
 .profile-avatar {
-  @apply flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full border-2 border-ch-accent bg-ch-field font-heading text-lg font-bold text-ch-accent;
+  @apply flex h-13 w-13 shrink-0 items-center justify-center rounded-full border-2 border-ch-accent bg-ch-field font-heading text-lg font-bold text-ch-accent;
 }
 
 .profile-name {
@@ -1756,7 +1756,7 @@ main {
 }
 
 .profile-verification-wrap {
-  @apply mb-[18px];
+  @apply mb-4.5;
 }
 
 .verified-badge {
@@ -1776,11 +1776,11 @@ main {
 }
 
 .profile-edit-btn {
-  @apply inline-flex h-[42px] flex-1 items-center justify-center rounded-[10px] bg-ch-accent px-3 font-sans text-[12.5px] font-bold text-ch-on-accent transition hover:bg-[#c48a2e];
+  @apply inline-flex h-10.5 flex-1 items-center justify-center rounded-[10px] bg-ch-accent px-3 font-sans text-[12.5px] font-bold text-ch-on-accent transition hover:bg-chalt;
 }
 
 .profile-pass-btn {
-  @apply inline-flex h-[42px] flex-1 items-center justify-center rounded-[10px] border border-ch-accent-dim px-3 font-sans text-[12.5px] font-bold text-ch-text transition hover:border-ch-accent;
+  @apply inline-flex h-10.5 flex-1 items-center justify-center rounded-[10px] border border-ch-accent-dim px-3 font-sans text-[12.5px] font-bold text-ch-text transition hover:border-ch-accent;
 }
 
 .profile-section-card {
@@ -1788,7 +1788,7 @@ main {
 }
 
 .profile-section-head {
-  @apply flex items-center justify-between px-[18px] py-4;
+  @apply flex items-center justify-between px-4.5 py-4;
 }
 
 .profile-section-head-open {
@@ -1800,7 +1800,7 @@ main {
 }
 
 .profile-section-toggle {
-  @apply inline-flex h-[18px] w-[18px] items-center justify-center border-0 bg-transparent p-0 text-ch-text-dim transition hover:text-ch-text;
+  @apply inline-flex h-4.5 w-4.5 items-center justify-center border-0 bg-transparent p-0 text-ch-text-dim transition hover:text-ch-text;
 }
 
 .profile-section-toggle-open {
@@ -1808,7 +1808,7 @@ main {
 }
 
 .profile-ranking-refresh {
-  @apply px-[18px] pt-3 text-right;
+  @apply px-4.5 pt-3 text-right;
 }
 
 .profile-ranking-refresh-btn {
@@ -1816,7 +1816,7 @@ main {
 }
 
 .profile-ranking-body {
-  @apply px-[18px] pb-[18px];
+  @apply px-4.5 pb-4.5;
 }
 
 .profile-ranking-kv {
@@ -1824,7 +1824,7 @@ main {
 }
 
 .profile-ranking-kv-row {
-  @apply flex items-center justify-between border-b border-ch-accent/12 py-[9px] text-[12.5px];
+  @apply flex items-center justify-between border-b border-ch-accent/12 py-2.25 text-[12.5px];
 }
 
 .profile-ranking-kv-row:last-child {

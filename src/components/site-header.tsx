@@ -42,10 +42,10 @@ export function SiteHeader() {
 
   return (
     <div className="main-header">
-      <div className="mx-auto max-w-[820px] px-[18px] py-4">
+      <div className="mx-auto max-w-205 px-4.5 py-4">
         <div className="flex items-center justify-between">
           <div className="shrink-0">
-              <Logo src="/logo-icon.svg" alt={t("misc.alt_logo")} className="h-[34px] w-[34px]" />
+              <Logo src="/logo-icon.svg" alt={t("misc.alt_logo")} className="h-8.5 w-8.5" />
           </div>
           <div className="hidden flex-1 items-baseline justify-center space-x-2 md:flex">
               <NavBar menuItems={mainMenuItems} onNavigate={closeMobMenu} />

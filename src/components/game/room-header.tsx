@@ -33,7 +33,7 @@ export function RoomHeader({
 
   return (
     <div className="header flex items-center">
-      <div className="flex w-full items-center justify-between gap-3 px-[18px]">
+      <div className="flex w-full items-center justify-between gap-3 px-4.5">
         <div className="flex min-w-0 items-center gap-2">
           <span className="sr-only">Chinos Game</span>
           {/* eslint-disable-next-line @next/next/no-img-element */}
