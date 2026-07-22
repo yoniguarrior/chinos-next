@@ -119,11 +119,12 @@
       "user_name": "Nom d'utilisateur"
     },
     "placeholder": {
-      "email": "entrez votre email"
+      "email": "entrez votre email",
+      "password": "Minimum 8 caractères"
     }
   },
   "game": {
-    "betting": "Il est temps de placer les paris.\nDémarrer {name}",
+    "betting": "Tour de pari de {name}",
     "betting_error": "Vous devez indiquer un chiffre entre {coins} et {max}",
     "betting_repeated": "Ce pari a déjà été fait.\nChoisis un autre",
     "finishHand": "Il y a au total {coins} pièces.\nGagner {name}",
@@ -388,7 +389,7 @@
     "removed_l_m": "supprimé",
     "room": "Salle",
     "select_next": "Qui commence ?",
-    "set_bet": "Parier",
+    "set_bet": "C'est ton tour de parier — combien de pièces crois-tu qu'il y a au total ?",
     "share_url": "Utilisez le bouton ci-dessous pour copier l'url de la salle et inviter d'autres joueurs à la rejoindre",
     "show_coins": "Afficher les pièces",
     "take_coins": "Prendre des pièces",

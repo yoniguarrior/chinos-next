@@ -141,21 +141,18 @@ export async function getUserRanking(userName: string) {
         { $unset: ["_id", "totalWon", "totalLost"] },
       ]);
 
-    if (res.length === 0) break;
+    if (res.length === 0) continue;
+    if (!res.some((e) => e.userName === userName)) continue;
 
-    let periodData: Record<string, unknown> = { totalUsers: res.length };
+    const periodData: Record<string, unknown> = { totalUsers: res.length };
 
     for (const type of RANKING_TYPES) {
       res.sort((a, b) => (b[type] as number) - (a[type] as number));
       const idx = res.findIndex((e) => e.userName === userName);
-      if (idx === -1) break;
-      periodData = {
-        ...periodData,
-        [type]: {
-          type,
-          score: res[idx]![type],
-          position: idx + 1,
-        },
+      periodData[type] = {
+        type,
+        score: res[idx]![type],
+        position: idx + 1,
       };
     }
 

@@ -119,11 +119,12 @@
       "user_name": "Nome utente"
     },
     "placeholder": {
-      "email": ""
+      "email": "inserisci la tua email",
+      "password": "Minimo 8 caratteri"
     }
   },
   "game": {
-    "betting": "È ora di piazzare le scommesse. Avvia {name}",
+    "betting": "Turno di scommessa di {name}",
     "betting_error": "Devi indicare una cifra compresa tra {coins} e {max}",
     "betting_repeated": "Quella scommessa è già stata fatta.\nScegli un altro",
     "finishHand": "Ci sono in totale {coins} monete.\nVinci {name}",
@@ -388,7 +389,7 @@
     "removed_l_m": "eliminato",
     "room": "Sala",
     "select_next": "Chi inizia?",
-    "set_bet": "Scommettere",
+    "set_bet": "È il tuo turno di scommettere — quante monete pensi ci siano in totale?",
     "share_url": "Usa il pulsante qui sotto per copiare l'URL della sala e invitare altri giocatori a unirsi ad essa",
     "show_coins": "Mostra monete",
     "take_coins": "Prendi le monete",

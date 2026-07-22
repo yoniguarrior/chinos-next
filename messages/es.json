@@ -121,11 +121,12 @@
       "user_name": "Nombre de usuario"
     },
     "placeholder": {
-      "email": "introduzca su email"
+      "email": "introduzca su email",
+      "password": "Mínimo 8 caracteres"
     }
   },
   "game": {
-    "betting": "Es el turno de {name} — apuesta cuántas monedas cree que hay en total",
+    "betting": "Turno de apostar de {name}",
     "betting_error": "Debe indicar una cifra entre {coins} y {max}",
     "betting_repeated": "Esa apuesta ya se ha hecho. Elija otra",
     "center_betting": "Apostando",
@@ -307,7 +308,7 @@
     "rooms": {
       "available": "Salas disponibles",
       "no_privates": "Aún no estás registrado en ninguna sala privada",
-      "no_publics": "No hay ninguna sala pública que admita nuevos jugadores. Puede crear una",
+      "no_publics": "No hay ninguna sala pública que admita nuevos jugadores. Puedes crear una",
       "privates_list": "Lista de salas privadas",
       "publics_list": "Lista de salas públicas",
       "title": "Salas"
@@ -378,7 +379,7 @@
     "name": "Nombre de la sala",
     "no_players": "No hay jugadores en la sala",
     "no_privates": "Aún no estás registrado en ninguna sala privada",
-    "no_publics": "No hay ninguna sala pública que admita nuevos jugadores. Puede crear una",
+    "no_publics": "No hay ninguna sala pública que admita nuevos jugadores. Puedes crear una",
     "no_room-owner": "No eres propietario de ninguna sala privada",
     "no_room-user": "No eres usuario de ninguna sala privada",
     "num_players": "Jugadores",
@@ -415,7 +416,7 @@
     "room": "Sala",
     "select_next": "¿Quien sale?",
     "take_coins": "Elige con cuantas monedas jugarás",
-    "set_bet": "Elige tu apuesta",
+    "set_bet": "Es tu turno de apostar — ¿cuántas monedas crees que hay en total?",
     "share_url": "Invita a más gente con este enlace",
     "show_coins": "Mostrar monedas",
     "show_coins_prompt": "Es tu turno — muestra tus monedas",

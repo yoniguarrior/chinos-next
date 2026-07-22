@@ -127,6 +127,7 @@ export function RegisterForm() {
             <PasswordInput
               id="password"
               autoComplete="new-password"
+              placeholder={t("form.placeholder.password")}
               className="form-input pr-9"
               {...register("password")}
             />

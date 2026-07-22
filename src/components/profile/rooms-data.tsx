@@ -41,8 +41,20 @@ export function RoomsData({
 
   return (
     <div className="list-rooms">
-      <div className="list-my-rooms">
-        <h5 className="list-title">{t("list.my_rooms")}</h5>
+      <section className="list-my-rooms">
+        <div className="list-rooms-head">
+          <h5 className="list-title">{t("list.my_rooms")}</h5>
+          <button
+            type="button"
+            className="list-rooms-add-btn"
+            title={t("button.add_room")}
+            onClick={() => setShowAddRoom(true)}
+          >
+            <Plus className="h-4 w-4" />
+            <span>{t("button.add_room")}</span>
+          </button>
+        </div>
+
         {myRooms && myRooms.length ? (
           <div className="my-rooms">
             <UserRoomsList
@@ -71,39 +83,29 @@ export function RoomsData({
             )}
           </div>
         ) : (
-          <p>{t("room.no_room-owner")}</p>
+          <p className="list-rooms-empty">{t("room.no_room-owner")}</p>
         )}
-        <div className="add-room">
-          <div className="flex w-full justify-end">
-            <button
-              className="btn btn-square"
-              title={t("button.add_room")}
-              onClick={() => setShowAddRoom(true)}
-            >
-              <Plus className="inline h-5 w-5" />
-            </button>
-          </div>
-          {showAddRoom && (
-            <BaseModal>
-              <AddRoomForm
-                onCloseModal={() => setShowAddRoom(false)}
-                onRefreshData={onNeedsRefresh}
-              />
-            </BaseModal>
-          )}
-        </div>
-      </div>
 
-      <div className="list-others-rooms">
+        {showAddRoom && (
+          <BaseModal>
+            <AddRoomForm
+              onCloseModal={() => setShowAddRoom(false)}
+              onRefreshData={onNeedsRefresh}
+            />
+          </BaseModal>
+        )}
+      </section>
+
+      <section className="list-others-rooms">
         <h5 className="list-title">{t("list.others_rooms")}</h5>
         {othersRooms && othersRooms.length ? (
           <div className="others-rooms">
             <UserRoomsList rooms={othersRooms} owner={false} />
           </div>
         ) : (
-          <p>{t("room.no_room-user")}</p>
+          <p className="list-rooms-empty">{t("room.no_room-user")}</p>
         )}
-      </div>
+      </section>
     </div>
   );
 }

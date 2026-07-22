@@ -120,11 +120,12 @@
       "user_name": "User name"
     },
     "placeholder": {
-      "email": "enter your email"
+      "email": "enter your email",
+      "password": "Minimum 8 characters"
     }
   },
   "game": {
-    "betting": "It's {name}'s turn — bet how many coins they think there are in total",
+    "betting": "{name}'s turn to bet",
     "betting_error": "You must indicate a figure between {coins} and {max}",
     "betting_repeated": "That bet has already been made.\nChoose another",
     "center_betting": "Betting",
@@ -409,7 +410,7 @@
     "removed_l_m": "removed",
     "room": "Room",
     "select_next": "Who starts?",
-    "set_bet": "Choose your bet",
+    "set_bet": "It's your turn to bet — how many coins do you think there are in total?",
     "share_url": "Invite more people with this link",
     "show_coins": "Show coins",
     "show_coins_prompt": "Your turn — show your coins",

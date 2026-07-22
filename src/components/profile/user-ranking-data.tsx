@@ -19,13 +19,24 @@ export function UserRankingData({ myRanking, onRefresh }: UserRankingDataProps) 
     RankingPeriod.Month,
     RankingPeriod.Week,
   ];
-  const [activePeriod, setActivePeriod] = useState<RankingPeriod>(RankingPeriod.Global);
+  const [activePeriod, setActivePeriod] = useState<RankingPeriod>(
+    RankingPeriod.Global,
+  );
   const block = myRanking?.[activePeriod];
+  const points = block?.points;
+  const gamesWon = block?.games_won;
+  const totalUsers = block?.totalUsers ?? 0;
+  const hasPeriodData =
+    points != null && typeof points.position === "number" && totalUsers > 0;
 
   return (
     <>
       <div className="profile-ranking-refresh">
-        <button type="button" className="profile-ranking-refresh-btn" onClick={onRefresh}>
+        <button
+          type="button"
+          className="profile-ranking-refresh-btn"
+          onClick={onRefresh}
+        >
           <RefreshCw className="h-4.75 w-4.75" />
         </button>
       </div>
@@ -45,22 +56,22 @@ export function UserRankingData({ myRanking, onRefresh }: UserRankingDataProps) 
             ))}
           </div>
 
-          {block && block.totalUsers > 0 ? (
+          {hasPeriodData ? (
             <div className="profile-ranking-kv">
               <div className="profile-ranking-kv-row">
                 <span>{t("ranking.position")}</span>
                 <strong>
-                  #{block.points.position} {t("ranking.of")} {block.totalUsers}
+                  #{points.position} {t("ranking.of")} {totalUsers}
                 </strong>
               </div>
               <div className="profile-ranking-kv-row">
                 <span>{t("ranking.points_short")}</span>
-                <strong>{block.points.score}</strong>
+                <strong>{points.score}</strong>
               </div>
               <div className="profile-ranking-kv-row">
                 <span>{t("ranking.win_ratio")}</span>
                 <strong className="text-ch-win">
-                  {Math.round(block.games_won.score * 100)}%
+                  {Math.round((gamesWon?.score ?? 0) * 100)}%
                 </strong>
               </div>
             </div>

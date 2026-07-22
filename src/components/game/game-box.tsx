@@ -377,22 +377,22 @@ export function GameBox({
 
                     const showReadyCheck = isTaking && coinsChosen;
 
-                    // Own hidden count: dashed badge once chosen (taking + betting).
+                    // Own hidden count: dashed badge until revealed (taking → showing).
                     const showOwnCoins =
                       isSelf &&
                       ownCoins !== null &&
-                      (isTaking || isBetting) &&
-                      coinsChosen;
+                      coinsChosen &&
+                      (isTaking || isBetting || (isShowing && !hasRevealed));
 
-                    const showShowingBadge = isShowing && hasRevealed;
-                    const showFinishCoins =
-                      isFinish &&
+                    // Revealed coins centered so the bet badge can stay top-right.
+                    const showRevealedCoins =
+                      ((isShowing && hasRevealed) || isFinish) &&
                       player.coins !== null &&
                       player.coins !== undefined;
 
-                    // Design 7b: bet badge once placed; 9a: bet badge for all (+ win green).
+                    // Bet badge once placed: stays through showing and hand result.
                     const showBetBadge =
-                      (isBetting || isFinish) &&
+                      (isBetting || isShowing || isFinish) &&
                       player.bet !== null &&
                       player.bet !== undefined;
 
@@ -407,9 +407,6 @@ export function GameBox({
                           style={playerViewStyle(h)}
                         >
                           <div className="player-avatar">
-                            {inTurn && (
-                              <span className="turn-arrow" aria-hidden />
-                            )}
                             {showOpenHand ? (
                               <OpenHandIcon className="hand-icon open" />
                             ) : (
@@ -431,12 +428,7 @@ export function GameBox({
                                 {ownCoins}
                               </div>
                             )}
-                            {showShowingBadge && (
-                              <div className="player-coins-badge">
-                                {player.coins}
-                              </div>
-                            )}
-                            {showFinishCoins && (
+                            {showRevealedCoins && (
                               <div className="player-coins revealed">
                                 {player.coins}
                               </div>

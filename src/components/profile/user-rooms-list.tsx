@@ -25,50 +25,57 @@ export function UserRoomsList({
     return t("room.playing");
   };
 
+  const statusClass = (room: IURoom) => {
+    if (room.status === "closed") return "profile-room-status-full";
+    if (room.gameStatus === "waitingStart") return "profile-room-status-waiting";
+    return "profile-room-status-playing";
+  };
+
   const isManageable = (room: IURoom) =>
     room.gameStatus === "waitingStart" && room.numPlayers === 0;
 
-  const colsClass = owner ? "cols-1-3" : "cols-1-2";
-
   return (
-    <div className="list">
-      <div className="list-header">
-        <div className={`list-row ${colsClass}`}>
-          <div className="list-cell first">{t("room.name")}</div>
-          <div className="list-cell num-players">{t("room.num_players")}</div>
-          <div className="list-cell status">{t("room.status")}</div>
-          {owner && <div className="list-cell actions">{t("room.actions")}</div>}
-        </div>
-      </div>
-      <div className="list-body">
-        {rooms.map((room) => (
-          <div key={room.roomName} className={`list-row ${colsClass}`}>
-            <div className="list-cell first">{room.roomName}</div>
-            <div className="list-cell num-players">{room.numPlayers}</div>
-            <div className="list-cell status">{statusLabel(room)}</div>
-            {owner && (
-              <div className="list-cell actions">
-                <button
-                  disabled={!isManageable(room)}
-                  className="btn actions"
-                  title={t("button.edit_room")}
-                  onClick={() => onEditRoom?.(room.roomName)}
-                >
-                  <Pencil className="inline h-5 w-5" />
-                </button>
-                <button
-                  disabled={!isManageable(room)}
-                  className="btn actions"
-                  title={t("button.delete_room")}
-                  onClick={() => onRemoveRoom?.(room.roomName)}
-                >
-                  <Trash2 className="inline h-5 w-5" />
-                </button>
-              </div>
-            )}
+    <div className="profile-rooms-panel">
+      {rooms.map((room, index) => (
+        <div
+          key={room.roomName}
+          className={`profile-room-row${index === rooms.length - 1 ? " profile-room-row-last" : ""}`}
+        >
+          <div className="profile-room-main">
+            <div className="profile-room-name">{room.roomName}</div>
+            <div className="profile-room-meta">
+              <span className="profile-room-count">
+                {room.numPlayers} {t("room.num_players")}
+              </span>
+              <span className={`profile-room-status ${statusClass(room)}`}>
+                {statusLabel(room)}
+              </span>
+            </div>
           </div>
-        ))}
-      </div>
+          {owner && (
+            <div className="profile-room-actions">
+              <button
+                type="button"
+                disabled={!isManageable(room)}
+                className="profile-room-action-btn"
+                title={t("button.edit_room")}
+                onClick={() => onEditRoom?.(room.roomName)}
+              >
+                <Pencil className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                disabled={!isManageable(room)}
+                className="profile-room-action-btn profile-room-action-danger"
+                title={t("button.delete_room")}
+                onClick={() => onRemoveRoom?.(room.roomName)}
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </div>
+          )}
+        </div>
+      ))}
     </div>
   );
 }
