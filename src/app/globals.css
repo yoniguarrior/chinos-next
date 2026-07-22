@@ -485,7 +485,7 @@ main {
 }
 
 .modal-window {
-  @apply absolute top-1/2 left-1/2 mb-2 max-w-100 -translate-x-1/2 -translate-y-1/2 transform rounded-[16px] border border-ch-accent-dim bg-ch-panel p-2 opacity-100 shadow-lg last:mb-0;
+  @apply absolute top-1/2 left-1/2 mb-2 max-w-full -translate-x-1/2 -translate-y-1/2 transform rounded-[16px] border border-ch-accent-dim bg-ch-panel p-2 opacity-100 shadow-lg last:mb-0;
 }
 
 .play-container {
@@ -765,7 +765,7 @@ main {
 }
 
 .player-name {
-  @apply m-0 p-0 font-heading text-[11px] font-semibold leading-tight text-ch-text;
+  @apply m-0 p-0 font-heading text-[13px] font-semibold leading-tight text-ch-text;
 }
 
 .player-view.waiting-turn .player-avatar {
@@ -1103,7 +1103,7 @@ main {
 }
 
 .create-room-form {
-  @apply w-full min-w-[min(100%,320px)] p-6.5;
+  @apply w-full min-w-[min(100%,320px)] p-4;
 }
 
 .create-room-title {
@@ -1111,7 +1111,7 @@ main {
 }
 
 .modal-window:has(.create-room-form) {
-  @apply max-w-[min(100vw-2rem,390px)] rounded-[18px] border border-ch-accent-dim bg-ch-panel p-0;
+  @apply w-[min(100vw-2rem,330px)] rounded-[18px] border border-ch-accent-dim bg-ch-panel p-0;
 }
 
 /* Ranking (2a) */
