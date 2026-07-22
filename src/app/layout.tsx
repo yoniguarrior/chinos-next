@@ -73,8 +73,8 @@ export default async function RootLayout({
               <SiteHeader />
               <div className="container-auto flex-1">{children}</div>
               <SiteFooter />
-              <div id="modal-container" />
             </main>
+            <div id="modal-container" />
             <Toaster />
           </AppProviders>
         </NextIntlClientProvider>

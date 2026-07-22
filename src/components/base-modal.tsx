@@ -1,13 +1,31 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+
 /**
- * Simple modal overlay (port of Nuxt BaseModal + teleport). Rendered in
- * place; the fixed overlay covers the viewport so no portal is needed.
+ * Full-viewport modal overlay. Portaled to `#modal-container` (or `document.body`)
+ * so ancestors with overflow/transform (e.g. the room layout) cannot clip it or
+ * shrink its containing block to half the screen.
  */
 export function BaseModal({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="modal-overlay">
-      <div className="modal-window">{children}</div>
-    </div>
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
+  const target =
+    document.getElementById("modal-container") ?? document.body;
+
+  return createPortal(
+    <div className="modal-overlay" role="presentation">
+      <div className="modal-window" role="dialog" aria-modal="true">
+        {children}
+      </div>
+    </div>,
+    target,
   );
 }

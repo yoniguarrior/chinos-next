@@ -33,6 +33,7 @@ export enum RoomStatus {
   Closed = "closed",
   Open = "open",
   Playing = "playing",
+  Full = "full",
 }
 
 export enum RoomType {

@@ -33,7 +33,6 @@ export function GameBox({
   const allPlayers = game.players ?? [];
   const gameInPause = game.gameInPause;
   const reconnFailed = game.reconnFailed ?? false;
-  const reconnAttempt = game.reconnAttempt ?? 0;
 
   const reconnList = game.usersReconn ?? [];
   const reconnNames = reconnList.reduce((acc, name, ix) => {
@@ -43,8 +42,16 @@ export function GameBox({
   }, "");
 
   const isSelfDisconnected = reconnList.includes(playerName ?? "");
+  const isLobbyReconn =
+    status === GameStatus.WaitingNewRound ||
+    status === GameStatus.WaitingStart;
   const showReconnActions =
-    reconnFailed && !isSelfDisconnected && Boolean(playerName);
+    reconnFailed &&
+    !isSelfDisconnected &&
+    !isLobbyReconn &&
+    Boolean(playerName) &&
+    Boolean(onRetryReconn) &&
+    Boolean(onAbandonGame);
 
   // Players still in the current game (not "saved").
   const activePlayers = allPlayers.filter((p) => !p.saved);
@@ -296,20 +303,12 @@ export function GameBox({
                 : t("game.reconn_pause_title")}
             </div>
             <div className="card-body text-center">
-              {reconnFailed ? (
+              {reconnFailed && !isLobbyReconn ? (
                 <p>{t("game.reconn_failed_text", { names: reconnNames })}</p>
               ) : (
                 <>
                   <p>{t("game.reconn_waiting_text", { names: reconnNames })}</p>
-                  {reconnAttempt > 0 && (
-                    <p className="reconn-attempt text-sm opacity-80">
-                      {t("game.reconn_attempt", {
-                        current: reconnAttempt,
-                        max: 5,
-                      })}
-                    </p>
-                  )}
-                  <Loader2 className="mx-auto h-8 w-8 animate-spin text-ch-accent" />
+                  <Loader2 className="mx-auto mt-3 h-8 w-8 animate-spin text-ch-accent" />
                 </>
               )}
               {showReconnActions && (
@@ -399,11 +398,11 @@ export function GameBox({
                     return (
                       <div key={player.name} className="player-item">
                         <div
-                          className={`player-view ${inTurn ? "in-turn" : ""} ${
-                            waitingTurn ? "waiting-turn" : ""
-                          } ${isWinner ? "winner" : ""} ${isSelf ? "self" : ""} ${
-                            showReadyCheck ? "ready" : ""
-                          } ${isEndLobby ? "end-lobby" : ""}`}
+                          className={`player-view${inTurn ? " in-turn" : ""}${
+                            waitingTurn ? " waiting-turn" : ""
+                          }${isWinner ? " winner" : ""}${isSelf ? " self" : ""}${
+                            showReadyCheck ? " ready" : ""
+                          }${isEndLobby ? " end-lobby" : ""}`}
                           style={playerViewStyle(h)}
                         >
                           <div className="player-avatar">

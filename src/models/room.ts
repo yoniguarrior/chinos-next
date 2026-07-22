@@ -5,7 +5,7 @@ import { wonDataSchema, type WonData } from "./ranking";
 export const ROOM_TYPES = ["private", "public"] as const;
 export type RoomType = (typeof ROOM_TYPES)[number];
 
-export const ROOM_STATUS = ["closed", "open", "playing"] as const;
+export const ROOM_STATUS = ["closed", "open", "playing", "full"] as const;
 export type RoomStatus = (typeof ROOM_STATUS)[number];
 
 export const GAME_STATUS = [
@@ -25,6 +25,8 @@ export interface Player {
   online: boolean;
   socketId: string;
   saved: boolean;
+  /** In room but not in the current hand (private mid-game join). */
+  pendingTable: boolean;
   coins: number | null;
   bet: number | null;
   lifted: boolean;
@@ -74,6 +76,7 @@ const playerSchema = new Schema<Player>({
   online: { type: Boolean, default: false },
   socketId: { type: String, default: "" },
   saved: { type: Boolean, default: false },
+  pendingTable: { type: Boolean, default: false },
   coins: { type: Number, min: 0, max: 3, default: null },
   bet: { type: Number, default: null },
   lifted: { type: Boolean, default: true },

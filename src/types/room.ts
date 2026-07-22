@@ -5,6 +5,8 @@ export interface Player {
   online: boolean;
   socketId?: string;
   saved: boolean;
+  /** In room but not in the current hand (private mid-game join). */
+  pendingTable?: boolean;
   coins?: number | null;
   bet?: number | null;
   lifted: boolean;

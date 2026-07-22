@@ -7,8 +7,15 @@
     "plyconfig.json": "jsonc"
   },
   "i18n-ally.localesPaths": [
-    "messages",
-    "src/i18n"
+    "messages"
+  ],
+  "i18n-ally.pathMatcher": "{locale}.json",
+  "i18n-ally.keystyle": "nested",
+  "i18n-ally.sourceLanguage": "es",
+  "i18n-ally.displayLanguage": "es",
+  "i18n-ally.enabledFrameworks": [
+    "react",
+    "next-intl"
   ],
   "cSpell.configFile": "${workspaceFolder}/cspell.json",
   "cSpell.words": [

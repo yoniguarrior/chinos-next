@@ -89,6 +89,9 @@ export async function dispatchGameEvent(
     }
     case "exitRoom":
       return {};
+    case "ping":
+      // Keepalive no-op if it reaches dispatch (preferred path replies in ws-server).
+      return {};
     default:
       throw new WsError("unknown_event");
   }

@@ -105,7 +105,11 @@
     "user_blocked": "El usuario ha sido bloqueado. Inténtelo más tarde",
     "user_not_found": "Le nom ne correspond à aucun utilisateur enregistré",
     "ws_connection_error": "Impossible de se connecter au jeu en temps réel",
-    "ws_sync_timeout": "Aucune réponse du serveur lors de l'entrée dans la salle"
+    "ws_sync_timeout": "Aucune réponse du serveur lors de l'entrée dans la salle",
+    "unknown_event": "Événement de jeu non reconnu",
+    "game_in_play": "Vous ne pouvez pas rejoindre : la partie a déjà commencé",
+    "idle_timeout": "Vous avez été retiré de la salle {roomName} pour inactivité",
+    "idle_timeout_exp": "Après 30 minutes sans activité dans la partie, vos stats des manches précédentes ont été enregistrées (si vous êtes inscrit) et les autres joueurs peuvent continuer ou quitter."
   },
   "errors": {
     "invalid_email": "email invalide"
@@ -136,7 +140,18 @@
     "takingCoins": "Quitte {nom}.\nIl est temps d'obtenir des pièces",
     "takingCoins_error": "Vous devez saisir un chiffre entre 0 et 3",
     "waitingNewRound": "Continuer avec un nouveau jeu ?",
-    "waitingStart": "En attente du début du jeu"
+    "waitingStart": "En attente du début du jeu",
+    "reconn_pause_title": "Jeu en pause",
+    "reconn_waiting_text": "En attente de la reconnexion de {names}",
+    "reconn_failed_title": "Impossible de rétablir la connexion",
+    "reconn_failed_text": "Impossible de reconnecter {names}. Vous pouvez réessayer une autre minute ou abandonner la partie.",
+    "reconn_attempt": "Tentative {current} sur {max}",
+    "reconn_retry": "Réessayer",
+    "reconn_abandon": "Abandonner",
+    "reconn_and": "et",
+    "self_reconn_title": "Connexion perdue",
+    "self_reconn_text": "La connexion au serveur a été perdue. Tentative de reconnexion…",
+    "self_reconn_abandon": "Abandonner"
   },
   "goto": "Aller à",
   "home": {

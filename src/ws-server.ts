@@ -177,6 +177,13 @@ async function handleConnection(
         return;
       }
 
+      // App-level keepalive (browsers do not expose protocol ping/pong to JS).
+      if (envelope.event === "ping") {
+        (socket as AliveSocket).isAlive = true;
+        send(socket, "pong", {});
+        return;
+      }
+
       try {
         await dbConnect();
         const result = await dispatchGameEvent(
@@ -210,8 +217,9 @@ async function handleConnection(
       try {
         await dbConnect();
         const result = await disconnectUser(data, false, peer.id);
+        // Peer already unregistered — notify everyone still connected.
         if (result.data) {
-          toOthers(result.event, result.data);
+          pushToRoom(data.roomName, result.event, result.data);
         }
       } catch (err) {
         console.error("[ws:game] disconnect error:", err);

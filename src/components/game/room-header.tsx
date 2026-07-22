@@ -48,13 +48,13 @@ export function RoomHeader({
         </div>
 
         {!hasError && (
-          <div id="header-buttons" className="flex shrink-0 items-center gap-2">
+          <div id="header-buttons" className="flex shrink-0 items-center gap-1">
             {/* Waiting lobby: Jugar (outline) + Salir — design 5a */}
             {!gameInPlay && (
               <>
                 {connectedPlayers > 1 && (
                   <button
-                    className="room-pill"
+                    className="room-pill px-2!"
                     type="button"
                     onClick={onPlayGame}
                   >
@@ -62,7 +62,7 @@ export function RoomHeader({
                   </button>
                 )}
                 <button
-                  className="room-pill"
+                  className="room-pill px-2!"
                   type="button"
                   onClick={onExitRoom}
                 >
@@ -70,18 +70,18 @@ export function RoomHeader({
                 </button>
               </>
             )}
-            {/* End of round: Nueva partida + Salir */}
+            {/* End of round / post-reconn: Nueva partida + Salir */}
             {gameInPlay && isWaitingNewRound && (
               <>
                 <button
-                  className="room-pill"
+                  className="room-pill px-2!"
                   type="button"
                   onClick={onNewRound}
                 >
                   {t("button.new_round")}
                 </button>
                 <button
-                  className="room-pill"
+                  className="room-pill px-2!"
                   type="button"
                   onClick={onExitGame}
                 >
@@ -89,16 +89,7 @@ export function RoomHeader({
                 </button>
               </>
             )}
-            {/* During active play: Salir always visible (design 6a–9a) */}
-            {gameInPlay && !isWaitingNewRound && (
-              <button
-                className="room-pill"
-                type="button"
-                onClick={onExitRoom}
-              >
-                {t("button.exit")}
-              </button>
-            )}
+            {/* Active play: Salir hidden (juego.md §5) */}
           </div>
         )}
       </div>

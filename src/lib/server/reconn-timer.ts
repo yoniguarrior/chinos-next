@@ -1,7 +1,7 @@
 /** Server-side reconnection window per disconnected player (single Node process). */
 
-export const RECONN_INTERVAL_MS = 10_000;
-export const MAX_SERVER_RECONN_ATTEMPTS = 5;
+/** Peer wait window (1 minute) before failed / lobby kick. */
+export const RECONN_INTERVAL_MS = 60_000;
 
 type TimeoutHandler = (roomName: string, playerName: string) => Promise<void>;
 

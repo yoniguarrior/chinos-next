@@ -107,7 +107,11 @@
     "user_blocked": "El usuario ha sido bloqueado. Inténtelo más tarde",
     "user_not_found": "El nombre no corresponde a ningún usuario registrado",
     "ws_connection_error": "No se pudo conectar al juego en tiempo real",
-    "ws_sync_timeout": "No se recibió respuesta del servidor al entrar en la sala"
+    "ws_sync_timeout": "No se recibió respuesta del servidor al entrar en la sala",
+    "unknown_event": "Evento de juego no reconocido",
+    "game_in_play": "No puedes unirte: la partida ya ha comenzado",
+    "idle_timeout": "Has sido eliminado de la sala {roomName} por inactividad",
+    "idle_timeout_exp": "Tras 30 minutos sin actividad en la partida, se anotaron tus estadísticas de rondas anteriores (si estabas registrado) y el resto de jugadores puede continuar o salir."
   },
   "errors": {
     "invalid_email": "email no válido"
@@ -151,12 +155,15 @@
     "waitingStart": "Esperando Inicio de partida",
     "reconn_pause_title": "Juego en pausa",
     "reconn_waiting_text": "Esperando reconexión de {names}",
-    "reconn_failed_title": "Reconexión fallida",
-    "reconn_failed_text": "No se ha podido reconectar a {names}. Podéis volver a intentarlo o abandonar la partida.",
+    "reconn_failed_title": "No se consigue recuperar la conexión",
+    "reconn_failed_text": "No se ha podido reconectar a {names}. Podéis volver a intentarlo otro minuto o abandonar la partida.",
     "reconn_attempt": "Intento {current} de {max}",
-    "reconn_retry": "Reintentar reconexión",
-    "reconn_abandon": "Abandonar partida",
-    "reconn_and": "y"
+    "reconn_retry": "Reintentar",
+    "reconn_abandon": "Abandonar",
+    "reconn_and": "y",
+    "self_reconn_title": "Conexión perdida",
+    "self_reconn_text": "Se ha perdido la conexión con el servidor. Reintentando reconectar…",
+    "self_reconn_abandon": "Abandonar"
   },
   "goto": "Ir a",
   "home": {

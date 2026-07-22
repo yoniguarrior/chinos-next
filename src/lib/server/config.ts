@@ -14,7 +14,7 @@ export const serverConfig = {
   jwtRefreshSecret: () => env("JWT_REFRESH_SECRET"),
   jwtRefreshExpiration: () => env("JWT_REFRESH_EXPIRATION", "86400s"),
   jwtWsSecret: () => env("JWT_WS_SECRET"),
-  jwtWsExpiration: () => env("JWT_WS_EXPIRATION", "1800s"),
+  jwtWsExpiration: () => env("JWT_WS_EXPIRATION", "28800s"),
 
   cookieSecret: () => env("COOKIE_SECRET"),
   cookieDomain: () => env("COOKIE_DOMAIN"),

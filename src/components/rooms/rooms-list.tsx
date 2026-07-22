@@ -1,8 +1,7 @@
 "use client";
 
-import { useTranslations } from "next-intl";
 import { ExternalLink } from "lucide-react";
-import { RoomStatus, type RoomType } from "@/types/enums";
+import type { RoomType } from "@/types/enums";
 import type { IRoom } from "@/types/room";
 
 interface RoomsListProps {
@@ -17,7 +16,7 @@ export function RoomsList({ rooms, onJoinRoom }: RoomsListProps) {
     <div className="rooms-panel">
       {rooms.map((room, index) => {
         const playerCount = room.game?.players?.length ?? 0;
-        const isOpen = room.status === RoomStatus.Open;
+        const canJoin = playerCount < MAX_PLAYERS;
         const isLast = index === rooms.length - 1;
 
         return (
@@ -32,7 +31,7 @@ export function RoomsList({ rooms, onJoinRoom }: RoomsListProps) {
             <button
               type="button"
               className="room-join-btn"
-              disabled={!isOpen}
+              disabled={!canJoin}
               aria-label={room.roomName}
               onClick={() => onJoinRoom(room.roomName, room.roomType)}
             >

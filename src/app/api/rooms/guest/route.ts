@@ -4,6 +4,7 @@ import { apiError } from "@/lib/server/errors";
 import {
   checkRoomPassword,
   checkUniquePlayerName,
+  checkGuestNameNotInRoomUsers,
   joinRoom,
 } from "@/lib/server/rooms";
 import { setWsCookie } from "@/lib/server/cookies";
@@ -21,6 +22,7 @@ export async function POST(req: Request) {
     }
 
     await checkRoomPassword(body.roomName, body.password);
+    await checkGuestNameNotInRoomUsers(body.roomName, body.playerName);
     await checkUniquePlayerName(req, body.roomName, body.playerName);
 
     const { wsToken, ...data } = await joinRoom(

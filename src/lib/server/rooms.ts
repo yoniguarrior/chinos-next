@@ -6,8 +6,9 @@ import { comparePassword } from "./crypto";
 import { getRefreshCookie, getWsCookie } from "./cookies";
 import { signWsToken, verifyRefreshToken, verifyWsToken } from "./jwt";
 import { serverConfig } from "./config";
-import { gameAbandon, roomToClientPayload } from "./game";
+import { persistPlayerStats, roomToClientPayload } from "./game";
 import { pushToRoom } from "./ws-peers";
+import { cancelPlayerReconn } from "./reconn-timer";
 
 function createDefaultGame(): Game {
   return {
@@ -74,15 +75,29 @@ export function findAllRooms() {
 }
 
 export function findPublicRooms() {
-  return RoomModel.find({ roomType: "public" }).select(
-    "roomName roomType status game.players game.status",
-  );
+  return RoomModel.find({
+    roomType: "public",
+    "game.status": "waitingStart",
+    $expr: { $lt: [{ $size: "$game.players" }, 5] },
+  }).select("roomName roomType status game.players game.status");
 }
 
 export function findUserRooms(userName: string) {
   return RoomModel.find({ users: userName, roomType: "private" }).select(
     "roomName roomType owner users status game.players game.status",
   );
+}
+
+/** Keep room.status aligned with player count and game phase. */
+export function syncRoomStatus(room: HydratedDocument<Room>): void {
+  const n = room.game?.players?.length ?? 0;
+  if (n >= 5) {
+    room.status = "full";
+  } else if (room.game?.status && room.game.status !== "waitingStart") {
+    room.status = "playing";
+  } else {
+    room.status = "open";
+  }
 }
 
 export function findUserActiveRoom(userName: string) {
@@ -211,6 +226,20 @@ export async function checkUniquePlayerName(
   return true;
 }
 
+/** Guest names must not match any registered member of the private room. */
+export async function checkGuestNameNotInRoomUsers(
+  roomName: string,
+  playerName: string,
+): Promise<void> {
+  const room = await RoomModel.findOne({ roomName }).setOptions({
+    sanitizeFilter: true,
+  });
+  if (!room) throw apiError(400, "non_existing_room");
+  if (room.users.some((u) => u === playerName)) {
+    throw apiError(400, "name_already_exists");
+  }
+}
+
 /* ------------------------------------------------------------------ *
  * User management (owner / admin)
  * ------------------------------------------------------------------ */
@@ -273,9 +302,20 @@ export async function joinRoom(
     throw apiError(403, "not_public_room");
   }
 
-  if (room.game.status !== "waitingStart" || room.status !== "open") {
+  const playerCount = room.game.players.length;
+  if (playerCount >= 5) {
     throw apiError(403, "room_closed");
   }
+
+  const waiting = room.game.status === "waitingStart";
+
+  // Public: only join while waiting to start.
+  if (publicRoom && !waiting) {
+    throw apiError(403, "room_closed");
+  }
+
+  // Private mid-game join (1B): allowed when < 5; player is pendingTable.
+  // Public waiting or private waiting: normal join.
 
   const wsCookie = getWsCookie(req);
   if (wsCookie) {
@@ -296,11 +336,14 @@ export async function joinRoom(
     }
   }
 
+  const pendingTable = !waiting;
+
   room.game.players.push({
     name: playerName,
     online: false,
     socketId: "",
-    saved: false,
+    saved: pendingTable,
+    pendingTable,
     coins: null,
     bet: null,
     lifted: true,
@@ -316,7 +359,7 @@ export async function joinRoom(
     points: 0,
   } satisfies Player);
 
-  if (room.game.players.length > 4) room.status = "closed";
+  syncRoomStatus(room);
 
   room.markModified("game");
 
@@ -367,29 +410,34 @@ export async function leaveRoom(req: Request): Promise<LeaveRoomResult> {
   if (room) {
     ensureRoomGame(room);
 
-    if (room.game.status !== "waitingStart") {
-      if (!abandon) throw apiError(403, "game_in_play");
-
-      const abandonResult = await gameAbandon({
-        roomName: payload.sub,
-        playerName: payload.userName,
-      });
-      pushToRoom(
-        payload.sub,
-        "stopRes",
-        roomToClientPayload(abandonResult.data as HydratedDocument<Room>),
-      );
-
-      room = await RoomModel.findOne({ roomName: payload.sub }).setOptions({
-        sanitizeFilter: true,
-      });
-      if (!room) {
-        return { roomName: payload.sub, playerName: payload.userName };
-      }
-    }
+    const inLobby = room.game.status === "waitingStart";
+    if (!inLobby && !abandon) throw apiError(403, "game_in_play");
 
     const ix = room.game.players.findIndex((p) => p.name === payload.userName);
-    if (ix !== -1) room.game.players.splice(ix, 1);
+    if (ix !== -1) {
+      const leaving = room.game.players[ix]!;
+
+      // Mid-game / reconn self-abandon: persist session stats then remove.
+      if (!inLobby && abandon) {
+        await persistPlayerStats(leaving);
+      }
+
+      cancelPlayerReconn(payload.sub, payload.userName);
+      room.game.players.splice(ix, 1);
+
+      if (room.game.gameInPause || room.game.reconnFailed) {
+        room.game.usersReconn = room.game.usersReconn.filter(
+          (n) => n !== payload.userName,
+        );
+        if (room.game.usersReconn.length === 0) {
+          room.game.gameInPause = false;
+          room.game.reconnFailed = false;
+          room.game.reconnAttempt = 0;
+        }
+      }
+
+      syncRoomStatus(room);
+    }
 
     if (room.game.players.length === 0 && room.roomType === "public") {
       await RoomModel.deleteOne({ roomName: payload.sub }).setOptions({

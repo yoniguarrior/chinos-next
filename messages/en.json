@@ -106,7 +106,11 @@
     "user_blocked": "User has been blocked, try later.",
     "user_not_found": "The name does not correspond to any registered user",
     "ws_connection_error": "Could not connect to the real-time game",
-    "ws_sync_timeout": "No response from the server when joining the room"
+    "ws_sync_timeout": "No response from the server when joining the room",
+    "unknown_event": "Unrecognized game event",
+    "game_in_play": "You cannot join: the game has already started",
+    "idle_timeout": "You were removed from room {roomName} due to inactivity",
+    "idle_timeout_exp": "After 30 minutes with no activity in the game, your stats from previous rounds were recorded (if you are registered) and the other players can continue or leave."
   },
   "errors": {
     "invalid_email": "invalid email"
@@ -150,12 +154,15 @@
     "waitingStart": "Waiting for start of game",
     "reconn_pause_title": "Game paused",
     "reconn_waiting_text": "Waiting for {names} to reconnect",
-    "reconn_failed_title": "Reconnection failed",
-    "reconn_failed_text": "Could not reconnect {names}. You can try again or abandon the game.",
+    "reconn_failed_title": "Could not restore the connection",
+    "reconn_failed_text": "Could not reconnect {names}. You can try again for another minute or abandon the game.",
     "reconn_attempt": "Attempt {current} of {max}",
-    "reconn_retry": "Retry reconnection",
-    "reconn_abandon": "Abandon game",
-    "reconn_and": "and"
+    "reconn_retry": "Retry",
+    "reconn_abandon": "Abandon",
+    "reconn_and": "and",
+    "self_reconn_title": "Connection lost",
+    "self_reconn_text": "Connection to the server was lost. Trying to reconnect…",
+    "self_reconn_abandon": "Abandon"
   },
   "goto": "Go to",
   "home": {

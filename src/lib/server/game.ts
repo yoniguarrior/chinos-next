@@ -4,15 +4,20 @@ import { RoomModel, type Game, type Player, type Room } from "../../models/room"
 import { UserModel } from "../../models/user";
 import { RankingModel } from "../../models/ranking";
 import { serverConfig } from "./config";
-import { ensureRoomGame } from "./rooms";
+import { ensureRoomGame, syncRoomStatus } from "./rooms";
 import {
   cancelPlayerReconn,
   cancelRoomReconn,
-  MAX_SERVER_RECONN_ATTEMPTS,
   scheduleOfflinePlayersReconn,
   schedulePlayerReconn,
   setReconnTimeoutHandler,
 } from "./reconn-timer";
+import {
+  cancelRoomIdle,
+  scheduleRoomIdle,
+  setIdleTimeoutHandler,
+  touchRoomIdle,
+} from "./idle-timer";
 import { pushToRoom } from "./ws-peers";
 
 export interface IWsData {
@@ -107,6 +112,133 @@ function clearReconnState(gameData: Game): void {
   gameData.reconnAttempt = 0;
 }
 
+function clearPendingTable(gameData: Game): void {
+  for (const p of gameData.players) {
+    p.pendingTable = false;
+  }
+}
+
+function isLobbyOrNewRound(status: Game["status"]): boolean {
+  return status === "waitingStart" || status === "waitingNewRound";
+}
+
+function isMidGameStatus(status: Game["status"]): boolean {
+  return !isLobbyOrNewRound(status);
+}
+
+/** Provisional id from HTTP `/rooms/sync` — must not override a live WS session. */
+function isHttpSocketId(socketId: string | undefined | null): boolean {
+  return Boolean(socketId && socketId.startsWith("http-"));
+}
+
+/**
+ * Persist + remove players, clear hand, then waitingNewRound (≥2, stats kept)
+ * or waitingStart (≤1, persist last remaining). Shared by abandon and idle timeout.
+ */
+async function removePlayersAndSettle(
+  roomData: RoomDoc,
+  namesToRemove: string[],
+): Promise<WsResult> {
+  const gameData = roomData.game;
+  const roomName = roomData.roomName;
+
+  for (const name of namesToRemove) {
+    const ix = gameData.players.findIndex((p) => p.name === name);
+    if (ix === -1) continue;
+    await persistPlayerStats(gameData.players[ix]!);
+    cancelPlayerReconn(roomName, name);
+    gameData.players.splice(ix, 1);
+  }
+
+  clearReconnState(gameData);
+  cancelRoomReconn(roomName);
+  cancelRoomIdle(roomName);
+  clearPendingTable(gameData);
+
+  for (const p of gameData.players) {
+    resetHandFields(p);
+  }
+
+  gameData.inGamePlayers = [];
+  gameData.activePlayers = 0;
+  gameData.winner = null;
+  gameData.looser = null;
+  gameData.totalCoins = null;
+  gameData.playerStart = 0;
+  gameData.playerInTurn = 0;
+
+  if (gameData.players.length >= 2) {
+    gameData.status = "waitingNewRound";
+  } else if (gameData.players.length === 1) {
+    await persistPlayerStats(gameData.players[0]!);
+    resetSessionStats(gameData.players[0]!);
+    gameData.status = "waitingStart";
+  } else {
+    gameData.status = "waitingStart";
+  }
+
+  roomData.game = gameData;
+  syncRoomStatus(roomData);
+  roomData.markModified("game");
+  await roomData.save();
+
+  return {
+    event: "stopRes",
+    data: roomToClientPayload(roomData),
+  };
+}
+
+function resetHandFields(p: Player): void {
+  p.bet = null;
+  p.coins = null;
+  p.lifted = true;
+  p.saved = false;
+}
+
+function resetSessionStats(p: Player): void {
+  p.playedRounds = 0;
+  p.wonRounds = { first: 0, won5: 0, won4: 0, won3: 0, won2: 0 };
+  p.lostRounds = 0;
+  p.points = 0;
+}
+
+/** Persist one player's session stats to User + Ranking (skips guests). */
+export async function persistPlayerStats(p: Player): Promise<void> {
+  if (!p.playedRounds && !p.points && !p.lostRounds) {
+    const won =
+      p.wonRounds &&
+      (p.wonRounds.first ||
+        p.wonRounds.won5 ||
+        p.wonRounds.won4 ||
+        p.wonRounds.won3 ||
+        p.wonRounds.won2);
+    if (!won) return;
+  }
+
+  const user = await UserModel.findOne({ userName: p.name }).setOptions({
+    sanitizeFilter: true,
+  });
+  if (!user) return;
+
+  user.playedGames += p.playedRounds;
+  user.wonGames.first += p.wonRounds.first;
+  user.wonGames.won5 += p.wonRounds.won5;
+  user.wonGames.won4 += p.wonRounds.won4;
+  user.wonGames.won3 += p.wonRounds.won3;
+  user.wonGames.won2 += p.wonRounds.won2;
+  user.lostGames += p.lostRounds;
+  user.points += p.points;
+  await user.save();
+
+  await RankingModel.create({
+    userName: user.userName,
+    wonRounds: p.wonRounds,
+    lostRounds: p.lostRounds,
+    points: p.points,
+    playedRounds: p.playedRounds,
+  });
+}
+
 function assertGameNotPaused(gameData: Game): void {
   if (gameData.gameInPause) throw new WsError("game_in_pause");
 }
@@ -146,20 +278,36 @@ export async function getSyncData(
       if (playerIx !== -1) {
         cancelPlayerReconn(data.roomName, data.playerName);
         gameData.players[playerIx]!.online = true;
-        gameData.players[playerIx]!.socketId = socketId;
+        // HTTP sync uses a throwaway `http-…` id; never clobber a live WS peer id
+        // or disconnectUser will treat the real socket close as stale and skip
+        // notifying the rest of the room.
+        const currentId = gameData.players[playerIx]!.socketId;
+        if (
+          !isHttpSocketId(socketId) ||
+          !currentId ||
+          isHttpSocketId(currentId)
+        ) {
+          gameData.players[playerIx]!.socketId = socketId;
+        }
         if (gameData.gameInPause || gameData.reconnFailed) {
           rebuildUsersReconn(gameData);
           if (gameData.usersReconn.length === 0) {
             clearReconnState(gameData);
           }
         }
+        if (isMidGameStatus(gameData.status)) {
+          touchRoomIdle(data.roomName);
+        }
       } else if (gameData.status !== "waitingStart") {
+        // Mid-game: only existing seats (incl. pendingTable) may sync.
         throw new WsError("game_in_play");
       } else {
         gameData.players.push({
           name: data.playerName,
           online: true,
           socketId,
+          saved: false,
+          pendingTable: false,
         } as Player);
       }
 
@@ -202,10 +350,11 @@ export async function processStart(data: IWsData): Promise<WsResult> {
 
   if (!roomData) throw new WsError("non_existing_room");
 
-  roomData.status = "closed";
   const gameData = roomData.game;
 
-  const connected = gameData.players.filter((p) => p.online === true);
+  const connected = gameData.players.filter(
+    (p) => p.online === true && !p.pendingTable,
+  );
 
   if (connected.length <= 1) throw new WsError("minimum_2_players");
 
@@ -221,6 +370,8 @@ export async function processStart(data: IWsData): Promise<WsResult> {
   }
   order[n] = nums[0]!;
 
+  // Keep pending mid-join seats; rebuild active seats from connected.
+  const pending = gameData.players.filter((p) => p.pendingTable);
   gameData.players = [];
   order.forEach((p) => {
     gameData.players.push({
@@ -228,6 +379,7 @@ export async function processStart(data: IWsData): Promise<WsResult> {
       online: connected[p]!.online,
       socketId: connected[p]!.socketId,
       saved: false,
+      pendingTable: false,
       coins: null,
       bet: null,
       lifted: true,
@@ -237,6 +389,11 @@ export async function processStart(data: IWsData): Promise<WsResult> {
       points: 0,
     } as Player);
   });
+  for (const p of pending) {
+    if (!gameData.players.some((x) => x.name === p.name)) {
+      gameData.players.push({ ...p, saved: true, pendingTable: true });
+    }
+  }
 
   gameData.playerStart = 0;
   gameData.playerInTurn = 0;
@@ -246,15 +403,18 @@ export async function processStart(data: IWsData): Promise<WsResult> {
   gameData.usersReconn = [];
   gameData.inGamePlayers = [];
   gameData.players
-    .filter((p) => !p.saved)
+    .filter((p) => !p.saved && !p.pendingTable)
     .forEach((player) => gameData.inGamePlayers.push(player.name));
   gameData.activePlayers = gameData.inGamePlayers.length;
   clearReconnState(gameData);
   cancelRoomReconn(data.roomName);
 
   roomData.game = gameData;
+  syncRoomStatus(roomData);
   roomData.markModified("game");
   await roomData.save();
+
+  scheduleRoomIdle(data.roomName);
 
   return { event: "startRes", data: roomData };
 }
@@ -274,6 +434,7 @@ export async function annotateCoins(
   assertGameNotPaused(gameData);
   const ix = gameData.players.findIndex((p) => p.name === data.playerName);
   if (ix === -1) throw new WsError("player_not_in_game");
+  if (gameData.players[ix]!.pendingTable) throw new WsError("player_not_in_game");
 
   gameData.players[ix]!.coins = coins;
   gameData.players[ix]!.lifted = false;
@@ -288,6 +449,8 @@ export async function annotateCoins(
   await roomData.save();
 
   roomData.game.players.forEach((p) => (p.coins = null));
+
+  touchRoomIdle(data.roomName);
 
   return { event: "gameUpdate", data: roomData };
 }
@@ -307,6 +470,7 @@ export async function annotateBet(
   assertGameNotPaused(gameData);
   const ix = gameData.players.findIndex((p) => p.name === data.playerName);
   if (ix === -1) throw new WsError("player_not_in_game");
+  if (gameData.players[ix]!.pendingTable) throw new WsError("player_not_in_game");
 
   if (!gameData.players.find((p) => p.bet === bet)) {
     gameData.players[ix]!.bet = bet;
@@ -327,6 +491,8 @@ export async function annotateBet(
   if (roomData.game.status !== "showing") {
     roomData.game.players.forEach((p) => (p.coins = null));
   }
+
+  touchRoomIdle(data.roomName);
 
   return { event: "gameUpdate", data: roomData };
 }
@@ -370,6 +536,8 @@ export async function showCoins(data: IWsData): Promise<WsResult> {
   roomData.game = gameData;
   roomData.markModified("game");
   await roomData.save();
+
+  touchRoomIdle(data.roomName);
 
   return { event: "gameUpdate", data: roomData };
 }
@@ -441,6 +609,8 @@ export async function closeHand(data: IWsData): Promise<WsResult> {
   roomData.markModified("game");
   await roomData.save();
 
+  touchRoomIdle(data.roomName);
+
   return { event: "gameUpdate", data: roomData };
 }
 
@@ -457,12 +627,17 @@ export async function closeRound(data: IWsData): Promise<WsResult> {
 
   gameData.players[gameData.looser!]!.lostRounds += 1;
   gameData.playerInTurn = gameData.looser!;
-  gameData.players.forEach((p) => (p.playedRounds += 1));
+  gameData.players.forEach((p) => {
+    if (!p.pendingTable) p.playedRounds += 1;
+  });
   gameData.status = "waitingNewRound";
+  clearPendingTable(gameData);
 
   roomData.game = gameData;
   roomData.markModified("game");
   await roomData.save();
+
+  cancelRoomIdle(data.roomName);
 
   return { event: "gameUpdate", data: roomData };
 }
@@ -480,6 +655,8 @@ export async function selectNext(data: IWsData): Promise<WsResult> {
   roomData.game.status = "selectingNext";
   roomData.markModified("game");
   await roomData.save();
+
+  touchRoomIdle(data.roomName);
 
   return { event: "gameUpdate", data: roomData };
 }
@@ -503,11 +680,9 @@ export async function newRound(
   gameData.playerStart = startIx;
   gameData.playerInTurn = startIx;
   gameData.inGamePlayers = [];
+  clearPendingTable(gameData);
   gameData.players.forEach((p) => {
-    p.bet = null;
-    p.coins = null;
-    p.lifted = true;
-    p.saved = false;
+    resetHandFields(p);
     gameData.inGamePlayers.push(p.name);
   });
   gameData.activePlayers = gameData.inGamePlayers.length;
@@ -516,8 +691,11 @@ export async function newRound(
   gameData.totalCoins = null;
 
   roomData.game = gameData;
+  syncRoomStatus(roomData);
   roomData.markModified("game");
   await roomData.save();
+
+  scheduleRoomIdle(data.roomName);
 
   return { event: "gameUpdate", data: roomData };
 }
@@ -532,41 +710,17 @@ export async function gameStop(data: IWsData): Promise<WsResult> {
 
   const gameData = roomData.game;
 
-  // Persist per-player stats to User + Ranking (awaited so scores are stored
-  // before responding).
   for (const p of gameData.players) {
-    const user = await UserModel.findOne({ userName: p.name }).setOptions({
-      sanitizeFilter: true,
-    });
-    if (!user) continue;
-
-    user.playedGames += p.playedRounds;
-    user.wonGames.first += p.wonRounds.first;
-    user.wonGames.won5 += p.wonRounds.won5;
-    user.wonGames.won4 += p.wonRounds.won4;
-    user.wonGames.won3 += p.wonRounds.won3;
-    user.wonGames.won2 += p.wonRounds.won2;
-    user.lostGames += p.lostRounds;
-    user.points += p.points;
-    await user.save();
-
-    await RankingModel.create({
-      userName: user.userName,
-      wonRounds: p.wonRounds,
-      lostRounds: p.lostRounds,
-      points: p.points,
-      playedRounds: p.playedRounds,
-    });
+    await persistPlayerStats(p);
   }
 
   gameData.status = "waitingStart";
   gameData.playerStart = 0;
   gameData.playerInTurn = 0;
   gameData.players.forEach((p) => {
-    p.bet = null;
-    p.coins = null;
-    p.lifted = true;
-    p.saved = false;
+    resetHandFields(p);
+    resetSessionStats(p);
+    p.pendingTable = false;
   });
   gameData.inGamePlayers = [];
   gameData.activePlayers = 0;
@@ -575,21 +729,23 @@ export async function gameStop(data: IWsData): Promise<WsResult> {
 
   clearReconnState(gameData);
   cancelRoomReconn(data.roomName);
-
-  if (roomData.game.players.length < 5) roomData.status = "open";
+  cancelRoomIdle(data.roomName);
 
   roomData.game = gameData;
+  syncRoomStatus(roomData);
+
   roomData.markModified("game");
   await roomData.save();
 
   return { event: "stopRes", data: roomData };
 }
 
-/* ------------------------------------------------------------------ *
- * gameAbandon — end the current game without persisting stats/ranking.
- * Previously completed games (already saved via gameStop) are untouched.
- * ------------------------------------------------------------------ */
-
+/**
+ * Peer abandon after reconnection failure (in-game).
+ * Persists stats for disconnected players, removes them, then either keeps
+ * remaining players on waitingNewRound (stats conserved) or waitingStart
+ * (persist last remaining).
+ */
 export async function gameAbandon(data: IWsData): Promise<WsResult> {
   const roomData = await RoomModel.findOne({ roomName: data.roomName });
   if (!roomData) throw new WsError("non_existing_room");
@@ -597,37 +753,67 @@ export async function gameAbandon(data: IWsData): Promise<WsResult> {
   const gameData = roomData.game;
 
   if (gameData.status === "waitingStart") {
-    return { event: "stopRes", data: roomData };
+    return { event: "stopRes", data: roomToClientPayload(roomData) };
   }
 
-  gameData.status = "waitingStart";
-  gameData.playerStart = 0;
-  gameData.playerInTurn = 0;
-  clearReconnState(gameData);
-  cancelRoomReconn(data.roomName);
-  gameData.players.forEach((p) => {
-    p.bet = null;
-    p.coins = null;
-    p.lifted = true;
-    p.saved = false;
-    p.playedRounds = 0;
-    p.wonRounds = { first: 0, won5: 0, won4: 0, won3: 0, won2: 0 };
-    p.lostRounds = 0;
-    p.points = 0;
-  });
-  gameData.inGamePlayers = [];
-  gameData.activePlayers = 0;
-  gameData.winner = null;
-  gameData.looser = null;
-  gameData.totalCoins = null;
+  ensureReconnFields(gameData);
+  rebuildUsersReconn(gameData);
 
-  if (roomData.game.players.length < 5) roomData.status = "open";
+  const toRemove = [...gameData.usersReconn];
+  if (toRemove.length === 0) {
+    return { event: "stopRes", data: roomToClientPayload(roomData) };
+  }
 
-  roomData.game = gameData;
-  roomData.markModified("game");
-  await roomData.save();
+  return removePlayersAndSettle(roomData, toRemove);
+}
 
-  return { event: "stopRes", data: roomData };
+/**
+ * 30 minutes without game activity while a hand/round is in progress (or paused
+ * for reconnection): remove the blocking player(s), persist their stats, and
+ * send the rest to Nueva partida (≥2) or waitingStart (1).
+ */
+export async function processIdleTimeout(
+  roomName: string,
+): Promise<WsResult | null> {
+  for (;;) {
+    if (roomLocked.includes(roomName)) {
+      await waitTick();
+      continue;
+    }
+
+    lockRoom(roomName);
+    try {
+      const roomData = await RoomModel.findOne({ roomName }).setOptions({
+        sanitizeFilter: true,
+      });
+      if (!roomData) return null;
+
+      const gameData = roomData.game;
+      ensureReconnFields(gameData);
+
+      const paused = Boolean(gameData.gameInPause);
+      if (!paused && !isMidGameStatus(gameData.status)) {
+        return null;
+      }
+
+      let toRemove: string[] = [];
+      if (paused) {
+        rebuildUsersReconn(gameData);
+        toRemove = [...gameData.usersReconn];
+      } else {
+        const turn = gameData.players[gameData.playerInTurn];
+        if (turn && !turn.pendingTable) {
+          toRemove = [turn.name];
+        }
+      }
+
+      if (toRemove.length === 0) return null;
+
+      return await removePlayersAndSettle(roomData, toRemove);
+    } finally {
+      unlockRoom(roomName);
+    }
+  }
 }
 
 /* ------------------------------------------------------------------ *
@@ -683,23 +869,28 @@ export async function disconnectUser(
         if (ix !== -1) {
           const player = gameData.players[ix]!;
           // Stale close after a faster reconnect: keep the new session.
+          // Provisional HTTP ids must not block a real WebSocket disconnect.
           if (
             socketId &&
             player.socketId &&
-            player.socketId !== socketId
+            player.socketId !== socketId &&
+            !isHttpSocketId(player.socketId)
           ) {
             return { event: "userSync", data: null };
           }
 
           player.online = false;
           player.socketId = "";
-          if (gameData.status !== "waitingStart") {
-            if (!gameData.usersReconn.includes(data.playerName))
-              gameData.usersReconn.push(data.playerName);
-            gameData.gameInPause = true;
-            gameData.reconnFailed = false;
-            gameData.reconnAttempt = 0;
-            schedulePlayerReconn(data.roomName, data.playerName);
+          if (!gameData.usersReconn.includes(data.playerName)) {
+            gameData.usersReconn.push(data.playerName);
+          }
+          gameData.gameInPause = true;
+          gameData.reconnFailed = false;
+          gameData.reconnAttempt = 0;
+          schedulePlayerReconn(data.roomName, data.playerName);
+          // Keep a 30m backstop if peers never abandon a mid-game pause.
+          if (isMidGameStatus(gameData.status)) {
+            scheduleRoomIdle(data.roomName);
           }
           roomData.game = gameData;
           roomData.markModified("game");
@@ -747,21 +938,67 @@ export async function processReconnTimeout(
       ensureReconnFields(gameData);
 
       const player = gameData.players.find((p) => p.name === playerName);
-      if (!player || player.online || gameData.status === "waitingStart") {
+      if (!player || player.online) {
         return null;
       }
 
+      // Lobby / waitingNewRound (2C): one window, then kick + persist.
+      if (isLobbyOrNewRound(gameData.status)) {
+        await persistPlayerStats(player);
+        cancelPlayerReconn(roomName, playerName);
+        const ix = gameData.players.findIndex((p) => p.name === playerName);
+        if (ix !== -1) gameData.players.splice(ix, 1);
+
+        gameData.usersReconn = gameData.usersReconn.filter(
+          (n) => n !== playerName,
+        );
+        if (gameData.usersReconn.length === 0) {
+          clearReconnState(gameData);
+        }
+
+        if (
+          gameData.status === "waitingNewRound" &&
+          gameData.players.length === 1
+        ) {
+          await persistPlayerStats(gameData.players[0]!);
+          resetSessionStats(gameData.players[0]!);
+          resetHandFields(gameData.players[0]!);
+          gameData.status = "waitingStart";
+          gameData.inGamePlayers = [];
+          gameData.activePlayers = 0;
+          clearReconnState(gameData);
+          cancelRoomReconn(roomName);
+        } else if (gameData.players.length === 0) {
+          gameData.status = "waitingStart";
+          clearReconnState(gameData);
+        }
+
+        roomData.game = gameData;
+        syncRoomStatus(roomData);
+
+        if (gameData.players.length === 0 && roomData.roomType === "public") {
+          await RoomModel.deleteOne({ roomName }).setOptions({
+            sanitizeFilter: true,
+          });
+          return { event: "userSync", data: null };
+        }
+
+        roomData.markModified("game");
+        await roomData.save();
+
+        return {
+          event: "userSync",
+          data: roomToClientPayload(roomData),
+        };
+      }
+
+      // In-game: mark reconnection failed (peers may retry or abandon).
       if (!gameData.usersReconn.includes(playerName)) {
         gameData.usersReconn.push(playerName);
       }
       gameData.gameInPause = true;
       gameData.reconnAttempt += 1;
-
-      if (gameData.reconnAttempt >= MAX_SERVER_RECONN_ATTEMPTS) {
-        gameData.reconnFailed = true;
-      } else {
-        schedulePlayerReconn(roomName, playerName);
-      }
+      gameData.reconnFailed = true;
 
       roomData.game = gameData;
       roomData.markModified("game");
@@ -813,6 +1050,17 @@ setReconnTimeoutHandler(async (roomName, playerName) => {
     }
   } catch (err) {
     console.error("[reconn] timeout error:", err);
+  }
+});
+
+setIdleTimeoutHandler(async (roomName) => {
+  try {
+    const result = await processIdleTimeout(roomName);
+    if (result?.data) {
+      pushToRoom(roomName, result.event, result.data);
+    }
+  } catch (err) {
+    console.error("[idle] timeout error:", err);
   }
 });
 

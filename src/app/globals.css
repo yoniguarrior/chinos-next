@@ -5,6 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --breakpoint-xs: 26rem;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-open-sans), "Open Sans", sans-serif;
@@ -147,7 +148,7 @@ html.room .site-footer {
 }
 
 html.pwa-mobile .site-footer {
-  @apply transition-[transform,opacity] duration-[250ms] ease-in-out;
+  @apply transition-[transform,opacity] duration-250 ease-in-out;
 }
 
 html.pwa-mobile:not(.pwa-immersive) .site-footer {
@@ -162,11 +163,12 @@ html.pwa-mobile.pwa-immersive .site-footer {
   --header-height: 6.5vh;
   --label-font-size: 1.61vh;
   --action-btn-dim: 3.15vh;
-  --gb-dim: 96vw;
-  --circle-radius: 32vw;
+  --gb-dim: 100vw;
+  --circle-radius: 34vw;
   /* Redesign (2a): seat, badge and coin sizes proportional to the board. */
-  --avatar-size: calc(var(--gb-dim) * 0.205);
-  --badge-size: calc(var(--gb-dim) * 0.0615);
+  --gb-dim-extra: calc(var(--gb-dim) + 3vh);
+  --avatar-size: calc(var(--gb-dim) * 0.25);
+  --badge-size: calc(var(--gb-dim) * 0.08);
   --coin-size: calc(var(--gb-dim) * 0.0718);
 }
 
@@ -241,7 +243,7 @@ main {
 }
 
 .main-content {
-  @apply mx-auto w-95/100 max-w-97.5 flex-1 px-4 py-6 md:w-85/100;
+  @apply mx-auto w-full max-w-97.5 flex-1 px-4 py-6 xs:w-95/100 md:w-85/100;
 }
 
 .room-content {
@@ -481,11 +483,11 @@ main {
 }
 
 .modal-overlay {
-  @apply pointer-events-auto fixed inset-0 z-999 bg-black/50 transition duration-200;
+  @apply pointer-events-auto fixed inset-0 z-2000 flex h-dvh w-screen items-center justify-center bg-black/50 transition duration-200;
 }
 
 .modal-window {
-  @apply absolute top-1/2 left-1/2 mb-2 max-w-full -translate-x-1/2 -translate-y-1/2 transform rounded-[16px] border border-ch-accent-dim bg-ch-panel p-2 opacity-100 shadow-lg last:mb-0;
+  @apply relative z-1 m-4 max-h-[min(100dvh-2rem,100%)] w-[min(100vw-2rem,330px)] overflow-y-auto rounded-[16px] border border-ch-accent-dim bg-ch-panel p-0 shadow-lg;
 }
 
 .play-container {
@@ -493,7 +495,7 @@ main {
 }
 
 .play-container.playing {
-  @apply grid-rows-[minmax(0,var(--gb-dim))_minmax(0,1fr)];
+  @apply grid-rows-[minmax(0,var(--gb-dim-extra))_minmax(0,1fr)];
 }
 
 .play-container.waiting-room {
@@ -501,11 +503,11 @@ main {
 }
 
 .play-container.waiting-room .waiting-start {
-  @apply min-h-0 flex-1 justify-center overflow-y-auto py-8;
+  @apply min-h-0 flex-1 justify-start overflow-y-auto;
 }
 
 #game-msg {
-  @apply z-1000 my-0;
+  @apply relative z-10 my-0;
 }
 
 #game-msg .btns-group {
@@ -524,8 +526,12 @@ main {
   @apply fixed right-4 bottom-[max(1rem,calc(env(safe-area-inset-bottom)+0.5rem))] z-50 flex h-12 w-12 items-center justify-center rounded-full border border-ch-accent-dim bg-ch-panel text-ch-text-dim shadow-xl transition-all hover:border-ch-accent hover:text-ch-accent;
 }
 
+.chat-fab-container {
+  @apply border-t border-ch-accent/15;
+}
+
 .chat-preview {
-  @apply flex h-11 w-full shrink-0 cursor-pointer items-center gap-2 border-t border-ch-accent/15 bg-ch-bg px-4.5 pb-4 pt-2 text-left transition hover:bg-ch-bg2;
+  @apply flex h-11 w-full shrink-0 cursor-pointer items-center gap-2 bg-ch-bg px-4.5 pb-4 pt-2 text-left transition hover:bg-ch-bg2;
 }
 
 .chat-preview-label {
@@ -663,7 +669,7 @@ main {
  * ------------------------------------------------------------------ */
 
 .game-box {
-  @apply relative mx-auto flex h-(--gb-dim) max-h-full w-full items-center justify-center;
+  @apply relative mx-auto flex h-(--gb-dim-extra) w-full items-center;
 }
 
 .game-board {
@@ -729,7 +735,7 @@ main {
 
 /* Ready check — player already hid coins (design 6a) */
 .player-ready {
-  @apply absolute top-[-4px] right-[-4px] z-4 flex h-[22px] w-[22px] items-center justify-center rounded-full border-2 border-[#4f8f4f] bg-ch-win text-[12px] font-bold leading-none text-[#132313];
+  @apply absolute top-0 right-0 z-4 flex h-5.5 w-5.5 items-center justify-center rounded-full border-2 border-[#4f8f4f] bg-ch-win text-[12px] font-bold leading-none text-[#132313];
 }
 
 .game-pause {
@@ -748,12 +754,12 @@ main {
 
 /* Revealed coins — solid gold badge centered (showing + hand result) */
 .player-coins.revealed {
-  @apply h-(--coin-size) w-(--coin-size) border-2 border-[#8a6a2c] bg-ch-accent text-[length:calc(var(--coin-size)*0.46)] text-ch-on-accent;
+  @apply h-(--coin-size) w-(--coin-size) border-2 border-[#8a6a2c] bg-ch-accent text-[calc(var(--coin-size)*0.46)] text-ch-on-accent;
 }
 
 /* Bet badge — top-right of avatar */
 .player-bet {
-  @apply top-[-4px] right-[-4px] h-(--badge-size) w-(--badge-size) border-2 border-[#8a6a2c] bg-ch-accent text-[length:calc(var(--badge-size)*0.5)] text-ch-on-accent;
+  @apply -top-1 -right-1 h-(--badge-size) w-(--badge-size) border-2 border-[#8a6a2c] bg-ch-accent text-sm text-ch-on-accent;
 }
 
 .player-bet.muted {
@@ -765,7 +771,7 @@ main {
 }
 
 .player-name {
-  @apply m-0 p-0 font-heading text-[13px] font-semibold leading-tight text-ch-text;
+  @apply m-0 p-0 font-heading text-sm font-semibold leading-tight text-ch-text;
 }
 
 .player-view.waiting-turn .player-avatar {
@@ -887,11 +893,11 @@ main {
 }
 
 .site-footer {
-  @apply border-t-0 bg-transparent px-4.5 pt-6 pb-4.5;
+  @apply border-t border-ch-accent-dim bg-transparent px-4 pt-2 pb-2;
 }
 
 .footer-links {
-  @apply mb-2.5 flex justify-center gap-3.5;
+  @apply mb-2 flex justify-center gap-3.5;
 }
 
 .footer-link {
@@ -931,15 +937,15 @@ main {
 }
 
 .home-divider {
-  @apply mx-7 my-7 border-0 border-t border-ch-accent-dim;
+  @apply mx-5 my-6 border-0 border-t border-ch-accent-dim;
 }
 
 .home-cards {
-  @apply flex flex-col gap-4 px-6 pb-6;
+  @apply flex flex-col gap-4 px-4 pb-6;
 }
 
 .home-card {
-  @apply rounded-[16px] border border-ch-accent-dim bg-ch-panel p-5;
+  @apply rounded-[16px] border border-ch-accent-dim bg-ch-panel p-4;
 }
 
 .home-card-title {
@@ -1039,7 +1045,7 @@ main {
 
 /* Forms (3a, 3b, 4b) */
 .form-panel {
-  @apply rounded-[16px] border border-ch-accent-dim bg-ch-panel p-5.5;
+  @apply rounded-[16px] border border-ch-accent-dim bg-ch-panel p-5;
 }
 
 .form-panel-stack form {
@@ -1110,9 +1116,6 @@ main {
   @apply mb-5 text-center font-heading text-lg font-bold text-ch-text;
 }
 
-.modal-window:has(.create-room-form) {
-  @apply w-[min(100vw-2rem,330px)] rounded-[18px] border border-ch-accent-dim bg-ch-panel p-0;
-}
 
 /* Ranking (2a) */
 .ranking-page {
@@ -1285,7 +1288,7 @@ main {
 }
 
 .waiting-start {
-  @apply flex flex-col items-center gap-5.5 px-7 text-center;
+  @apply flex flex-col items-center gap-5.5 px-5 text-center py-8;
 }
 
 .waiting-start h2 {

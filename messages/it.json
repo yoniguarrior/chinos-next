@@ -105,7 +105,11 @@
     "user_blocked": "L'utente è stato bloccato, riprova più tardi.",
     "user_not_found": "Il nome non corrisponde a nessun utente registrato",
     "ws_connection_error": "Impossibile connettersi al gioco in tempo reale",
-    "ws_sync_timeout": "Nessuna risposta dal server all'ingresso nella sala"
+    "ws_sync_timeout": "Nessuna risposta dal server all'ingresso nella sala",
+    "unknown_event": "Evento di gioco non riconosciuto",
+    "game_in_play": "Non puoi unirti: la partita è già iniziata",
+    "idle_timeout": "Sei stato rimosso dalla sala {roomName} per inattività",
+    "idle_timeout_exp": "Dopo 30 minuti senza attività nella partita, le tue stats delle mani precedenti sono state registrate (se sei registrato) e gli altri giocatori possono continuare o uscire."
   },
   "errors": {
     "invalid_email": ""
@@ -136,7 +140,18 @@
     "takingCoins": "Esce da {nome}.\nÈ ora di ottenere monete",
     "takingCoins_error": "Devi inserire una cifra tra 0 e 3",
     "waitingNewRound": "Continuare con un nuovo gioco?",
-    "waitingStart": "In attesa dell'inizio del gioco"
+    "waitingStart": "In attesa dell'inizio del gioco",
+    "reconn_pause_title": "Gioco in pausa",
+    "reconn_waiting_text": "In attesa della riconnessione di {names}",
+    "reconn_failed_title": "Impossibile ripristinare la connessione",
+    "reconn_failed_text": "Impossibile riconnettere {names}. Potete riprovare per un altro minuto o abbandonare la partita.",
+    "reconn_attempt": "Tentativo {current} di {max}",
+    "reconn_retry": "Riprova",
+    "reconn_abandon": "Abbandona",
+    "reconn_and": "e",
+    "self_reconn_title": "Connessione persa",
+    "self_reconn_text": "La connessione al server è stata persa. Tentativo di riconnessione…",
+    "self_reconn_abandon": "Abbandona"
   },
   "goto": "Vai a",
   "home": {

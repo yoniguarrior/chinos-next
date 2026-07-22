@@ -20,9 +20,9 @@ export function SiteFooter() {
           {t("menu.legal")}
         </Link>
       </nav>
-      <p className="footer-copy">
+      <div className="footer-copy">
         {t("misc.footer_copyright", { year })}
-      </p>
+      </div>
     </footer>
   );
 }

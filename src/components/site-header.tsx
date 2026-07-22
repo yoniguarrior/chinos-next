@@ -41,8 +41,8 @@ export function SiteHeader() {
   const closeMobMenu = () => setMobMenuOpen(false);
 
   return (
-    <div className="main-header">
-      <div className="mx-auto max-w-205 px-4.5 py-4">
+    <div className="main-header relative z-50">
+      <div className="mx-auto max-w-205 px-4 py-4">
         <div className="flex items-center justify-between">
           <div className="shrink-0">
               <Logo src="/logo-icon.svg" alt={t("misc.alt_logo")} className="h-8.5 w-8.5" />
@@ -73,8 +73,11 @@ export function SiteHeader() {
         </div>
       </div>
       {mobMenuOpen && (
-        <div id="mobile-menu" className="border-t border-ch-accent-dim px-4 pb-3 md:hidden">
-          <div className="flex flex-col space-y-1 pt-2">
+        <div
+          id="mobile-menu"
+          className="mobile-menu-panel absolute inset-x-0 top-full z-50 border-b border-ch-accent-dim bg-ch-bg px-4 pb-3 shadow-lg md:hidden"
+        >
+          <div className="mx-auto flex max-w-205 flex-col space-y-1 pt-2">
             <NavBar menuItems={mainMenuItems} onNavigate={closeMobMenu} vertical />
             <NavBar menuItems={userMenuItems} onNavigate={closeMobMenu} vertical />
           </div>
