@@ -10,8 +10,10 @@ const EXIT_WINDOW_MS = 3000;
 const BLOCK_STATE = { mobileBackTrap: true } as const;
 
 /**
- * In the installed mobile PWA, the system back button must NOT navigate.
- * Outside a room: first press shows "press again to exit"; second press exits.
+ * Installed mobile PWA: system back must not navigate.
+ * - First press: centered "press again to exit" toast (3s window).
+ * - Second press within the window: leave the app.
+ * - After the window expires: next press shows the toast again (does not exit).
  * Inside a room: back is swallowed (leave only via in-app UI).
  */
 export function MobileBackGuard() {
@@ -21,13 +23,33 @@ export function MobileBackGuard() {
   const [showTooltip, setShowTooltip] = useState(false);
   const armedRef = useRef(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  /** Route we must stay on when the system back button is pressed. */
   const stayPathRef = useRef(pathname);
+  const routerRef = useRef(router);
+
+  useEffect(() => {
+    routerRef.current = router;
+  }, [router]);
 
   useEffect(() => {
     stayPathRef.current = pathname;
   }, [pathname]);
 
+  // After in-app navigations, reset the exit arm and keep a trap on the new route.
+  useEffect(() => {
+    if (!isMobileDevice() || !isStandalonePwa()) return;
+
+    armedRef.current = false;
+    setShowTooltip(false);
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = undefined;
+    }
+
+    window.history.pushState(BLOCK_STATE, "", pathname);
+  }, [pathname]);
+
+  // Stable back listener (must NOT rebind on every pathname change — that was
+  // clearing the 3s timer while leaving armed=true, so the next back always exited).
   useEffect(() => {
     if (!isMobileDevice() || !isStandalonePwa()) return;
 
@@ -37,20 +59,39 @@ export function MobileBackGuard() {
 
     const disarmExit = () => {
       armedRef.current = false;
-      if (timerRef.current) clearTimeout(timerRef.current);
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = undefined;
+      }
       setShowTooltip(false);
     };
 
     const exitApp = () => {
+      disarmExit();
       window.close();
+      // Android installed PWAs often ignore window.close(); drain history instead.
       window.history.go(-Math.max(window.history.length - 1, 1));
     };
 
-    const onBackIntent = () => {
-      if (isInRoom(stayPathRef.current)) return;
+    // Seed two traps so the first system-back cannot empty the stack (Android
+    // closes the PWA when there is nothing left to pop, sometimes without popstate).
+    pushTrap();
+    pushTrap();
+
+    const onPopState = () => {
+      const stayOn = stayPathRef.current;
+
+      // Restore depth immediately so Android does not treat this as "leave app".
+      pushTrap(stayOn);
+      pushTrap(stayOn);
+
+      if (window.location.pathname !== stayOn) {
+        routerRef.current.replace(stayOn);
+      }
+
+      if (isInRoom(stayOn)) return;
 
       if (armedRef.current) {
-        disarmExit();
         exitApp();
         return;
       }
@@ -61,32 +102,18 @@ export function MobileBackGuard() {
       timerRef.current = setTimeout(disarmExit, EXIT_WINDOW_MS);
     };
 
-    // Keep a disposable history entry above the real page for this route.
-    pushTrap();
-
-    const onPopState = () => {
-      const stayOn = stayPathRef.current;
-      // Browser already moved history; put the URL back before Next keeps the
-      // previous route, then re-arm the trap.
-      pushTrap(stayOn);
-      if (window.location.pathname !== stayOn) {
-        router.replace(stayOn);
-      }
-      onBackIntent();
-    };
-
     window.addEventListener("popstate", onPopState);
     return () => {
       window.removeEventListener("popstate", onPopState);
-      if (timerRef.current) clearTimeout(timerRef.current);
+      disarmExit();
     };
-  }, [pathname, router]);
+  }, []);
 
   return (
     <div
       role="status"
       aria-live="polite"
-      className="pointer-events-none fixed bottom-5 left-1/2 z-9999 -translate-x-1/2 rounded-lg bg-black/80 px-5 py-2.5 text-sm text-white transition-opacity duration-300"
+      className="pointer-events-none fixed top-1/2 left-1/2 z-9999 -translate-x-1/2 -translate-y-1/2 rounded-lg bg-black/80 px-5 py-2.5 text-sm text-white transition-opacity duration-300"
       style={{ opacity: showTooltip ? 1 : 0 }}
     >
       {t("press_back_again_to_exit")}

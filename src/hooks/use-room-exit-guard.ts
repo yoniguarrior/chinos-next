@@ -42,9 +42,11 @@ export function useRoomExitGuard({
     };
 
     pushTrap();
+    pushTrap();
 
     const onPopState = () => {
       const stayOn = stayPathRef.current;
+      pushTrap(stayOn);
       pushTrap(stayOn);
       if (window.location.pathname !== stayOn) {
         router.replace(stayOn);
