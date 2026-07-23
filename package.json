@@ -1,6 +1,6 @@
 {
   "name": "Juego de Los Chinos",
-  "version": "5.2.1",
+  "version": "5.2.2",
   "private": true,
   "scripts": {
     "build:ws": "tsc -p tsconfig.server.json",

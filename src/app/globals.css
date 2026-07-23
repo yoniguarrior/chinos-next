@@ -487,7 +487,7 @@ main {
 }
 
 .modal-window {
-  @apply relative z-1 m-4 max-h-[min(100dvh-2rem,100%)] w-[min(100vw-2rem,330px)] overflow-y-auto rounded-[16px] border border-ch-accent-dim bg-ch-panel p-0 shadow-lg;
+  @apply relative z-1 m-4 max-h-[min(100dvh-2rem,100%)] w-[min(100vw-2rem,390px)] overflow-y-auto rounded-[16px] border border-ch-accent-dim bg-ch-panel p-0 shadow-lg;
 }
 
 .play-container {

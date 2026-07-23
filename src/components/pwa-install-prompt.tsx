@@ -123,13 +123,13 @@ export function PwaInstallPrompt() {
 
   return (
     <BaseModal>
-      <div className="card-body w-[min(100vw-2rem,24rem)] text-center">
+      <div className="card-body text-center">
         <h3 className="mb-2 text-lg font-semibold">{t("pwa.install_title")}</h3>
         <p className="mb-6 text-sm text-ch-text-dim">
           {iosHint ? t("pwa.ios_install_text") : t("pwa.install_text")}
         </p>
         <div className="flex justify-center gap-3">
-          <button type="button" className="btn" onClick={dismiss}>
+          <button type="button" className="card-btn" onClick={dismiss}>
             {t("pwa.dismiss")}
           </button>
           {!iosHint && (
