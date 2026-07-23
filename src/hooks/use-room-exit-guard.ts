@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type RefObject } from "react";
+import { usePathname, useRouter } from "next/navigation";
 
 const BLOCK_STATE = { roomBackTrap: true } as const;
 
@@ -22,21 +23,32 @@ export function useRoomExitGuard({
   gameInPlay,
   exitingViaAppRef,
 }: UseRoomExitGuardOptions): void {
+  const pathname = usePathname();
+  const router = useRouter();
   const gameInPlayRef = useRef(gameInPlay);
+  const stayPathRef = useRef(pathname);
 
   useEffect(() => {
     gameInPlayRef.current = gameInPlay;
   }, [gameInPlay]);
 
   useEffect(() => {
-    const pushTrap = () => {
-      window.history.pushState(BLOCK_STATE, "", window.location.href);
+    stayPathRef.current = pathname;
+  }, [pathname]);
+
+  useEffect(() => {
+    const pushTrap = (path = stayPathRef.current) => {
+      window.history.pushState(BLOCK_STATE, "", path);
     };
 
     pushTrap();
 
     const onPopState = () => {
-      pushTrap();
+      const stayOn = stayPathRef.current;
+      pushTrap(stayOn);
+      if (window.location.pathname !== stayOn) {
+        router.replace(stayOn);
+      }
     };
 
     const onBeforeUnload = (event: BeforeUnloadEvent) => {
@@ -53,5 +65,5 @@ export function useRoomExitGuard({
       window.removeEventListener("popstate", onPopState);
       window.removeEventListener("beforeunload", onBeforeUnload);
     };
-  }, [exitingViaAppRef]);
+  }, [exitingViaAppRef, pathname, router]);
 }

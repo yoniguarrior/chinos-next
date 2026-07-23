@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { isInRoom } from "@/lib/in-room";
 import { isMobileDevice, isStandalonePwa } from "@/lib/mobile";
@@ -10,27 +10,29 @@ const EXIT_WINDOW_MS = 3000;
 const BLOCK_STATE = { mobileBackTrap: true } as const;
 
 /**
- * In the installed mobile PWA (outside a room), replaces the hardware back
- * button with a double-press-to-exit flow. While inside a room, back is fully
- * blocked until the player leaves via the in-app exit flow.
+ * In the installed mobile PWA, the system back button must NOT navigate.
+ * Outside a room: first press shows "press again to exit"; second press exits.
+ * Inside a room: back is swallowed (leave only via in-app UI).
  */
 export function MobileBackGuard() {
   const pathname = usePathname();
+  const router = useRouter();
   const t = useTranslations("misc");
   const [showTooltip, setShowTooltip] = useState(false);
   const armedRef = useRef(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const pathnameRef = useRef(pathname);
+  /** Route we must stay on when the system back button is pressed. */
+  const stayPathRef = useRef(pathname);
 
   useEffect(() => {
-    pathnameRef.current = pathname;
+    stayPathRef.current = pathname;
   }, [pathname]);
 
   useEffect(() => {
     if (!isMobileDevice() || !isStandalonePwa()) return;
 
-    const pushTrap = () => {
-      window.history.pushState(BLOCK_STATE, "", window.location.href);
+    const pushTrap = (path = stayPathRef.current) => {
+      window.history.pushState(BLOCK_STATE, "", path);
     };
 
     const disarmExit = () => {
@@ -44,10 +46,8 @@ export function MobileBackGuard() {
       window.history.go(-Math.max(window.history.length - 1, 1));
     };
 
-    const handleBack = () => {
-      if (isInRoom(pathnameRef.current)) {
-        return;
-      }
+    const onBackIntent = () => {
+      if (isInRoom(stayPathRef.current)) return;
 
       if (armedRef.current) {
         disarmExit();
@@ -61,11 +61,18 @@ export function MobileBackGuard() {
       timerRef.current = setTimeout(disarmExit, EXIT_WINDOW_MS);
     };
 
+    // Keep a disposable history entry above the real page for this route.
     pushTrap();
 
     const onPopState = () => {
-      pushTrap();
-      handleBack();
+      const stayOn = stayPathRef.current;
+      // Browser already moved history; put the URL back before Next keeps the
+      // previous route, then re-arm the trap.
+      pushTrap(stayOn);
+      if (window.location.pathname !== stayOn) {
+        router.replace(stayOn);
+      }
+      onBackIntent();
     };
 
     window.addEventListener("popstate", onPopState);
@@ -73,7 +80,7 @@ export function MobileBackGuard() {
       window.removeEventListener("popstate", onPopState);
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, []);
+  }, [pathname, router]);
 
   return (
     <div
