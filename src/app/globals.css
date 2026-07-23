@@ -913,15 +913,15 @@ main {
 }
 
 .home-hero {
-  @apply flex flex-col items-center px-7 pt-9 pb-2 text-center;
+  @apply flex flex-col items-center px-7 pt-6 pb-0 text-center;
 }
 
 .home-hero-logo {
-  @apply mb-5 block h-26 w-26;
+  @apply mb-4 block h-26 w-26;
 }
 
 .home-kicker {
-  @apply mb-1.5 font-sans text-xs font-semibold tracking-[0.12em] text-ch-accent uppercase;
+  @apply my-1.5 font-sans text-xs font-semibold tracking-[0.12em] text-ch-accent uppercase;
 }
 
 .home-title {
@@ -937,7 +937,7 @@ main {
 }
 
 .home-divider {
-  @apply mx-5 my-6 border-0 border-t border-ch-accent-dim;
+  @apply mx-3 my-5 border-0 border-t border-ch-accent-dim;
 }
 
 .home-cards {
