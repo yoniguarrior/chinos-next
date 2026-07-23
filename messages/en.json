@@ -227,7 +227,8 @@
     "dismiss": "Not now",
     "install": "Install",
     "install_text": "Install Los Chinos on your device to play faster and in full screen.",
-    "install_title": "Install the app"
+    "install_title": "Install the app",
+    "ios_install_text": "In Safari, tap Share and choose “Add to Home Screen” to install the app."
   },
   "no_viable_bet": "It's already said",
   "page": {},

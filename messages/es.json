@@ -228,7 +228,8 @@
     "dismiss": "Ahora no",
     "install": "Instalar",
     "install_text": "Instala Los Chinos en tu dispositivo para jugar más rápido y a pantalla completa.",
-    "install_title": "Instalar la app"
+    "install_title": "Instalar la app",
+    "ios_install_text": "En Safari, toca Compartir y elige «Añadir a pantalla de inicio» para instalar la app."
   },
   "no_viable_bet": "Ya está dicho",
   "page": {},
